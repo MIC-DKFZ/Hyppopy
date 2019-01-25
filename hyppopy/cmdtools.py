@@ -17,7 +17,7 @@ import argparse
 import logging
 LOG = logging.getLogger('hyppopy')
 
-from hypopy.solver_factory import SolverFactory
+from hyppopy.solver_factory import SolverFactory
 
 
 def cmd_workflow():
