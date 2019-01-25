@@ -1,0 +1,13 @@
+# sphinx is used for building the documentation
+sphinx
+
+# xmlrunner is used in tests.py and needed to get nicely formatted output for
+# jenkins to interpret.
+xmlrunner
+
+# yapsy is a plugin manager package
+yapsy
+
+# you can also specify specific version here, as e.g.
+# Framework==0.9.4
+# Library>=0.2
