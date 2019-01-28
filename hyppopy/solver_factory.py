@@ -18,6 +18,8 @@
 from yapsy.PluginManager import PluginManager
 
 from .settings import PLUGIN_DEFAULT_DIR
+from .solver import Solver
+
 import logging
 LOG = logging.getLogger('hyppopy')
 
@@ -52,16 +54,9 @@ class SolverFactory(object):
 
     def get_solver(self, name, **kwargs):
         if name not in self._plugins.keys():
-            LOG.error("Solver plugin name not available")
-            raise KeyError("Solver plugin name not available")
-
-        if name == "HyperoptPlugin":
-            pass
-        elif name == "OptunityPlugin":
-            pass
-        else:
-            LOG.error("Solver plugin name does not match with key")
-            raise KeyError("Solver plugin name does not match with key")
+            LOG.error(f"Solver plugin {name} not available")
+            raise KeyError(f"Solver plugin {name} not available")
+        return self._plugins[name]
 
     def add_plugin_dir(self, dir):
         """
@@ -89,6 +84,16 @@ class SolverFactory(object):
         manager.setPluginPlaces(self._plugin_dirs)
         manager.collectPlugins()
         for plugin in manager.getAllPlugins():
-            self._plugins[plugin.plugin_object.__class__.__name__] = plugin.plugin_object
-            LOG.info(f"Plugin: {plugin.plugin_object.__class__.__name__} loaded")
+            name, type = plugin.plugin_object.__class__.__name__.split("_")
+            if name not in self._plugins.keys():
+                self._plugins[name] = Solver(name)
+            if type == "Solver":
+                self._plugins[name].set_solver(plugin.plugin_object.__class__())
+                LOG.info(f"Plugin: {name} Solver loaded")
+            elif type == "ParameterSpace":
+                self._plugins[name].set_parameter(plugin.plugin_object.__class__())
+                LOG.info(f"Plugin: {name} ParameterSpace loaded")
+            else:
+                LOG.error(f"Failed loading plugin {name}! Please check if naming conventions are kept!")
+                raise IOError(f"Failed loading plugin {name}! Please check if naming conventions are kept!")
 

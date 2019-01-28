@@ -1,0 +1,9 @@
+[Core]
+Name = hyperopt
+Module = hyperopt_solver_plugin
+
+[Documentation]
+Author = Sven Wanner
+Version = 0.1
+Website = https://github.com/hyperopt/hyperopt
+Description = Hyperopt Solver Plugin

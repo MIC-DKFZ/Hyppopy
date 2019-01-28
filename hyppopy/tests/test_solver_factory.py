@@ -20,15 +20,15 @@ import unittest
 from hyppopy.solver_factory import SolverFactory
 
 
-class PluginMechanismTestSuite(unittest.TestCase):
+class SolverFactoryTestSuite(unittest.TestCase):
 
     def setUp(self):
         pass
 
-    def test_factory_build(self):
+    def test_plugin_load(self):
         factory = SolverFactory.instance()
-        print(factory.get_solver_names())
-        factory.get_solver("HyperoptPlugin")
+        for solver_name in factory.get_solver_names():
+            self.assertTrue(factory.get_solver(solver_name).is_ready())
 
 
 if __name__ == '__main__':

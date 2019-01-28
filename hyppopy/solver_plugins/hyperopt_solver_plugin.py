@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+#
 # DKFZ
+#
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical and Biological Informatics.
@@ -9,24 +12,19 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE.txt or http://www.mitk.org for details.
-
-# -*- coding: utf-8 -*-
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
 
 from yapsy.IPlugin import IPlugin
+
+from hyppopy.isolver import ISolver
+from hyppopy.iparameterspace import IParameterSpace
+
 import logging
 LOG = logging.getLogger('hyppopy')
 
-from hyppopy.isolver import ISolver
-from hyppopy.ispace import ISpace
 
-
-class HyperoptSpace(ISpace):
-
-    def convert(self):
-        pass
-
-
-class HyperoptPlugin(IPlugin, ISolver):
+class hyperopt_Solver(IPlugin, ISolver):
 
     def execute(self, *args, **kwargs):
         pass

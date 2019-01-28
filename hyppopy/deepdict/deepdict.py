@@ -63,9 +63,6 @@ class DeepDict(object):
     _sep = "/"
 
     def __init__(self, in_data=None, path_sep="/"):
-        """
-
-        """
         self.clear()
         self._sep = path_sep
         LOG.debug(f"path separator is: {self._sep}")

@@ -15,12 +15,16 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-from .isolver import ISolver
-from .ispace import ISpace
+from yapsy.IPlugin import IPlugin
 
-class Optimizer(object):
-    _isolver = None
-    _ispace = None
+from hyppopy.isolver import ISolver
+from hyppopy.iparameterspace import IParameterSpace
 
-    def __init__(self):
+import logging
+LOG = logging.getLogger('hyppopy')
+
+
+class optunity_Solver(IPlugin, ISolver):
+
+    def execute(self, *args, **kwargs):
         pass

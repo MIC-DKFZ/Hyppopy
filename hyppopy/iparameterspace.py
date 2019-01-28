@@ -15,31 +15,21 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+from hyppopy.deepdict.deepdict import DeepDict
+
 import abc
 import logging
 LOG = logging.getLogger('hyppopy')
 
 
-class ISolver(object, metaclass=abc.ABCMeta):
-    loss_function = None
-    space = None
+class IParameterSpace(DeepDict, metaclass=abc.ABCMeta):
 
-    def set_loss_function(self, func):
-        """
-        set loss function
-        """
-        self.loss_function = func
-
-    def set_space(self, space):
-        """
-        set loss function
-        """
-        self.space = space
+    def __init__(self, in_data=None):
+        DeepDict.__init__(self, in_data=in_data, path_sep='/')
 
     def status(self):
         return "ok"
 
     @abc.abstractmethod
-    def execute(self, *args, **kwargs):
-        raise NotImplementedError('users must define execute to use this base class')
-
+    def convert(self):
+        raise NotImplementedError('users must define convert to use this base class')

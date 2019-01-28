@@ -14,6 +14,7 @@
 # See LICENSE.txt or http://www.mitk.org for details.
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
+
 import os
 import unittest
 

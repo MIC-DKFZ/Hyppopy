@@ -1,9 +1,9 @@
 [Core]
-Name = Hyperopt
-Module = hyperopt_plugin
+Name = hyperopt
+Module = hyperopt_parameterspace_plugin
 
 [Documentation]
 Author = Sven Wanner
 Version = 0.1
 Website = https://github.com/hyperopt/hyperopt
-Description = Hyperopt Solver Plugin
+Description = Hyperopt ParameterSpace Plugin
