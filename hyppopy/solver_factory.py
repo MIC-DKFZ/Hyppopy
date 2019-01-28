@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+#
 # DKFZ
+#
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical and Biological Informatics.
@@ -9,8 +12,8 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE.txt or http://www.mitk.org for details.
-
-# -*- coding: utf-8 -*-
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
 
 from yapsy.PluginManager import PluginManager
 
@@ -33,7 +36,6 @@ class SolverFactory(object):
             self.reset()
             self.load_plugins()
 
-
     @staticmethod
     def instance():
         """
@@ -44,6 +46,22 @@ class SolverFactory(object):
         if SolverFactory._instance is None:
             SolverFactory()
         return SolverFactory._instance
+
+    def get_solver_names(self):
+        return list(self._plugins.keys())
+
+    def get_solver(self, name, **kwargs):
+        if name not in self._plugins.keys():
+            LOG.error("Solver plugin name not available")
+            raise KeyError("Solver plugin name not available")
+
+        if name == "HyperoptPlugin":
+            pass
+        elif name == "OptunityPlugin":
+            pass
+        else:
+            LOG.error("Solver plugin name does not match with key")
+            raise KeyError("Solver plugin name does not match with key")
 
     def add_plugin_dir(self, dir):
         """
@@ -71,6 +89,6 @@ class SolverFactory(object):
         manager.setPluginPlaces(self._plugin_dirs)
         manager.collectPlugins()
         for plugin in manager.getAllPlugins():
-            self._plugins[plugin.plugin_object.name] = plugin.plugin_object
-            LOG.info(f"Plugin: {plugin.plugin_object.name} loaded")
+            self._plugins[plugin.plugin_object.__class__.__name__] = plugin.plugin_object
+            LOG.info(f"Plugin: {plugin.plugin_object.__class__.__name__} loaded")
 

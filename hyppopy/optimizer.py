@@ -15,19 +15,12 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-import argparse
+from .isolver import ISolver
+from .ispace import ISpace
 
-import logging
-LOG = logging.getLogger('hyppopy')
+class Optimizer(object):
+    _isolver = None
+    _ispace = None
 
-from hyppopy.solver_factory import SolverFactory
-
-
-def cmd_workflow():
-    parser = argparse.ArgumentParser(description="")
-
-    parser.add_argument('-v', '--verbosity', type=int, required=False, default=0,
-                        help='number of thoughts our thinker should produce')
-
-
-    args_dict = vars(parser.parse_args())
+    def __init__(self):
+        pass

@@ -18,7 +18,7 @@ import logging
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 LOGFILENAME = os.path.join(ROOT, 'logfile.log')
-PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "solver"))
+PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "solver_plugins"))
 sys.path.insert(0, ROOT)
 
 #LOG = logging.getLogger()

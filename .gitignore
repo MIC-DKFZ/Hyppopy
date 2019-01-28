@@ -5,6 +5,8 @@ __pycache__/
 
 .pytest_cache/
 
+python_tests_xml
+
 # C extensions
 *.so
 

@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+#
 # DKFZ
+#
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical and Biological Informatics.
@@ -9,8 +12,8 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE.txt or http://www.mitk.org for details.
-
-# -*- coding: utf-8 -*-
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
 
 import unittest
 
@@ -18,17 +21,14 @@ from hyppopy.solver_factory import SolverFactory
 
 
 class PluginMechanismTestSuite(unittest.TestCase):
-    """Advanced test cases."""
 
     def setUp(self):
         pass
 
-    def test_1(self):
-        """
-
-        :return:
-        """
+    def test_factory_build(self):
         factory = SolverFactory.instance()
+        print(factory.get_solver_names())
+        factory.get_solver("HyperoptPlugin")
 
 
 if __name__ == '__main__':

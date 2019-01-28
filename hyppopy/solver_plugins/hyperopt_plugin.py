@@ -17,12 +17,17 @@ import logging
 LOG = logging.getLogger('hyppopy')
 
 from hyppopy.isolver import ISolver
+from hyppopy.ispace import ISpace
+
+
+class HyperoptSpace(ISpace):
+
+    def convert(self):
+        pass
 
 
 class HyperoptPlugin(IPlugin, ISolver):
 
-    def __init__(self):
-        self.__name__ = "HyperoptPlugin"
-
     def execute(self, *args, **kwargs):
         pass
+

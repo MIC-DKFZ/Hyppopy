@@ -1,0 +1,22 @@
+{"parameter": {
+    "learningrate": {
+        "domain": "exponential",
+        "data": "(1e-5, 10.0)",
+		"type": "float"
+    },
+    "layerdepth": { 
+        "domain": "uniform",
+        "data": "[3,20]",
+        "type": "int"
+    },
+    "normalize": {
+        "domain": "choice",
+        "data": "[0,1]",
+        "type": "int"
+    },
+	"activation": {
+        "domain": "choice",
+        "data": "[ReLU,tanh,sigm,ELU]",
+        "type": "str"
+    }
+}}  

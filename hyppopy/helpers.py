@@ -14,20 +14,3 @@
 # See LICENSE.txt or http://www.mitk.org for details.
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
-
-import argparse
-
-import logging
-LOG = logging.getLogger('hyppopy')
-
-from hyppopy.solver_factory import SolverFactory
-
-
-def cmd_workflow():
-    parser = argparse.ArgumentParser(description="")
-
-    parser.add_argument('-v', '--verbosity', type=int, required=False, default=0,
-                        help='number of thoughts our thinker should produce')
-
-
-    args_dict = vars(parser.parse_args())
