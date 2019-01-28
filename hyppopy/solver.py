@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+#
+# DKFZ
+#
+#
+# Copyright (c) German Cancer Research Center,
+# Division of Medical and Biological Informatics.
+# All rights reserved.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt or http://www.mitk.org for details.
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
+
+import logging
+LOG = logging.getLogger('hyppopy')
+
+
 class Solver(object):
     _name = None
     _solver = None
@@ -22,11 +43,28 @@ class Solver(object):
         return self._solver is not None and self._parameter is not None
 
     def set_name(self, name):
+        LOG.debug(f"set_name({name})")
         self._name = name
 
-    def set_parameter(self, obj):
-        self._parameter = obj
+    @property
+    def solver(self):
+        return self._solver
 
-    def set_solver(self, obj):
-        self._solver = obj
+    @solver.setter
+    def solver(self, value):
+        if not type(value).__name__.endswith("Solver"):
+            LOG.error("Input Error, value is not of type Solver")
+            raise IOError("Input Error, value is not of type Solver")
+        self._solver = value
+
+    @property
+    def parameter(self):
+        return self._parameter
+
+    @parameter.setter
+    def parameter(self, value):
+        if not type(value).__name__.endswith("ParameterSpace"):
+            LOG.error("Input Error, value is not of type ParameterSpace")
+            raise IOError("Input Error, value is not of type ParameterSpace")
+        self._parameter = value
 

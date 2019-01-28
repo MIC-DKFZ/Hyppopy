@@ -88,10 +88,10 @@ class SolverFactory(object):
             if name not in self._plugins.keys():
                 self._plugins[name] = Solver(name)
             if type == "Solver":
-                self._plugins[name].set_solver(plugin.plugin_object.__class__())
+                self._plugins[name].solver = plugin.plugin_object.__class__()
                 LOG.info(f"Plugin: {name} Solver loaded")
             elif type == "ParameterSpace":
-                self._plugins[name].set_parameter(plugin.plugin_object.__class__())
+                self._plugins[name].parameter = plugin.plugin_object.__class__()
                 LOG.info(f"Plugin: {name} ParameterSpace loaded")
             else:
                 LOG.error(f"Failed loading plugin {name}! Please check if naming conventions are kept!")
