@@ -21,7 +21,6 @@ LOGFILENAME = os.path.join(ROOT, 'logfile.log')
 PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "solver_plugins"))
 sys.path.insert(0, ROOT)
 
-#LOG = logging.getLogger()
 logging.getLogger('hyppopy').setLevel(logging.DEBUG)
 logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 

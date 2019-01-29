@@ -142,6 +142,9 @@ class DeepDictTestSuite(unittest.TestCase):
         self.assertEqual(dd['parameter/learningrate/data'][0], 1e-5)
         self.assertEqual(dd['parameter/learningrate/data'][1], 10.0)
 
+    def test_len(self):
+        dd = DeepDict(os.path.join(DATA_PATH, 'test_paramset.json'))
+        self.assertEqual(len(dd), 1)
 
 if __name__ == '__main__':
     unittest.main()

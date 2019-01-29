@@ -130,6 +130,9 @@ class DeepDict(object):
                 tmp = tmp[path[0]]
             path.pop(0)
 
+    def __len__(self):
+        return len(self._data)
+
     def clear(self):
         """
         clears the instance data
@@ -246,6 +249,9 @@ class DeepDict(object):
             LOG.error(f"Failed dumping to xml file: {fname}")
             raise e
 
+    def has_section(self, section):
+        return DeepDict.has_key(self.data, section)
+
     @staticmethod
     def get_from_path(data, path, sep="/"):
         """
@@ -264,15 +270,19 @@ class DeepDict(object):
         if not isinstance(path, list) or isinstance(path, tuple):
             LOG.error(f"Input Error, expect list[str] type for path: {path}")
             raise IOError("Input Error, expect list[str] type for path")
-        if not DeepDict.has_section(data, path[-1]):
+        if not DeepDict.has_key(data, path[-1]):
             LOG.error(f"Input Error, section {path[-1]} does not exist in dictionary")
             raise IOError(f"Input Error, section {path[-1]} does not exist in dictionary")
-        for k in path:
-            data = data[k]
+        try:
+            for k in path:
+                data = data[k]
+        except Exception as e:
+            LOG.error(f"Failed retrieving data from path {path} due to {e}")
+            raise LookupError(f"Failed retrieving data from path {path} due to {e}")
         return data
 
     @staticmethod
-    def has_section(data, section, already_found=False):
+    def has_key(data, section, already_found=False):
         """
         Checks if input dictionary has a key called section. The already_found parameter
         is for internal recursion checks.
@@ -294,7 +304,7 @@ class DeepDict(object):
             if key == section:
                 found = True
             if isinstance(value, dict):
-                found = DeepDict.has_section(data[key], section, found)
+                found = DeepDict.has_key(data[key], section, found)
         return found
 
     @staticmethod
