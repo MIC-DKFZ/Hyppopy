@@ -17,9 +17,12 @@ import sys
 import logging
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-LOGFILENAME = os.path.join(ROOT, 'logfile.log')
-PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "plugins"))
 sys.path.insert(0, ROOT)
 
-logging.getLogger('hyppopy').setLevel(logging.DEBUG)
-logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "plugins"))
+
+LOGFILENAME = os.path.join(ROOT, 'logfile.log')
+DEBUGLEVEL = logging.DEBUG
+logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(levelname)s: %(name)s - %(message)s')
+
+

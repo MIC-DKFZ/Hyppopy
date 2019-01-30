@@ -32,7 +32,10 @@ class SolverFactoryTestSuite(unittest.TestCase):
         pass
 
     def test_solver_loading(self):
-        pass
+        factory = SolverFactory.instance()
+        names = factory.list_solver()
+        self.assertTrue("hyperopt" in names)
+        self.assertTrue("optunity" in names)
 
     def test_iris_solver_execution(self):
         iris = datasets.load_iris()
@@ -49,7 +52,8 @@ class SolverFactoryTestSuite(unittest.TestCase):
             clf = SVC(**params)
             return -cross_val_score(clf, data[0], data[1], cv=3).mean()
 
-        factory = SolverFactory()
+        factory = SolverFactory.instance()
+        names = factory.list_solver()
 
         solver = factory.get_solver('optunity')
         solver.set_data(my_IRIS_dta)

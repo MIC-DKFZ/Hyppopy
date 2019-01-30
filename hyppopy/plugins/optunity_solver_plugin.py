@@ -15,16 +15,20 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import os
 import logging
-LOG = logging.getLogger('hyppopy')
+from hyppopy.globals import DEBUGLEVEL
+LOG = logging.getLogger(os.path.basename(__file__))
+LOG.setLevel(DEBUGLEVEL)
+
 from pprint import pformat
 
 try:
     import optunity
     from yapsy.IPlugin import IPlugin
 except:
-    LOG.warning("Optunity package not installed, will ignore this plugin!")
-    print("Optunity package not installed, will ignore this plugin!")
+    LOG.warning("optunity package not installed, will ignore this plugin!")
+    print("optunity package not installed, will ignore this plugin!")
 
 from hyppopy.solverpluginbase import SolverPluginBase
 
@@ -36,8 +40,8 @@ class optunity_Solver(SolverPluginBase, IPlugin):
     status = None
 
     def __init__(self):
-        LOG.debug("optunity_Solver.__init__()")
         SolverPluginBase.__init__(self)
+        LOG.debug("initialized")
 
     def loss_function(self, **params):
         try:
@@ -49,7 +53,7 @@ class optunity_Solver(SolverPluginBase, IPlugin):
             return 1e9
 
     def convert_parameter(self, params):
-        LOG.debug(f"convert_parameter({params})")
+        LOG.debug(f"convert input parameter\n\n\t{pformat(params)}\n")
 
         # define function spliting input dict
         # into categorical and non-categorical
@@ -88,15 +92,15 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         self.solution_space = tmp2
 
     def execute_solver(self):
-        LOG.debug(f"execute_solver using solution space -> {pformat(self.solution_space)}")
+        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(self.solution_space)}\n")
         self.status = []
         try:
             self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.loss_function,
                                                                                     num_evals=50,
                                                                                     search_space=self.solution_space)
         except Exception as e:
-            LOG.error(f"Internal error in optunity.minimize_structured occured. {e}")
-            raise BrokenPipeError(f"Internal error in optunity.minimize_structured occured. {e}")
+            LOG.error(f"internal error in optunity.minimize_structured occured. {e}")
+            raise BrokenPipeError(f"internal error in optunity.minimize_structured occured. {e}")
 
     def convert_results(self):
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])

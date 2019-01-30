@@ -15,16 +15,20 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import os
 import logging
-LOG = logging.getLogger('hyppopy')
+from hyppopy.globals import DEBUGLEVEL
+LOG = logging.getLogger(os.path.basename(__file__))
+LOG.setLevel(DEBUGLEVEL)
+
 from pprint import pformat
 
 try:
     from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
     from yapsy.IPlugin import IPlugin
 except:
-    LOG.warning("Hyperopt package not installed, will ignore this plugin!")
-    print("Hyperopt package not installed, will ignore this plugin!")
+    LOG.warning("hyperopt package not installed, will ignore this plugin!")
+    print("hyperopt package not installed, will ignore this plugin!")
 
 from hyppopy.solverpluginbase import SolverPluginBase
 
@@ -34,8 +38,8 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
     best = None
 
     def __init__(self):
-        LOG.debug("hyperopt_Solver.__init__()")
         SolverPluginBase.__init__(self)
+        LOG.debug("initialized")
 
     def loss_function(self, params):
         try:
@@ -46,7 +50,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         return {'loss': loss, 'status': status}
 
     def convert_parameter(self, params):
-        LOG.debug(f"convert_parameter({params})")
+        LOG.debug(f"convert input parameter\n\n\t{pformat(params)}\n")
 
         self.solution_space = {}
         for name, content in params.items():
@@ -68,7 +72,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
                 self.solution_space[name] = domain_fn(name, data[0], data[1])
 
     def execute_solver(self):
-        LOG.debug(f"execute_solver using solution space -> {pformat(self.solution_space)}")
+        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(self.solution_space)}\n")
         self.trials = Trials()
         try:
             self.best = fmin(fn=self.loss_function,
@@ -77,8 +81,8 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
                              max_evals=50,
                              trials=self.trials)
         except Exception as e:
-            LOG.error(f"Internal error in hyperopt.fmin occured. {e}")
-            raise BrokenPipeError(f"Internal error in hyperopt.fmin occured. {e}")
+            LOG.error(f"internal error in hyperopt.fmin occured. {e}")
+            raise BrokenPipeError(f"internal error in hyperopt.fmin occured. {e}")
 
     def convert_results(self):
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])

@@ -20,5 +20,4 @@ from hyppopy.cmdtools import *
 
 
 if __name__ == '__main__':
-    #cmd_workflow()
-    pass
+    cmd_workflow()
