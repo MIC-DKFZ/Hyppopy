@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 .pytest_cache/
-
+*.vpp.bak_*
 python_tests_xml
 
 # C extensions

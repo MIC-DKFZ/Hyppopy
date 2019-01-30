@@ -11,16 +11,16 @@ with open('LICENSE') as f:
 
 setup(
     name='hyppopy',
-    version='0.0.0',
+    version='0.0.1',
     description='Hyper-Parameter Optimization Toolbox for Blackboxfunction Optimization',
     long_description=readme,
     # if you want, put your own name here
     # (this would likely result in people sending you emails)
-    author='SvenWanner@DKFZ',
+    author='Sven Wanner',
     author_email='s.wanner@dkfz.de',
     url='',
     license=license,
-    packages=find_packages(exclude=('bin', '*test*', 'doc', 'hypopy')),
+    packages=find_packages(exclude=('bin', '*test*', 'doc', 'hyppopy')),
     # the requirements to install this project.
     # Since this one is so simple this is empty.
     install_requires=[],
@@ -31,7 +31,7 @@ setup(
     # from the console as if it was a normal binary. It will call the function
     # main in bin/hypopy_exe.py
     entry_points={
-        'console_scripts': ['hypopy_exe=bin.hypopy_exe:main'],
+        'console_scripts': ['hyppopy_exe=bin.hypopy_exe:main'],
     }
 )
 

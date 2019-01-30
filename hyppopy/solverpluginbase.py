@@ -15,52 +15,51 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import abc
+
 import logging
 LOG = logging.getLogger('hyppopy')
 
 
-class Solver(object):
+class SolverPluginBase(object):
+    data = None
+    loss = None
+    solution_space = None
     _name = None
-    _solver_plugin = None
-    _settings_plugin = None
 
     def __init__(self):
         pass
 
+    @abc.abstractmethod
+    def loss_function(self, params):
+        raise NotImplementedError('users must define loss_func to use this base class')
+
+    @abc.abstractmethod
+    def convert_parameter(self, params):
+        raise NotImplementedError('users must define convert_parameter to use this base class')
+
+    @abc.abstractmethod
+    def execute_solver(self):
+        raise NotImplementedError('users must define execute_solver to use this base class')
+
+    @abc.abstractmethod
+    def convert_results(self):
+        raise NotImplementedError('users must define convert_results to use this base class')
+
     def set_data(self, data):
-        self.solver.set_data(data)
+        self.data = data
 
     def set_parameters(self, params):
-        self.solver.set_parameters(params)
+        self.convert_parameter(params=params)
 
-    def set_loss_function(self, loss_func):
-        self.solver.set_loss_function(loss_func)
-
-    def run(self):
-        self.solver.run()
+    def set_loss_function(self, func):
+        self.loss = func
 
     def get_results(self):
-        self.solver.get_results()
+        self.convert_results()
 
-    @property
-    def is_ready(self):
-        return self.solver is not None and self.settings is not None
-
-    @property
-    def solver(self):
-        return self._solver_plugin
-
-    @solver.setter
-    def solver(self, value):
-        self._solver_plugin = value
-
-    @property
-    def settings(self):
-        return self._settings_plugin
-
-    @settings.setter
-    def settings(self, value):
-        self._settings_plugin = value
+    def run(self):
+        self.execute_solver()
 
     @property
     def name(self):
