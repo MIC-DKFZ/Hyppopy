@@ -1,0 +1,9 @@
+[Core]
+Name = optunity
+Module = optunity_settings_plugin
+
+[Documentation]
+Author = Sven Wanner
+Version = 0.1
+Website = https://optunity.readthedocs.io/en/latest/
+Description = Optunity Settings Plugin

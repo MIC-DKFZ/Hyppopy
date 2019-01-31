@@ -49,34 +49,12 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             status = STATUS_FAIL
         return {'loss': loss, 'status': status}
 
-    def convert_parameter(self, params):
-        LOG.debug(f"convert input parameter\n\n\t{pformat(params)}\n")
-
-        self.solution_space = {}
-        for name, content in params.items():
-            data = None
-            domain = None
-            domain_fn = None
-            for key, value in content.items():
-                if key == 'domain':
-                    domain = value
-                    if value == 'uniform':
-                        domain_fn = hp.uniform
-                    if value == 'categorical':
-                        domain_fn = hp.choice
-                if key == 'data':
-                    data = value
-            if domain == 'categorical':
-                self.solution_space[name] = domain_fn(name, data)
-            else:
-                self.solution_space[name] = domain_fn(name, data[0], data[1])
-
-    def execute_solver(self):
-        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(self.solution_space)}\n")
+    def execute_solver(self, parameter):
+        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(parameter)}\n")
         self.trials = Trials()
         try:
             self.best = fmin(fn=self.loss_function,
-                             space=self.solution_space,
+                             space=parameter,
                              algo=tpe.suggest,
                              max_evals=50,
                              trials=self.trials)

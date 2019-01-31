@@ -15,58 +15,48 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import abc
+
 import os
 import logging
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
+from hyppopy.deepdict.deepdict import DeepDict
 
-class Solver(object):
+
+class SettingsPluginBase(object):
+    _data = None
     _name = None
-    _solver_plugin = None
-    _settings_plugin = None
 
     def __init__(self):
-        pass
+        self._data = DeepDict()
 
-    def set_data(self, data):
-        self.solver.set_data(data)
+    @abc.abstractmethod
+    def convert_parameter(self):
+        raise NotImplementedError('users must define convert_parameter to use this base class')
 
-    def set_parameters(self, params):
-        self.settings.set(params)
+    def get_hyperparameter(self):
+        return self.convert_parameter(self.data.data["hyperparameter"])
 
-    def read_parameter(self, fname):
-        self.settings.read(fname)
+    def set(self, data):
+        self.data.clear()
+        self.data.data = data
 
-    def set_loss_function(self, loss_func):
-        self.solver.set_loss_function(loss_func)
+    def read(self, fname):
+        self.data.from_file(fname)
 
-    def run(self):
-        self.solver.run(self.settings.get_hyperparameter())
-
-    def get_results(self):
-        self.solver.get_results()
-
-    @property
-    def is_ready(self):
-        return self.solver is not None and self.settings is not None
+    def write(self, fname):
+        self.data.to_file(fname)
 
     @property
-    def solver(self):
-        return self._solver_plugin
+    def data(self):
+        return self._data
 
-    @solver.setter
-    def solver(self, value):
-        self._solver_plugin = value
-
-    @property
-    def settings(self):
-        return self._settings_plugin
-
-    @settings.setter
-    def settings(self, value):
-        self._settings_plugin = value
+    @data.setter
+    def data(self, value):
+        return self._data
 
     @property
     def name(self):
@@ -78,4 +68,3 @@ class Solver(object):
             LOG.error(f"Invalid input, str type expected for value, got {type(value)} instead")
             raise IOError(f"Invalid input, str type expected for value, got {type(value)} instead")
         self._name = value
-

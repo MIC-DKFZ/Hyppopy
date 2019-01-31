@@ -25,6 +25,9 @@ from sklearn.model_selection import train_test_split
 
 from hyppopy.solverfactory import SolverFactory
 
+from hyppopy.globals import ROOT
+TESTPARAMFILE = os.path.join(ROOT, *('hyppopy', 'tests', 'data', 'iris_svc_parameter.json'))
+
 
 class SolverFactoryTestSuite(unittest.TestCase):
 
@@ -42,11 +45,11 @@ class SolverFactoryTestSuite(unittest.TestCase):
         X, X_test, y, y_test = train_test_split(iris.data, iris.target, test_size=0.1, random_state=42)
         my_IRIS_dta = [X, y]
 
-        my_SVC_parameter = {
-            'C': {'domain': 'uniform', 'data': [0, 20]},
-            'gamma': {'domain': 'uniform', 'data': [0.0001, 20.0]},
-            'kernel': {'domain': 'categorical', 'data': ['linear', 'sigmoid', 'poly', 'rbf']}
-        }
+        my_SVC_parameter = {'hyperparameter': {
+            'C': {'domain': 'uniform', 'data': [0, 20], 'type': 'float'},
+            'gamma': {'domain': 'uniform', 'data': [0.0001, 20.0], 'type': 'float'},
+            'kernel': {'domain': 'categorical', 'data': ['linear', 'sigmoid', 'poly', 'rbf'], 'type': 'str'}
+        }}
 
         def my_SVC_loss_func(data, params):
             clf = SVC(**params)
@@ -57,7 +60,7 @@ class SolverFactoryTestSuite(unittest.TestCase):
 
         solver = factory.get_solver('optunity')
         solver.set_data(my_IRIS_dta)
-        solver.set_parameters(my_SVC_parameter)
+        solver.read_parameter(TESTPARAMFILE)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()

@@ -16,7 +16,7 @@ import os
 import sys
 import logging
 
-ROOT = os.path.join(os.path.dirname(__file__), "..")
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "plugins"))

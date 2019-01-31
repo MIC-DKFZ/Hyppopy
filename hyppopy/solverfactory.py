@@ -87,14 +87,18 @@ class SolverFactory(object):
                 self._plugins[name_elements[0]].name = name_elements[0]
             if name_elements[1] == "Solver":
                 try:
-                    self._plugins[name_elements[0]].solver = plugin.plugin_object.__class__()
+                    obj = plugin.plugin_object.__class__()
+                    obj.name = name_elements[0]
+                    self._plugins[name_elements[0]].solver = obj
                     LOG.info(f"plugin: {name_elements[0]} Solver loaded")
                 except Exception as e:
                     LOG.error(f"failed to instanciate class {plugin.plugin_object.__class__.__name__}")
                     raise ImportError(f"Failed to instanciate class {plugin.plugin_object.__class__.__name__}")
-            elif type == "Settings":
+            elif name_elements[1] == "Settings":
                 try:
-                    self._plugins[name_elements[0]].settings = plugin.plugin_object.__class__()
+                    obj = plugin.plugin_object.__class__()
+                    obj.name = name_elements[0]
+                    self._plugins[name_elements[0]].settings = obj
                     LOG.info(f"plugin: {name_elements[0]} ParameterSpace loaded")
                 except Exception as e:
                     LOG.error(f"failed to instanciate class {plugin.plugin_object.__class__.__name__}")

@@ -1,0 +1,17 @@
+{"hyperparameter": {
+    "C": { 
+        "domain": "uniform",
+        "data": "[0,20]",
+        "type": "float"
+    },
+    "gamma": {
+        "domain": "uniform",
+        "data": "[0.0001,20.0]",
+        "type": "float"
+    },
+	"kernel": {
+        "domain": "categorical",
+        "data": "[linear, sigmoid, poly, rbf]",
+        "type": "str"
+    }
+}}  

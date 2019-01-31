@@ -17,14 +17,16 @@
 
 import abc
 
+import os
 import logging
-LOG = logging.getLogger('hyppopy')
+from hyppopy.globals import DEBUGLEVEL
+LOG = logging.getLogger(os.path.basename(__file__))
+LOG.setLevel(DEBUGLEVEL)
 
 
 class SolverPluginBase(object):
     data = None
     loss = None
-    solution_space = None
     _name = None
 
     def __init__(self):
@@ -33,10 +35,6 @@ class SolverPluginBase(object):
     @abc.abstractmethod
     def loss_function(self, params):
         raise NotImplementedError('users must define loss_func to use this base class')
-
-    @abc.abstractmethod
-    def convert_parameter(self, params):
-        raise NotImplementedError('users must define convert_parameter to use this base class')
 
     @abc.abstractmethod
     def execute_solver(self):
@@ -49,17 +47,14 @@ class SolverPluginBase(object):
     def set_data(self, data):
         self.data = data
 
-    def set_parameters(self, params):
-        self.convert_parameter(params=params)
-
     def set_loss_function(self, func):
         self.loss = func
 
     def get_results(self):
         self.convert_results()
 
-    def run(self):
-        self.execute_solver()
+    def run(self, parameter):
+        self.execute_solver(parameter)
 
     @property
     def name(self):
