@@ -25,7 +25,7 @@ LOG.setLevel(DEBUGLEVEL)
 
 from hyppopy.globals import SETTINGSPATH
 
-from hyppopy.deepdict.deepdict import DeepDict
+from hyppopy.deepdict import DeepDict
 
 
 class SettingsPluginBase(object):

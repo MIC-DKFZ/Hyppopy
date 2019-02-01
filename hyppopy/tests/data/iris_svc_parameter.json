@@ -17,6 +17,6 @@
 },
 "settings": {
 	"solver": {
-		"max_iterations": "300"
+		"max_iterations": "50"
 	}
 }}

@@ -18,7 +18,7 @@
 import os
 import unittest
 
-from hyppopy.deepdict.deepdict import DeepDict
+from hyppopy.deepdict import DeepDict
 
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
@@ -97,10 +97,13 @@ class DeepDictTestSuite(unittest.TestCase):
 
     def test_has_section(self):
         dd = DeepDict(self.test_data)
-        self.assertTrue(DeepDict.has_section(dd.data, 'hOffset'))
-        self.assertTrue(DeepDict.has_section(dd.data, 'window'))
-        self.assertTrue(DeepDict.has_section(dd.data, 'widget'))
-        self.assertFalse(DeepDict.has_section(dd.data, 'notasection'))
+        self.assertTrue(dd.has_section('hOffset'))
+        self.assertTrue(dd.has_section('window'))
+        self.assertTrue(dd.has_section('widget'))
+        self.assertTrue(dd.has_section('style'))
+        self.assertTrue(dd.has_section('window'))
+        self.assertTrue(dd.has_section('title'))
+        self.assertFalse(dd.has_section('notasection'))
 
     def test_data_access(self):
         dd = DeepDict(self.test_data)

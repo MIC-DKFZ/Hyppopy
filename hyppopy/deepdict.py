@@ -242,7 +242,7 @@ class DeepDict(object):
         if not isinstance(fname, str):
             raise IOError("Input Error, expect str type for fname")
         check_dir_existance(os.path.dirname(fname))
-        xml = dicttoxml(self.data, custom_root='deepdict', attr_type=False)
+        xml = dicttoxml(self.data, custom_root=DEEPDICT_XML_ROOT, attr_type=False)
         LOG.debug(f"write_xml({fname})")
         try:
             with open(fname, "w") as write_file:
