@@ -44,7 +44,7 @@ class SettingsPluginBase(object):
 
     def set(self, data):
         self.data.clear()
-        self.data.data = data
+        self.data = data
 
     def read(self, fname):
         self.data.clear()
@@ -64,7 +64,13 @@ class SettingsPluginBase(object):
 
     @data.setter
     def data(self, value):
-        return self._data
+        if isinstance(value, dict):
+            self._data.data = value
+        elif isinstance(value, DeepDict):
+            self._data = value
+        else:
+            raise IOError(f"unexpected input type({type(value)}) for data, needs to be of type dict or DeepDict!")
+
 
     @property
     def name(self):

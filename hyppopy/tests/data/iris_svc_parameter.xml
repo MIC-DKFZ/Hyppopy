@@ -19,6 +19,7 @@
 	<settings>
 		<solver>
 			<max_iterations>50</max_iterations>
+			<use_plugin>optunity</use_plugin>
 		</solver>
 	</settings>
 </hyppopy>

@@ -18,6 +18,7 @@
 from yapsy.PluginManager import PluginManager
 
 from hyppopy.globals import PLUGIN_DEFAULT_DIR
+from hyppopy.deepdict import DeepDict
 from hyppopy.solver import Solver
 
 import os
@@ -133,6 +134,32 @@ class SolverFactory(object):
         :return: [list(str)]
         """
         return list(self._plugins.keys())
+
+    def from_settings(self, settings):
+        if isinstance(settings, dict):
+            tmp = DeepDict()
+            tmp.data = settings
+            settings = tmp
+        elif isinstance(settings, str):
+            if not os.path.isfile(settings):
+                LOG.warning(f"input error, file {settings} not found!")
+            settings = DeepDict(settings)
+
+        if isinstance(settings, DeepDict):
+            if settings.has_section("use_plugin"):
+                try:
+                    use_plugin = settings["settings/solver/use_plugin"]
+                except Exception as e:
+                    LOG.warning("wrong settings path for use_plugin option detected, expecting the path settings/solver/use_plugin!")
+                solver = self.get_solver(use_plugin)
+                solver.set_parameters(settings)
+                return solver
+            LOG.warning("failed to choose a solver, either the config file is missing the section settings/solver/use_plugin, or there might be a typo")
+        else:
+            msg = "unknown input error, expected DeepDict, dict or filename!"
+            LOG.error(msg)
+            raise IOError(msg)
+        return None
 
     def get_solver(self, name):
         """
