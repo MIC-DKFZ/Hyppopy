@@ -14,4 +14,9 @@
         "data": "[linear, sigmoid, poly, rbf]",
         "type": "str"
     }
-}}  
+},
+"settings": {
+	"solver": {
+		"max_iterations": "300"
+	}
+}}

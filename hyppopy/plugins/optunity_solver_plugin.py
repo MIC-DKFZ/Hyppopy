@@ -23,13 +23,8 @@ LOG.setLevel(DEBUGLEVEL)
 
 from pprint import pformat
 
-try:
-    import optunity
-    from yapsy.IPlugin import IPlugin
-except:
-    LOG.warning("optunity package not installed, will ignore this plugin!")
-    print("optunity package not installed, will ignore this plugin!")
-
+import optunity
+from yapsy.IPlugin import IPlugin
 from hyppopy.solverpluginbase import SolverPluginBase
 
 
@@ -57,7 +52,7 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         self.status = []
         try:
             self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.loss_function,
-                                                                                    num_evals=50,
+                                                                                    num_evals=self.max_iterations,
                                                                                     search_space=parameter)
         except Exception as e:
             LOG.error(f"internal error in optunity.minimize_structured occured. {e}")

@@ -23,6 +23,8 @@ from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
+from hyppopy.globals import SETTINGSPATH
+
 from hyppopy.deepdict.deepdict import DeepDict
 
 
@@ -38,17 +40,23 @@ class SettingsPluginBase(object):
         raise NotImplementedError('users must define convert_parameter to use this base class')
 
     def get_hyperparameter(self):
-        return self.convert_parameter(self.data.data["hyperparameter"])
+        return self.convert_parameter(self.data["hyperparameter"])
 
     def set(self, data):
         self.data.clear()
         self.data.data = data
 
     def read(self, fname):
+        self.data.clear()
         self.data.from_file(fname)
 
     def write(self, fname):
         self.data.to_file(fname)
+
+    def set_attributes(self, cls):
+        attrs_sec = self.data[SETTINGSPATH]
+        for key, value in attrs_sec.items():
+            setattr(cls, key, value)
 
     @property
     def data(self):

@@ -22,13 +22,9 @@ LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 from pprint import pformat
+from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
+from yapsy.IPlugin import IPlugin
 
-try:
-    from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
-    from yapsy.IPlugin import IPlugin
-except:
-    LOG.warning("hyperopt package not installed, will ignore this plugin!")
-    print("hyperopt package not installed, will ignore this plugin!")
 
 from hyppopy.solverpluginbase import SolverPluginBase
 
@@ -52,11 +48,12 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
     def execute_solver(self, parameter):
         LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(parameter)}\n")
         self.trials = Trials()
+
         try:
             self.best = fmin(fn=self.loss_function,
                              space=parameter,
                              algo=tpe.suggest,
-                             max_evals=50,
+                             max_evals=self.max_iterations,
                              trials=self.trials)
         except Exception as e:
             LOG.error(f"internal error in hyperopt.fmin occured. {e}")

@@ -16,6 +16,7 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
+import re
 import json
 import types
 import pprint
@@ -26,6 +27,7 @@ from collections import OrderedDict
 import logging
 LOG = logging.getLogger('hyppopy')
 
+from hyppopy.globals import DEEPDICT_XML_ROOT
 
 def convert_ordered2std_dict(obj):
     """
@@ -194,8 +196,8 @@ class DeepDict(object):
 
         # if written with DeepDict, the xml contains a root node called
         # deepdict which should beremoved for consistency reasons
-        if "deepdict" in self._data.keys():
-            self._data = self._data["deepdict"]
+        if DEEPDICT_XML_ROOT in self._data.keys():
+            self._data = self._data[DEEPDICT_XML_ROOT]
         self._data = dict(self.data)
         # convert the orderes dict structure to a default dict for consistency reasons
         convert_ordered2std_dict(self.data)
@@ -345,6 +347,7 @@ class DeepDict(object):
             return a
         except ValueError:
             if string.startswith("[") and string.endswith("]"):
+                string = re.sub(' ', '', string)
                 elements = string[1:-1].split(",")
                 li = []
                 for e in elements:
