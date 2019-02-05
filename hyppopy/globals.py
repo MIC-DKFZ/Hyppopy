@@ -22,6 +22,7 @@ sys.path.insert(0, ROOT)
 PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "plugins"))
 TESTDATA_DIR = os.path.join(ROOT, *("hyppopy", "tests", "data"))
 SETTINGSPATH = "settings/solver"
+CUSTOMPATH = "settings/custom"
 DEEPDICT_XML_ROOT = "hyppopy"
 
 LOGFILENAME = os.path.join(ROOT, 'logfile.log')

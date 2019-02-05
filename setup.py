@@ -23,7 +23,9 @@ setup(
     packages=find_packages(exclude=('bin', '*test*', 'doc', 'hyppopy')),
     # the requirements to install this project.
     # Since this one is so simple this is empty.
-    install_requires=[],
+    install_requires=['dicttoxml>=1.7.4', 'hyperopt>=0.1.1', 'matplotlib>=3.0.2', 'numpy>=1.16.0',
+	'Optunity>=1.1.1', 'pytest>=4.1.1', 'scikit-learn>=0.20.2', 'scipy>=1.2.0', 'sklearn>=0.0', 'Sphinx>=1.8.3',
+	'xmlrunner>=1.7.7', 'xmltodict>=0.11.0', 'Yapsy>=1.11.223', 'visdom>=0.1.8.8'],
     # a more sophisticated project might have something like:
     #install_requires=['numpy>=1.11.0', 'scipy>=0.17', 'scikit-learn']
 

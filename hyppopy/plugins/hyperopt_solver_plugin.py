@@ -42,6 +42,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             loss = self.loss(self.data, params)
             status = STATUS_OK
         except Exception as e:
+            LOG.error(f"execution of self.loss(self.data, params) failed due to:\n {e}")
             status = STATUS_FAIL
         return {'loss': loss, 'status': status}
 
@@ -53,11 +54,12 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             self.best = fmin(fn=self.loss_function,
                              space=parameter,
                              algo=tpe.suggest,
-                             max_evals=self.max_iterations,
+                             max_evals=self.settings.max_iterations,
                              trials=self.trials)
         except Exception as e:
-            LOG.error(f"internal error in hyperopt.fmin occured. {e}")
-            raise BrokenPipeError(f"internal error in hyperopt.fmin occured. {e}")
+            msg = f"internal error in hyperopt.fmin occured. {e}"
+            LOG.error(msg)
+            raise BrokenPipeError(msg)
 
     def convert_results(self):
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])

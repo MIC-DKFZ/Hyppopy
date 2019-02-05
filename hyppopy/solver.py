@@ -39,13 +39,14 @@ class Solver(object):
 
     def read_parameter(self, fname):
         self.settings.read(fname)
-        self.settings.set_attributes(self.solver)
+        self.settings.set_attributes(self.settings)
 
     def set_loss_function(self, loss_func):
         self.solver.set_loss_function(loss_func)
 
     def run(self):
-        self.solver.run(self.settings.get_hyperparameter())
+        self.solver.settings = self.settings
+        self.solver.run()
 
     def get_results(self):
         self.solver.get_results()

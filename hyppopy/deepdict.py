@@ -191,8 +191,9 @@ class DeepDict(object):
                 self._data = xmltodict.parse(xml, attr_prefix='')
             DeepDict.value_traverse(self.data, callback=DeepDict.parse_type)
         except Exception as e:
-            LOG.error(f"Error while reading xml file {fname} or while converting types")
-            raise IOError("Error while reading json file {fname} or while converting types")
+            msg = f"Error while reading xml file {fname} or while converting types"
+            LOG.error(msg)
+            raise IOError(msg)
 
         # if written with DeepDict, the xml contains a root node called
         # deepdict which should beremoved for consistency reasons

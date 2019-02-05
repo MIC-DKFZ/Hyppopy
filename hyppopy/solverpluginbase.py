@@ -20,6 +20,8 @@ import abc
 import os
 import logging
 from hyppopy.globals import DEBUGLEVEL
+from hyppopy.settingspluginbase import SettingsPluginBase
+
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
@@ -27,6 +29,7 @@ LOG.setLevel(DEBUGLEVEL)
 class SolverPluginBase(object):
     data = None
     loss = None
+    _settings = None
     _name = None
 
     def __init__(self):
@@ -53,8 +56,8 @@ class SolverPluginBase(object):
     def get_results(self):
         self.convert_results()
 
-    def run(self, parameter):
-        self.execute_solver(parameter)
+    def run(self):
+        self.execute_solver(self.settings.get_hyperparameter())
 
     @property
     def name(self):
@@ -63,7 +66,21 @@ class SolverPluginBase(object):
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            LOG.error(f"Invalid input, str type expected for value, got {type(value)} instead")
-            raise IOError(f"Invalid input, str type expected for value, got {type(value)} instead")
+            msg = f"Invalid input, str type expected for value, got {type(value)} instead"
+            LOG.error(msg)
+            raise IOError(msg)
         self._name = value
+
+    @property
+    def settings(self):
+        return self._settings
+
+    @settings.setter
+    def settings(self, value):
+        if not isinstance(value, SettingsPluginBase):
+            msg = f"Invalid input, SettingsPluginBase type expected for value, got {type(value)} instead"
+            LOG.error(msg)
+            raise IOError(msg)
+        self._settings = value
+
 

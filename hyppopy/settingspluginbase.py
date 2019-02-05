@@ -23,7 +23,7 @@ from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
-from hyppopy.globals import SETTINGSPATH
+from hyppopy.globals import SETTINGSPATH, CUSTOMPATH
 
 from hyppopy.deepdict import DeepDict
 
@@ -55,6 +55,9 @@ class SettingsPluginBase(object):
 
     def set_attributes(self, cls):
         attrs_sec = self.data[SETTINGSPATH]
+        for key, value in attrs_sec.items():
+            setattr(cls, key, value)
+        attrs_sec = self.data[CUSTOMPATH]
         for key, value in attrs_sec.items():
             setattr(cls, key, value)
 
