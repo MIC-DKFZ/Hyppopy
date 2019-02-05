@@ -44,6 +44,7 @@ class optunity_Solver(SolverPluginBase, IPlugin):
             self.status.append('ok')
             return loss
         except Exception as e:
+            LOG.error(f"computing loss failed due to:\n {e}")
             self.status.append('fail')
             return 1e9
 

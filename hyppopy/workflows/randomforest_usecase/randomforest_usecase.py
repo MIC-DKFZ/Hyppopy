@@ -55,6 +55,8 @@ def randomforest_usecase(args):
     solver.set_data(data)
 
     def rf_loss(data, params):
+        if "n_estimators" in params.keys():
+            params["n_estimators"] = int(round(params["n_estimators"]))
         clf = RandomForestClassifier(**params)
         return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()
 

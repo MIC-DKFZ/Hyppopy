@@ -17,6 +17,7 @@
 
 import os
 import logging
+import numpy as np
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -31,6 +32,7 @@ except:
     print("hyperopt package not installed, will ignore this plugin!")
 
 from hyppopy.settingspluginbase import SettingsPluginBase
+from hyppopy.settingsparticle import SettingsParticle
 
 
 class hyperopt_Settings(SettingsPluginBase, IPlugin):
@@ -44,21 +46,60 @@ class hyperopt_Settings(SettingsPluginBase, IPlugin):
 
         solution_space = {}
         for name, content in input_dict.items():
-            data = None
-            domain = None
-            domain_fn = None
+            particle = hyperopt_SettingsParticle(name=name)
             for key, value in content.items():
                 if key == 'domain':
-                    domain = value
-                    if value == 'uniform':
-                        domain_fn = hp.uniform
-                    if value == 'categorical':
-                        domain_fn = hp.choice
-                if key == 'data':
-                    data = value
-            if domain == 'categorical':
-                solution_space[name] = domain_fn(name, data)
-            else:
-                solution_space[name] = domain_fn(name, data[0], data[1])
+                    particle.domain = value
+                elif key == 'data':
+                    particle.data = value
+                elif key == 'type':
+                    particle.dtype = value
+            solution_space[name] = particle.get()
         return solution_space
 
+
+class hyperopt_SettingsParticle(SettingsParticle):
+
+    def __init__(self, name=None, domain=None, dtype=None, data=None):
+        SettingsParticle.__init__(self, name, domain, dtype, data)
+
+    def convert(self):
+        if self.domain == "uniform":
+            if self.dtype == "float" or self.dtype == "double":
+                return hp.uniform(self.name, self.data[0], self.data[1])
+            elif self.dtype == "int":
+                data = list(np.arange(int(self.data[0]), int(self.data[1]+1)))
+                return hp.choice(self.name, data)
+            else:
+                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                LOG.error(msg)
+                raise LookupError(msg)
+        elif self.domain == "loguniform":
+            if self.dtype == "float" or self.dtype == "double":
+                return hp.loguniform(self.name, self.data[0], self.data[1])
+            else:
+                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                LOG.error(msg)
+                raise LookupError(msg)
+        elif self.domain == "normal":
+            if self.dtype == "float" or self.dtype == "double":
+                return hp.normal(self.name, self.data[0], self.data[1])
+            else:
+                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                LOG.error(msg)
+                raise LookupError(msg)
+        elif self.domain == "categorical":
+            if self.dtype == 'str':
+                return hp.choice(self.name, self.data)
+            elif self.dtype == 'bool':
+                data = []
+                for elem in self.data:
+                    if elem == "true" or elem == "True" or elem == 1 or elem == "1":
+                        data .append(True)
+                    elif elem == "false" or elem == "False" or elem == 0 or elem == "0":
+                        data .append(False)
+                    else:
+                        msg = f"cannot convert the type {self.dtype} in domain {self.domain}, unknown bool type value"
+                        LOG.error(msg)
+                        raise LookupError(msg)
+                return hp.choice(self.name, data)

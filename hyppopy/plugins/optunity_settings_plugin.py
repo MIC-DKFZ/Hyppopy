@@ -31,6 +31,7 @@ except:
     print("optunity package not installed, will ignore this plugin!")
 
 from hyppopy.settingspluginbase import SettingsPluginBase
+from hyppopy.settingsparticle import SettingsParticle
 
 
 class optunity_Settings(SettingsPluginBase, IPlugin):
@@ -78,3 +79,39 @@ class optunity_Settings(SettingsPluginBase, IPlugin):
             inner_level = tmp2
         solution_space = tmp2
         return solution_space
+
+
+# class optunity_SettingsParticle(SettingsParticle):
+#
+#     def __init__(self, name=None, domain=None, dtype=None, data=None):
+#         SettingsParticle.__init__(self, name, domain, dtype, data)
+#
+#     def convert(self):
+#         if self.domain == "uniform":
+#             if self.dtype == "float" or self.dtype == "double":
+#                 pass
+#             elif self.dtype == "int":
+#                 pass
+#             else:
+#                 msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+#                 LOG.error(msg)
+#                 raise LookupError(msg)
+#         elif self.domain == "loguniform":
+#             if self.dtype == "float" or self.dtype == "double":
+#                 pass
+#             else:
+#                 msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+#                 LOG.error(msg)
+#                 raise LookupError(msg)
+#         elif self.domain == "normal":
+#             if self.dtype == "float" or self.dtype == "double":
+#                 pass
+#             else:
+#                 msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+#                 LOG.error(msg)
+#                 raise LookupError(msg)
+#         elif self.domain == "categorical":
+#             if self.dtype == 'str':
+#                 pass
+#             elif self.dtype == 'bool':
+#                 pass
