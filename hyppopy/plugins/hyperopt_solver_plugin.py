@@ -62,6 +62,9 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             raise BrokenPipeError(msg)
 
     def convert_results(self):
+        txt = ""
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])
-        print('Solution\n========')
-        print("\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items())))
+        txt += 'Solution Hyperopt Plugin\n========\n'
+        txt += "\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items()))
+        txt += "\n"
+        return txt

@@ -1,0 +1,27 @@
+{"hyperparameter": {
+    "n_estimators": { 
+        "domain": "uniform",
+        "data": "[3,500]",
+        "type": "int"
+    },
+    "criterion": {
+        "domain": "categorical",
+        "data": "[gini,entropy]",
+        "type": "str"
+    },
+	"max_depth": {
+        "domain": "uniform",
+        "data": "[3, 50]",
+        "type": "int"
+    }
+},
+"settings": {
+	"solver": {
+		"max_iterations": "3",
+		"use_plugin" : "optunity"
+	},
+	"custom": {
+		"data_name": "train_cleaned.csv",
+		"labels_name": "Survived"
+	}
+}}

@@ -1,0 +1,32 @@
+{"hyperparameter": {
+    "C": { 
+        "domain": "uniform",
+        "data": "[0,20]",
+        "type": "float"
+    },
+    "gamma": {
+        "domain": "uniform",
+        "data": "[0.0001,20.0]",
+        "type": "float"
+    },
+	"kernel": {
+        "domain": "categorical",
+        "data": "[linear, sigmoid, poly, rbf]",
+        "type": "str"
+    },
+	"decision_function_shape": {
+        "domain": "categorical",
+        "data": "[ovo,ovr]",
+        "type": "str"
+    }
+},
+"settings": {
+	"solver": {
+		"max_iterations": "3",
+		"use_plugin" : "optunity"
+	},
+	"custom": {
+		"data_name": "train_data.npy",
+		"labels_name": "train_labels.npy"
+	}
+}}

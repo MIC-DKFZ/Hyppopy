@@ -54,7 +54,7 @@ class SolverPluginBase(object):
         self.loss = func
 
     def get_results(self):
-        self.convert_results()
+        return self.convert_results()
 
     def run(self):
         self.execute_solver(self.settings.get_hyperparameter())

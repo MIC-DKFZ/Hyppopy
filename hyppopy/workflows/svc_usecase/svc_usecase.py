@@ -21,7 +21,7 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
-import hyppopy.solverfactory as sfac
+from hyppopy.workflowbase import Workflow
 
 
 def data_loader(path, data_name, labels_name):
@@ -44,20 +44,15 @@ def data_loader(path, data_name, labels_name):
     return data
 
 
-def svc_usecase(args):
-    print("Execute SVC UseCase...")
+class svc_usecase(Workflow):
 
-    factory = sfac.SolverFactory.instance()
-    solver = factory.get_solver(args.plugin)
-    solver.read_parameter(args.config)
+    def __init__(self, args):
+        Workflow.__init__(self, args)
 
-    data = data_loader(args.data, solver.settings.data_name, solver.settings.labels_name)
-    solver.set_data(data)
+    def setup(self):
+        data = data_loader(self.args.data, self.solver.settings.data_name, self.solver.settings.labels_name)
+        self.solver.set_data(data)
 
-    def svc_loss(data, params):
+    def blackbox_function(self, data, params):
         clf = SVC(**params)
         return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()
-
-    solver.set_loss_function(svc_loss)
-    solver.run()
-    solver.get_results()

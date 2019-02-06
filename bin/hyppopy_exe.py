@@ -17,9 +17,9 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 
-from hyppopy.workflows.unet_usecase import unet_usecase
-from hyppopy.workflows.svc_usecase import svc_usecase
-from hyppopy.workflows.randomforest_usecase import randomforest_usecase
+from hyppopy.workflows.unet_usecase.unet_usecase import unet_usecase
+from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
+from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
 
 
 import os
@@ -52,16 +52,13 @@ def args_check(args):
         if not os.path.isfile(tmp):
             print_warning("Couldn't find the config file, please check your input --config")
         args.config = tmp
-    if args.plugin not in solver_factory.list_solver():
-        print_warning(f"The requested plugin {args.plugin} is not available, please check for typos. Plugin options :"
-                      f"{', '.join(solver_factory.list_solver())}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='UNet Hyppopy UseCase Example Optimization.')
     parser.add_argument('-w', '--workflow', type=str,
                         help='workflow to be executed')
-    parser.add_argument('-p', '--plugin', type=str, default='hyperopt',
+    parser.add_argument('-p', '--plugin', type=str, default='',
                         help='plugin to be used default=[hyperopt], optunity')
     parser.add_argument('-d', '--data', type=str, help='training data path')
     parser.add_argument('-c', '--config', type=str, help='config filename, .xml or .json formats are supported.'
@@ -76,10 +73,14 @@ if __name__ == "__main__":
     args_check(args)
 
     if args.workflow == "svc_usecase":
-        svc_usecase.svc_usecase(args)
+        uc = svc_usecase(args)
     elif args.workflow == "randomforest_usecase":
-        randomforest_usecase.randomforest_usecase(args)
+        uc = randomforest_usecase(args)
     elif args.workflow == "unet_usecase":
-        unet_usecase.unet_usecase(args)
+        uc = unet_usecase(args)
     else:
         print(f"No workflow called {args.workflow} found!")
+        sys.exit()
+
+    uc.run()
+    print(uc.get_results())

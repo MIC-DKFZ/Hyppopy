@@ -49,7 +49,7 @@ class Solver(object):
         self.solver.run()
 
     def get_results(self):
-        self.solver.get_results()
+        return self.solver.get_results()
 
     @property
     def is_ready(self):

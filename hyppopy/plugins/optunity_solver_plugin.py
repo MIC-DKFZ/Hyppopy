@@ -61,9 +61,12 @@ class optunity_Solver(SolverPluginBase, IPlugin):
 
     def convert_results(self):
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])
-        print('Solution\n========')
-        print("\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items())))
-        print(f"Solver used: {self.solver_info['solver_name']}")
-        print(f"Optimum: {self.trials.optimum}")
-        print(f"Iterations used: {self.trials.stats['num_evals']}")
-        print(f"Duration: {self.trials.stats['time']} s")
+
+        txt = ""
+        txt += 'Solution Optunity Plugin\n========\n'
+        txt += "\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items()))
+        txt += f"\nSolver used: {self.solver_info['solver_name']}"
+        txt += f"\nOptimum: {self.trials.optimum}"
+        txt += f"\nIterations used: {self.trials.stats['num_evals']}"
+        txt += f"\nDuration: {self.trials.stats['time']} s\n"
+        return txt

@@ -1,0 +1,34 @@
+<hyppopy>
+	<hyperparameter>
+		<C>
+			<domain>uniform</domain>
+			<data>[0,20]</data>
+			<type>float</type>
+		</C>
+		<gamma>
+			<domain>uniform</domain>
+			<data>[0.0001,20.0]</data>
+			<type>float</type>
+		</gamma>
+		<kernel>
+			<domain>categorical</domain>
+			<data>[linear,sigmoid,poly,rbf]</data>
+			<type>str</type>
+		</kernel>
+		<decision_function_shape>
+			<domain>categorical</domain>
+			<data>[ovo,ovr]</data>
+			<type>str</type>
+		</decision_function_shape>
+	</hyperparameter>
+	<settings>
+		<solver>
+			<max_iterations>3</max_iterations>
+			<use_plugin>hyperopt</use_plugin>
+		</solver>
+		<custom>
+			<data_name>train_data.npy</data_name>
+			<labels_name>train_labels.npy</labels_name>
+		</custom>
+	</settings>
+</hyppopy>

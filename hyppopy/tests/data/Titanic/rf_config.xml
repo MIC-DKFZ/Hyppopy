@@ -1,0 +1,29 @@
+<hyppopy>
+	<hyperparameter>
+		<n_estimators>
+			<domain>uniform</domain>
+			<data>[3,200]</data>
+			<type>int</type>
+		</n_estimators>
+		<criterion>
+			<domain>categorical</domain>
+			<data>[gini,entropy]</data>
+			<type>str</type>
+		</criterion>
+		<max_depth>
+			<domain>uniform</domain>
+			<data>[3, 50]</data>
+			<type>int</type>
+		</max_depth>
+	</hyperparameter>
+	<settings>
+		<solver>
+			<max_iterations>3</max_iterations>
+			<use_plugin>optunity</use_plugin>
+		</solver>
+		<custom>
+			<data_name>train_cleaned.csv</data_name>
+			<labels_name>Survived</labels_name>
+		</custom>
+	</settings>
+</hyppopy>
