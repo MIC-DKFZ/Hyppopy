@@ -21,27 +21,8 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
-from hyppopy.workflowbase import Workflow
-
-
-def data_loader(path, data_name, labels_name):
-    if data_name.endswith(".npy"):
-        if not labels_name.endswith(".npy"):
-            raise IOError("Expect both data_name and labels_name being of type .npy!")
-        data = [np.load(os.path.join(path, data_name)), np.load(os.path.join(path, labels_name))]
-    elif data_name.endswith(".csv"):
-        try:
-            dataset = pd.read_csv(os.path.join(path, data_name))
-            y = dataset[labels_name].values
-            X = dataset.drop([labels_name], axis=1).values
-            data = [X, y]
-        except Exception as e:
-            print("Precondition violation, this usage case expects as data_name a "
-                  "csv file and as label_name a name of a column in this csv table!")
-    else:
-        raise NotImplementedError("This combination of data_name and labels_name "
-                                  "does not yet exist, feel free to add it")
-    return data
+from hyppopy.workflows.workflowbase import Workflow
+from hyppopy.workflows.datalaoder.simpleloader import SimpleDataLoader
 
 
 class svc_usecase(Workflow):
@@ -50,8 +31,10 @@ class svc_usecase(Workflow):
         Workflow.__init__(self, args)
 
     def setup(self):
-        data = data_loader(self.args.data, self.solver.settings.data_name, self.solver.settings.labels_name)
-        self.solver.set_data(data)
+        dl = SimpleDataLoader()
+        dl.read(path=self.args.data, data_name=self.solver.settings.data_name,
+                labels_name=self.solver.settings.labels_name)
+        self.solver.set_data(dl.get())
 
     def blackbox_function(self, data, params):
         clf = SVC(**params)
