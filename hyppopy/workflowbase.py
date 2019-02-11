@@ -15,9 +15,9 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-import hyppopy.solverfactory as sfac
+from hyppopy.solverfactory import SolverFactory
 from hyppopy.deepdict import DeepDict
-from hyppopy.globals import SETTINGSPATH
+from hyppopy.globals import SETTINGSCUSTOMPATH, SETTINGSSOLVERPATH
 
 import os
 import abc
@@ -33,7 +33,6 @@ class Workflow(object):
 
     def __init__(self, args):
         self._args = args
-        factory = sfac.SolverFactory.instance()
         if args.plugin is None or args.plugin == '':
             dd = DeepDict(args.config)
             ppath = "use_plugin"
@@ -41,10 +40,10 @@ class Workflow(object):
                 msg = f"invalid config file, missing section {ppath}"
                 LOG.error(msg)
                 raise LookupError(msg)
-            plugin = dd[SETTINGSPATH+'/'+ppath]
+            plugin = dd[SETTINGSSOLVERPATH+'/'+ppath]
         else:
             plugin = args.plugin
-        self._solver = factory.get_solver(plugin)
+        self._solver = SolverFactory.get_solver(plugin)
         self.solver.read_parameter(args.config)
 
     def run(self):

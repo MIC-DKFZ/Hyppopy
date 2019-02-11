@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DKFZ
 #
 #
@@ -20,6 +18,7 @@ from yapsy.PluginManager import PluginManager
 from hyppopy.globals import PLUGIN_DEFAULT_DIR
 from hyppopy.deepdict import DeepDict
 from hyppopy.solver import Solver
+from hyppopy.singleton import *
 
 import os
 import logging
@@ -27,46 +26,23 @@ from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
-
-class SolverFactory(object):
+@singleton_object
+class SolverFactory(metaclass=Singleton):
     """
     This class is responsible for grabbing all plugins from the plugin folder arranging them into a
     Solver class instances. These Solver class instances can be requested from the factory via the
     get_solver method. The SolverFactory class is a Singleton class, so try not to instantiate it using
-    SolverFactory(), the consequences will be horrific. Instead use factory = SolverFactory.instance().
+    SolverFactory(), the consequences will be horrific. Instead use is like a class having static
+    functions only, SolverFactory.method().
     """
-    _instance = None
-    _locked = True
     _plugin_dirs = []
     _plugins = {}
 
     def __init__(self):
-        if self._locked:
-            msg = "!!! seems you used SolverFactory() to get an instance, please don't do that, "\
-                "it will kill a cute puppy anywhere close to you! SolverFactory is a "\
-                "Singleton, means please use SolverFactory.instance() instead !!!"
-            LOG.error(msg)
-            raise AssertionError(msg)
-        if SolverFactory._instance is not None:
-            pass
-        else:
-            SolverFactory._instance = self
-            self.reset()
-            self.load_plugins()
-            LOG.debug("initialized")
-
-    @staticmethod
-    def instance():
-        """
-        Singleton instance access
-        :return: [SolverFactory] instance
-        """
-        SolverFactory._locked = False
-        LOG.debug("instance request")
-        if SolverFactory._instance is None:
-            SolverFactory()
-        SolverFactory._locked = True
-        return SolverFactory._instance
+        print("Solverfactory: I'am alive!")
+        self.reset()
+        self.load_plugins()
+        LOG.debug("Solverfactory initialized")
 
     def load_plugins(self):
         """

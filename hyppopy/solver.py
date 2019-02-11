@@ -36,9 +36,11 @@ class Solver(object):
     def set_parameters(self, params):
         self.settings.set(params)
         self.settings.set_attributes(self.solver)
+        self.settings.set_attributes(self.settings)
 
     def read_parameter(self, fname):
         self.settings.read(fname)
+        self.settings.set_attributes(self.solver)
         self.settings.set_attributes(self.settings)
 
     def set_loss_function(self, loss_func):

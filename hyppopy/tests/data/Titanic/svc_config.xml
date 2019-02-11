@@ -24,7 +24,7 @@
 	<settings>
 		<solver>
 			<max_iterations>3</max_iterations>
-			<use_plugin>hyperopt</use_plugin>
+			<use_plugin>optunity</use_plugin>
 		</solver>
 		<custom>
 			<data_name>train_cleaned.csv</data_name>

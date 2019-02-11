@@ -39,28 +39,24 @@ class SolverFactoryTestSuite(unittest.TestCase):
         self.my_IRIS_dta = [X, y]
 
     def test_solver_loading(self):
-        factory = SolverFactory.instance()
-        names = factory.list_solver()
+        names = SolverFactory.list_solver()
         self.assertTrue("hyperopt" in names)
         self.assertTrue("optunity" in names)
 
     def test_iris_solver_execution(self):
 
-
         def my_SVC_loss_func(data, params):
             clf = SVC(**params)
             return -cross_val_score(clf, data[0], data[1], cv=3).mean()
 
-        factory = SolverFactory.instance()
-
-        solver = factory.get_solver('optunity')
+        solver = SolverFactory.get_solver('optunity')
         solver.set_data(self.my_IRIS_dta)
         solver.read_parameter(TESTPARAMFILE + '.xml')
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()
 
-        solver = factory.get_solver('hyperopt')
+        solver = SolverFactory.get_solver('hyperopt')
         solver.set_data(self.my_IRIS_dta)
         solver.read_parameter(TESTPARAMFILE + '.json')
         solver.set_loss_function(my_SVC_loss_func)
@@ -68,20 +64,19 @@ class SolverFactoryTestSuite(unittest.TestCase):
         solver.get_results()
 
     def test_create_solver_from_settings_directly(self):
-        factory = SolverFactory.instance()
 
         def my_SVC_loss_func(data, params):
             clf = SVC(**params)
             return -cross_val_score(clf, data[0], data[1], cv=3).mean()
 
-        solver = factory.from_settings(TESTPARAMFILE + '.xml')
+        solver = SolverFactory.from_settings(TESTPARAMFILE + '.xml')
         self.assertEqual(solver.name, "optunity")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()
 
-        solver = factory.from_settings(TESTPARAMFILE + '.json')
+        solver = SolverFactory.from_settings(TESTPARAMFILE + '.json')
         self.assertEqual(solver.name, "hyperopt")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
@@ -89,14 +84,14 @@ class SolverFactoryTestSuite(unittest.TestCase):
         solver.get_results()
 
         dd = DeepDict(TESTPARAMFILE + '.json')
-        solver = factory.from_settings(dd)
+        solver = SolverFactory.from_settings(dd)
         self.assertEqual(solver.name, "hyperopt")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()
 
-        solver = factory.from_settings(dd.data)
+        solver = SolverFactory.from_settings(dd.data)
         self.assertEqual(solver.name, "hyperopt")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
