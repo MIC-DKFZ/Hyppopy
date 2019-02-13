@@ -13,6 +13,9 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+
+from hyppopy.projectmanager import ProjectManager
+
 import os
 import logging
 from hyppopy.globals import DEBUGLEVEL
@@ -32,12 +35,17 @@ class Solver(object):
         self.solver.set_data(data)
 
     def set_hyperparameters(self, params):
-        self.settings.set(params)
+        self.settings.set_hyperparameter(params)
 
     def set_loss_function(self, loss_func):
         self.solver.set_loss_function(loss_func)
 
     def run(self):
+        if not ProjectManager.is_ready():
+            LOG.error("No config data found to initialize PluginSetting object")
+            raise IOError("No config data found to initialize PluginSetting object")
+        hyps = ProjectManager.get_hyperparameter()
+        self.settings.set_hyperparameter(hyps)
         self.solver.settings = self.settings
         self.solver.run()
 

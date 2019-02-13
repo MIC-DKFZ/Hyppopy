@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DKFZ
 #
 #
@@ -334,9 +332,13 @@ class DeepDict(object):
                 data[key] = callback(value)
 
     def transfer_attrs(self, cls, target_section):
-        def set(item):
+        items_set = []
+
+        def set_item(item):
+            items_set.append(item[0])
             setattr(cls, item[0], item[1])
-        DeepDict.sectionconstraint_item_traverse(self.data, target_section, callback=set, section=None)
+        DeepDict.sectionconstraint_item_traverse(self.data, target_section, callback=set_item, section=None)
+        return items_set
 
     @staticmethod
     def sectionconstraint_item_traverse(data, target_section, callback=None, section=None):

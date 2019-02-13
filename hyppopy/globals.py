@@ -10,8 +10,6 @@
 #
 # See LICENSE.txt or http://www.mitk.org for details.
 
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import logging

@@ -30,22 +30,78 @@ class ProjectManager(metaclass=Singleton):
     def __init__(self):
         self.configfilename = None
         self.config = None
+        self._extmembers = []
+
+    def clear(self):
+        self.configfilename = None
+        self.config = None
+        self.remove_externals()
+
+    def is_ready(self):
+        return self.config is not None
+
+    def remove_externals(self):
+        for added in self._extmembers:
+            if added in self.__dict__.keys():
+                del self.__dict__[added]
+        self._extmembers = []
+
+    def get_hyperparameter(self):
+        return self.config["hyperparameter"]
 
     def test_config(self):
-        #TODO test the config structure to fullfill the needs, throwing useful error is not
+        if not isinstance(self.config, DeepDict):
+            msg = f"test_config failed, config is not of type DeepDict"
+            LOG.error(msg)
+            return False
+        sections = ["hyperparameter"]
+        sections += SETTINGSSOLVERPATH.split("/")
+        sections += SETTINGSCUSTOMPATH.split("/")
+        for sec in sections:
+            if not self.config.has_section(sec):
+                msg = f"test_config failed, config has no section {sec}"
+                LOG.error(msg)
+                return False
         return True
 
-    def read_config(self, configfile):
-        self.configfilename = configfile
-        self.config = DeepDict(configfile)
+    def set_config(self, config):
+        self.clear()
+        if isinstance(config, dict):
+            self.config = DeepDict()
+            self.config.data = config
+        elif isinstance(config, DeepDict):
+            self.config = config
+        else:
+            msg = f"unknown type ({type(config)}) for config passed, expected dict or DeepDict"
+            LOG.error(msg)
+            raise IOError(msg)
+
         if not self.test_config():
-            self.configfilename = None
-            self.config = None
+            self.clear()
             return False
 
         try:
-            self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
-            self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
+            self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
+            self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
+        except Exception as e:
+            msg = f"transfering custom section as class attributes failed, " \
+                f"is the config path to your custom section correct? {SETTINGSCUSTOMPATH}. Exception {e}"
+            LOG.error(msg)
+            raise LookupError(msg)
+
+        return True
+
+    def read_config(self, configfile):
+        self.clear()
+        self.configfilename = configfile
+        self.config = DeepDict(configfile)
+        if not self.test_config():
+            self.clear()
+            return False
+
+        try:
+            self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
+            self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
         except Exception as e:
             msg = f"transfering custom section as class attributes failed, " \
                 f"is the config path to your custom section correct? {SETTINGSCUSTOMPATH}. Exception {e}"

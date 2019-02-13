@@ -16,6 +16,7 @@
 import abc
 
 import os
+import copy
 import logging
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -40,9 +41,9 @@ class SettingsPluginBase(object):
     def get_hyperparameter(self):
         return self.convert_parameter(self.data)
 
-    def set(self, data):
+    def set_hyperparameter(self, input_data):
         self.data.clear()
-        self.data = data
+        self.data = copy.deepcopy(input_data)
 
     def read(self, fname):
         self.data.clear()

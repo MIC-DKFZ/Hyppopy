@@ -19,5 +19,8 @@
 	"solver": {
 		"max_iterations": "50",
 		"use_plugin" : "hyperopt"
+	},
+	"custom": {
+		"data_path": "C:/path/to/my/data"
 	}
 }}

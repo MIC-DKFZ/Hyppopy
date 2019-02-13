@@ -15,6 +15,7 @@
 
 from yapsy.PluginManager import PluginManager
 
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.globals import PLUGIN_DEFAULT_DIR
 from hyppopy.deepdict import DeepDict
 from hyppopy.solver import Solver
@@ -112,30 +113,28 @@ class SolverFactory(metaclass=Singleton):
         return list(self._plugins.keys())
 
     def from_settings(self, settings):
-        if isinstance(settings, dict):
-            tmp = DeepDict()
-            tmp.data = settings
-            settings = tmp
-        elif isinstance(settings, str):
+        if isinstance(settings, str):
             if not os.path.isfile(settings):
-                LOG.warning(f"input error, file {settings} not found!")
-            settings = DeepDict(settings)
-
-        if isinstance(settings, DeepDict):
-            if settings.has_section("use_plugin"):
-                try:
-                    use_plugin = settings["settings/solver/use_plugin"]
-                except Exception as e:
-                    LOG.warning("wrong settings path for use_plugin option detected, expecting the path settings/solver/use_plugin!")
-                solver = self.get_solver(use_plugin)
-                solver.set_hyperparameters(settings['hyperparameter'])
-                return solver
-            LOG.warning("failed to choose a solver, either the config file is missing the section settings/solver/use_plugin, or there might be a typo")
+                LOG.error(f"input error, file {settings} not found!")
+            if not ProjectManager.read_config(settings):
+                LOG.error("failed to read config in ProjectManager!")
+                return None
         else:
-            msg = "unknown input error, expected DeepDict, dict or filename!"
+            if not ProjectManager.set_config(settings):
+                LOG.error("failed to set config in ProjectManager!")
+                return None
+
+        if not ProjectManager.is_ready():
+            LOG.error("failed to set config in ProjectManager!")
+            return None
+
+        try:
+            solver = self.get_solver(ProjectManager.use_plugin)
+        except Exception as e:
+            msg = f"failed to create solver, reason {e}"
             LOG.error(msg)
-            raise IOError(msg)
-        return None
+            return None
+        return solver
 
     def get_solver(self, name):
         """

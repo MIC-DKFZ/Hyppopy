@@ -32,7 +32,7 @@ class WorkflowBase(object):
 
     def __init__(self):
         self._solver = SolverFactory.get_solver(ProjectManager.use_plugin)
-        self.solver.set_hyperparameters(ProjectManager.config['hyperparameter'])
+        self.solver.set_hyperparameters(ProjectManager.get_hyperparameter())
 
     def run(self):
         self.setup()

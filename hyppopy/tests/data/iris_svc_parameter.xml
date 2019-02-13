@@ -21,5 +21,8 @@
 			<max_iterations>50</max_iterations>
 			<use_plugin>optunity</use_plugin>
 		</solver>
+		<custom>
+			<data_path>C:/path/to/my/data</data_path>
+		</custom>
 	</settings>
 </hyppopy>

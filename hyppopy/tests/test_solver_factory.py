@@ -24,6 +24,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 
 from hyppopy.solverfactory import SolverFactory
+from hyppopy.projectmanager import ProjectManager
 
 from hyppopy.globals import TESTDATA_DIR
 TESTPARAMFILE = os.path.join(TESTDATA_DIR, 'iris_svc_parameter')
@@ -49,16 +50,16 @@ class SolverFactoryTestSuite(unittest.TestCase):
             clf = SVC(**params)
             return -cross_val_score(clf, data[0], data[1], cv=3).mean()
 
+        ProjectManager.read_config(TESTPARAMFILE + '.xml')
         solver = SolverFactory.get_solver('optunity')
         solver.set_data(self.my_IRIS_dta)
-        solver.read_parameter(TESTPARAMFILE + '.xml')
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()
 
+        ProjectManager.read_config(TESTPARAMFILE + '.json')
         solver = SolverFactory.get_solver('hyperopt')
         solver.set_data(self.my_IRIS_dta)
-        solver.read_parameter(TESTPARAMFILE + '.json')
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
         solver.get_results()
