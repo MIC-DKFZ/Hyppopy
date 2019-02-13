@@ -135,6 +135,9 @@ class DeepDict(object):
     def __len__(self):
         return len(self._data)
 
+    def items(self):
+        return self.data.items()
+
     def clear(self):
         """
         clears the instance data
@@ -329,6 +332,52 @@ class DeepDict(object):
                 DeepDict.value_traverse(data[key], callback)
             else:
                 data[key] = callback(value)
+
+    def transfer_attrs(self, cls, target_section):
+        def set(item):
+            setattr(cls, item[0], item[1])
+        DeepDict.sectionconstraint_item_traverse(self.data, target_section, callback=set, section=None)
+
+    @staticmethod
+    def sectionconstraint_item_traverse(data, target_section, callback=None, section=None):
+        """
+        Dictionary filter function, walks through the input dict (obj) calling the callback function for each item.
+        The callback function then is called with the key value pair as tuple input but only for the target section.
+        :param data: [dict] input dictionary
+        :param callback:
+        """
+        if not isinstance(data, dict):
+            LOG.error("Input Error, expect dict type for obj")
+            raise IOError("Input Error, expect dict type for obj")
+        if not isinstance(callback, types.FunctionType):
+            LOG.error("Input Error, expect function type for callback")
+            raise IOError("Input Error, expect function type for callback")
+        for key, value in data.items():
+            if isinstance(value, dict):
+                DeepDict.sectionconstraint_item_traverse(data[key], target_section, callback, key)
+            else:
+                if target_section == section:
+                    callback((key, value))
+
+    @staticmethod
+    def item_traverse(data, callback=None):
+        """
+        Dictionary filter function, walks through the input dict (obj) calling the callback function for each item.
+        The callback function then is called with the key value pair as tuple input.
+        :param data: [dict] input dictionary
+        :param callback:
+        """
+        if not isinstance(data, dict):
+            LOG.error("Input Error, expect dict type for obj")
+            raise IOError("Input Error, expect dict type for obj")
+        if not isinstance(callback, types.FunctionType):
+            LOG.error("Input Error, expect function type for callback")
+            raise IOError("Input Error, expect function type for callback")
+        for key, value in data.items():
+            if isinstance(value, dict):
+                DeepDict.value_traverse(data[key], callback)
+            else:
+                callback((key, value))
 
     @staticmethod
     def parse_type(string):

@@ -15,8 +15,9 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-from hyppopy.solverfactory import SolverFactory
 from hyppopy.deepdict import DeepDict
+from hyppopy.solverfactory import SolverFactory
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.globals import SETTINGSCUSTOMPATH, SETTINGSSOLVERPATH
 
 import os
@@ -27,24 +28,11 @@ LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 
-class Workflow(object):
-    _solver = None
-    _args = None
+class WorkflowBase(object):
 
-    def __init__(self, args):
-        self._args = args
-        if args.plugin is None or args.plugin == '':
-            dd = DeepDict(args.config)
-            ppath = "use_plugin"
-            if not dd.has_section(ppath):
-                msg = f"invalid config file, missing section {ppath}"
-                LOG.error(msg)
-                raise LookupError(msg)
-            plugin = dd[SETTINGSSOLVERPATH+'/'+ppath]
-        else:
-            plugin = args.plugin
-        self._solver = SolverFactory.get_solver(plugin)
-        self.solver.read_parameter(args.config)
+    def __init__(self):
+        self._solver = SolverFactory.get_solver(ProjectManager.use_plugin)
+        self.solver.set_hyperparameters(ProjectManager.config['hyperparameter'])
 
     def run(self):
         self.setup()
@@ -71,6 +59,3 @@ class Workflow(object):
     def solver(self):
         return self._solver
 
-    @property
-    def args(self):
-        return self._args

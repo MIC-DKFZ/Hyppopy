@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DKFZ
 #
 #
@@ -148,6 +146,18 @@ class DeepDictTestSuite(unittest.TestCase):
     def test_len(self):
         dd = DeepDict(os.path.join(DATA_PATH, 'test_paramset.json'))
         self.assertEqual(len(dd), 1)
+
+    def test_setattr(self):
+        dd = DeepDict(os.path.join(DATA_PATH, 'iris_svc_parameter.xml'))
+
+        class Foo(object):
+            def __init__(self):
+                pass
+        foo = Foo
+        dd.transfer_attrs(foo, 'solver')
+        self.assertEqual(foo.max_iterations, 50)
+        self.assertEqual(foo.use_plugin, 'optunity')
+
 
 if __name__ == '__main__':
     unittest.main()

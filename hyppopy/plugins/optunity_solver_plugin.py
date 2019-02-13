@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DKFZ
 #
 #
@@ -25,6 +23,7 @@ from pprint import pformat
 
 import optunity
 from yapsy.IPlugin import IPlugin
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.solverpluginbase import SolverPluginBase
 
 
@@ -53,7 +52,7 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         self.status = []
         try:
             self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.loss_function,
-                                                                                    num_evals=self.settings.max_iterations,
+                                                                                    num_evals=ProjectManager.max_iterations,
                                                                                     search_space=parameter)
         except Exception as e:
             LOG.error(f"internal error in optunity.minimize_structured occured. {e}")

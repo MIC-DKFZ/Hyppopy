@@ -128,7 +128,7 @@ class SolverFactory(metaclass=Singleton):
                 except Exception as e:
                     LOG.warning("wrong settings path for use_plugin option detected, expecting the path settings/solver/use_plugin!")
                 solver = self.get_solver(use_plugin)
-                solver.set_parameters(settings)
+                solver.set_hyperparameters(settings['hyperparameter'])
                 return solver
             LOG.warning("failed to choose a solver, either the config file is missing the section settings/solver/use_plugin, or there might be a typo")
         else:

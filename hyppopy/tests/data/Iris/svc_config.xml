@@ -27,6 +27,7 @@
 			<use_plugin>hyperopt</use_plugin>
 		</solver>
 		<custom>
+			<data_path>D:/Projects/Python/hyppopy/hyppopy/tests/data/Iris</data_path>
 			<data_name>train_data.npy</data_name>
 			<labels_name>train_labels.npy</labels_name>
 		</custom>

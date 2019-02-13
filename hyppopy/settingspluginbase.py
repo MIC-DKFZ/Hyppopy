@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # DKFZ
 #
 #
@@ -33,14 +31,14 @@ class SettingsPluginBase(object):
     _name = None
 
     def __init__(self):
-        self._data = DeepDict()
+        self._data = {}
 
     @abc.abstractmethod
     def convert_parameter(self):
         raise NotImplementedError('users must define convert_parameter to use this base class')
 
     def get_hyperparameter(self):
-        return self.convert_parameter(self.data["hyperparameter"])
+        return self.convert_parameter(self.data)
 
     def set(self, data):
         self.data.clear()
@@ -53,16 +51,6 @@ class SettingsPluginBase(object):
     def write(self, fname):
         self.data.to_file(fname)
 
-    def set_attributes(self, cls):
-        if self.data.has_section(SETTINGSSOLVERPATH.split('/')[-1]):
-            attrs_sec = self.data[SETTINGSSOLVERPATH]
-            for key, value in attrs_sec.items():
-                setattr(cls, key, value)
-        if self.data.has_section(SETTINGSCUSTOMPATH.split('/')[-1]):
-            attrs_sec = self.data[SETTINGSCUSTOMPATH]
-            for key, value in attrs_sec.items():
-                setattr(cls, key, value)
-
     @property
     def data(self):
         return self._data
@@ -70,9 +58,9 @@ class SettingsPluginBase(object):
     @data.setter
     def data(self, value):
         if isinstance(value, dict):
-            self._data.data = value
-        elif isinstance(value, DeepDict):
             self._data = value
+        elif isinstance(value, DeepDict):
+            self._data = value.data
         else:
             raise IOError(f"unexpected input type({type(value)}) for data, needs to be of type dict or DeepDict!")
 

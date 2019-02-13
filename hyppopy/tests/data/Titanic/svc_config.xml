@@ -27,6 +27,7 @@
 			<use_plugin>optunity</use_plugin>
 		</solver>
 		<custom>
+			<data_path>D:/Projects/Python/hyppopy/hyppopy/tests/data/Titanic</data_path>
 			<data_name>train_cleaned.csv</data_name>
 			<labels_name>Survived</labels_name>
 		</custom>

@@ -26,6 +26,7 @@
 		"use_plugin" : "hyperopt"
 	},
 	"custom": {
+		"data_path": "D:/Projects/Python/hyppopy/hyppopy/tests/data/Titanic",
 		"data_name": "train_cleaned.csv",
 		"labels_name": "Survived"
 	}

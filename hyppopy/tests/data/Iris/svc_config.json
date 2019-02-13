@@ -26,6 +26,7 @@
 		"use_plugin" : "optunity"
 	},
 	"custom": {
+		"data_path": "D:/Projects/Python/hyppopy/hyppopy/tests/data/Iris",
 		"data_name": "train_data.npy",
 		"labels_name": "train_labels.npy"
 	}

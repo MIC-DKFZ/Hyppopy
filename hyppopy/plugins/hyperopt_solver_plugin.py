@@ -26,6 +26,7 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
 from yapsy.IPlugin import IPlugin
 
 
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.solverpluginbase import SolverPluginBase
 
 
@@ -54,7 +55,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             self.best = fmin(fn=self.loss_function,
                              space=parameter,
                              algo=tpe.suggest,
-                             max_evals=self.settings.max_iterations,
+                             max_evals=ProjectManager.max_iterations,
                              trials=self.trials)
         except Exception as e:
             msg = f"internal error in hyperopt.fmin occured. {e}"

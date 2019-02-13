@@ -17,19 +17,19 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-from hyppopy.workflows.workflowbase import Workflow
-from hyppopy.workflows.datalaoder.simpleloader import SimpleDataLoader
+from hyppopy.projectmanager import ProjectManager
+from hyppopy.workflows.workflowbase import WorkflowBase
+from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoaderBase
 
 
-class randomforest_usecase(Workflow):
-
-    def __init__(self, args):
-        Workflow.__init__(self, args)
+class randomforest_usecase(WorkflowBase):
 
     def setup(self):
-        dl = SimpleDataLoader()
-        dl.read(path=self.args.data, data_name=self.solver.settings.data_name, labels_name=self.solver.settings.labels_name)
-        self.solver.set_data(dl.get())
+        dl = SimpleDataLoaderBase()
+        dl.start(path=ProjectManager.data_path,
+                 data_name=ProjectManager.data_name,
+                 labels_name=ProjectManager.labels_name)
+        self.solver.set_data(dl.data)
 
     def blackbox_function(self, data, params):
         if "n_estimators" in params.keys():
