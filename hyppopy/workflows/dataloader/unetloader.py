@@ -18,7 +18,7 @@ import pickle
 import numpy as np
 from medpy.io import load
 from collections import defaultdict
-from hyppopy.workflows.dataloader.dataloaderbase import DataLoaderBase
+from .dataloaderbase import DataLoaderBase
 
 
 class UnetDataLoader(DataLoaderBase):
@@ -152,3 +152,8 @@ class UnetDataLoader(DataLoaderBase):
         with open(os.path.join(output_dir, 'splits.pkl'), 'wb') as f:
             pickle.dump(splits, f)
         return splits
+
+
+
+
+
