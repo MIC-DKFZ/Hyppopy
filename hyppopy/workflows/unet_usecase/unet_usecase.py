@@ -85,7 +85,7 @@ class unet_usecase(WorkflowBase):
         scheduler = ReduceLROnPlateau(optimizer, 'min')
 
         losses = []
-        print(f"n_epochs {params['n_epochs']}")
+        print("n_epochs {}".format(params['n_epochs']))
         for epoch in range(params["n_epochs"]):
             #### Train ####
             model.train()

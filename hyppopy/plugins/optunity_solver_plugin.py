@@ -43,20 +43,20 @@ class optunity_Solver(SolverPluginBase, IPlugin):
             self.status.append('ok')
             return loss
         except Exception as e:
-            LOG.error(f"computing loss failed due to:\n {e}")
+            LOG.error("computing loss failed due to:\n {}".format(e))
             self.status.append('fail')
             return 1e9
 
     def execute_solver(self, parameter):
-        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(parameter)}\n")
+        LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
         self.status = []
         try:
             self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.loss_function,
                                                                                     num_evals=ProjectManager.max_iterations,
                                                                                     search_space=parameter)
         except Exception as e:
-            LOG.error(f"internal error in optunity.minimize_structured occured. {e}")
-            raise BrokenPipeError(f"internal error in optunity.minimize_structured occured. {e}")
+            LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
+            raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
 
     def convert_results(self):
         solution = dict([(k, v) for k, v in self.best.items() if v is not None])
@@ -64,8 +64,8 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         txt = ""
         txt += 'Solution Optunity Plugin\n========\n'
         txt += "\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items()))
-        txt += f"\nSolver used: {self.solver_info['solver_name']}"
-        txt += f"\nOptimum: {self.trials.optimum}"
-        txt += f"\nIterations used: {self.trials.stats['num_evals']}"
-        txt += f"\nDuration: {self.trials.stats['time']} s\n"
+        txt += "\nSolver used: {}".format(self.solver_info['solver_name'])
+        txt += "\nOptimum: {}".format(self.trials.optimum)
+        txt += "\nIterations used: {}".format(self.trials.stats['num_evals'])
+        txt += "\nDuration: {} s\n".format(self.trials.stats['time'])
         return txt

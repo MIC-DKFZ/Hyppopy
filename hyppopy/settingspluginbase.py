@@ -63,7 +63,7 @@ class SettingsPluginBase(object):
         elif isinstance(value, DeepDict):
             self._data = value.data
         else:
-            raise IOError(f"unexpected input type({type(value)}) for data, needs to be of type dict or DeepDict!")
+            raise IOError("unexpected input type({}) for data, needs to be of type dict or DeepDict!".format(type(value)))
 
 
     @property
@@ -73,6 +73,6 @@ class SettingsPluginBase(object):
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            LOG.error(f"Invalid input, str type expected for value, got {type(value)} instead")
-            raise IOError(f"Invalid input, str type expected for value, got {type(value)} instead")
+            LOG.error("Invalid input, str type expected for value, got {} instead".format(type(value)))
+            raise IOError("Invalid input, str type expected for value, got {} instead".format(type(value)))
         self._name = value

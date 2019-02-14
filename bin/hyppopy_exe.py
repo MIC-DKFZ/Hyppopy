@@ -62,7 +62,7 @@ if __name__ == "__main__":
     elif args.workflow == "unet_usecase":
         uc = unet_usecase()
     else:
-        print(f"No workflow called {args.workflow} found!")
+        print("No workflow called {} found!".format(args.workflow))
         sys.exit()
 
     uc.run()

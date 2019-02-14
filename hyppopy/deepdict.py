@@ -65,7 +65,7 @@ class DeepDict(object):
     def __init__(self, in_data=None, path_sep="/"):
         self.clear()
         self._sep = path_sep
-        LOG.debug(f"path separator is: {self._sep}")
+        LOG.debug("path separator is: {}".format(self._sep))
         if in_data is not None:
             if isinstance(in_data, str):
                 self.from_file(in_data)
@@ -166,15 +166,15 @@ class DeepDict(object):
         if not isinstance(fname, str):
             raise IOError("Input Error, expect str type for fname")
         if not os.path.isfile(fname):
-            raise IOError(f"File {fname} not found!")
-        LOG.debug(f"read_json({fname})")
+            raise IOError("File {} not found!".format(fname))
+        LOG.debug("read_json({})".format(fname))
         try:
             with open(fname, "r") as read_file:
                 self._data = json.load(read_file)
             DeepDict.value_traverse(self.data, callback=DeepDict.parse_type)
         except Exception as e:
-            LOG.error(f"Error while reading json file {fname} or while converting types")
-            raise IOError("Error while reading json file {fname} or while converting types")
+            LOG.error("Error while reading json file {} or while converting types".format(fname))
+            raise IOError("Error while reading json file {} or while converting types".format(fname))
 
     def read_xml(self, fname):
         """
@@ -184,15 +184,15 @@ class DeepDict(object):
         if not isinstance(fname, str):
             raise IOError("Input Error, expect str type for fname")
         if not os.path.isfile(fname):
-            raise IOError(f"File {fname} not found!")
-        LOG.debug(f"read_xml({fname})")
+            raise IOError("File {} not found!".format(fname))
+        LOG.debug("read_xml({})".format(fname))
         try:
             with open(fname, "r") as read_file:
                 xml = "".join(read_file.readlines())
                 self._data = xmltodict.parse(xml, attr_prefix='')
             DeepDict.value_traverse(self.data, callback=DeepDict.parse_type)
         except Exception as e:
-            msg = f"Error while reading xml file {fname} or while converting types"
+            msg = "Error while reading xml file {} or while converting types".format(fname)
             LOG.error(msg)
             raise IOError(msg)
 
@@ -217,7 +217,7 @@ class DeepDict(object):
         elif fname.endswith(".xml"):
             self.write_xml(fname)
         else:
-            LOG.error(f"Unknown filetype, expect [.json, .xml]")
+            LOG.error("Unknown filetype, expect [.json, .xml]")
             raise NotImplementedError("Unknown filetype, expect [.json, .xml]")
 
     def write_json(self, fname):
@@ -229,11 +229,11 @@ class DeepDict(object):
             raise IOError("Input Error, expect str type for fname")
         check_dir_existance(os.path.dirname(fname))
         try:
-            LOG.debug(f"write_json({fname})")
+            LOG.debug("write_json({})".format(fname))
             with open(fname, "w") as write_file:
                 json.dump(self.data, write_file)
         except Exception as e:
-            LOG.error(f"Failed dumping to json file: {fname}")
+            LOG.error("Failed dumping to json file: {}".format(fname))
             raise e
 
     def write_xml(self, fname):
@@ -245,12 +245,12 @@ class DeepDict(object):
             raise IOError("Input Error, expect str type for fname")
         check_dir_existance(os.path.dirname(fname))
         xml = dicttoxml(self.data, custom_root=DEEPDICT_XML_ROOT, attr_type=False)
-        LOG.debug(f"write_xml({fname})")
+        LOG.debug("write_xml({})".format(fname))
         try:
             with open(fname, "w") as write_file:
                 write_file.write(xml.decode("utf-8"))
         except Exception as e:
-            LOG.error(f"Failed dumping to xml file: {fname}")
+            LOG.error("Failed dumping to xml file: {}".format(fname))
             raise e
 
     def has_section(self, section):
@@ -272,17 +272,17 @@ class DeepDict(object):
         if isinstance(path, str):
             path = path.split(sep)
         if not isinstance(path, list) or isinstance(path, tuple):
-            LOG.error(f"Input Error, expect list[str] type for path: {path}")
+            LOG.error("Input Error, expect list[str] type for path: {}".format(path))
             raise IOError("Input Error, expect list[str] type for path")
         if not DeepDict.has_key(data, path[-1]):
-            LOG.error(f"Input Error, section {path[-1]} does not exist in dictionary")
-            raise IOError(f"Input Error, section {path[-1]} does not exist in dictionary")
+            LOG.error("Input Error, section {} does not exist in dictionary".format(path[-1]))
+            raise IOError("Input Error, section {} does not exist in dictionary".format(path[-1]))
         try:
             for k in path:
                 data = data[k]
         except Exception as e:
-            LOG.error(f"Failed retrieving data from path {path} due to {e}")
-            raise LookupError(f"Failed retrieving data from path {path} due to {e}")
+            LOG.error("Failed retrieving data from path {} due to {}".format(path, e))
+            raise LookupError("Failed retrieving data from path {} due to {}".format(path, e))
         return data
 
     @staticmethod
@@ -299,8 +299,8 @@ class DeepDict(object):
             LOG.error("Input Error, expect dict type for obj")
             raise IOError("Input Error, expect dict type for obj")
         if not isinstance(section, str):
-            LOG.error(f"Input Error, expect dict type for obj {section}")
-            raise IOError(f"Input Error, expect dict type for obj {section}")
+            LOG.error("Input Error, expect dict type for obj {}".format(section))
+            raise IOError("Input Error, expect dict type for obj {}".format(section))
         if already_found:
             return True
         found = False
@@ -420,8 +420,8 @@ class DeepDict(object):
     @data.setter
     def data(self, value):
         if not isinstance(value, dict):
-            LOG.error(f"Input Error, expect dict type for value, but got {type(value)}")
-            raise IOError(f"Input Error, expect dict type for value, but got {type(value)}")
+            LOG.error("Input Error, expect dict type for value, but got {}".format(type(value)))
+            raise IOError("Input Error, expect dict type for value, but got {}".format(type(value)))
         self.clear()
         self._data = value
 
@@ -432,6 +432,6 @@ class DeepDict(object):
     @sep.setter
     def sep(self, value):
         if not isinstance(value, str):
-            LOG.error(f"Input Error, expect str type for value, but got {type(value)}")
-            raise IOError(f"Input Error, expect str type for value, but got {type(value)}")
+            LOG.error("Input Error, expect str type for value, but got {}".format(type(value)))
+            raise IOError("Input Error, expect str type for value, but got {}".format(type(value)))
         self._sep = value

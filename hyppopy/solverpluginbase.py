@@ -64,7 +64,7 @@ class SolverPluginBase(object):
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            msg = f"Invalid input, str type expected for value, got {type(value)} instead"
+            msg = "Invalid input, str type expected for value, got {} instead".format(type(value))
             LOG.error(msg)
             raise IOError(msg)
         self._name = value
@@ -76,7 +76,7 @@ class SolverPluginBase(object):
     @settings.setter
     def settings(self, value):
         if not isinstance(value, SettingsPluginBase):
-            msg = f"Invalid input, SettingsPluginBase type expected for value, got {type(value)} instead"
+            msg = "Invalid input, SettingsPluginBase type expected for value, got {} instead".format(type(value))
             LOG.error(msg)
             raise IOError(msg)
         self._settings = value

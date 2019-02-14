@@ -51,7 +51,7 @@ class ProjectManager(metaclass=Singleton):
 
     def test_config(self):
         if not isinstance(self.config, DeepDict):
-            msg = f"test_config failed, config is not of type DeepDict"
+            msg = "test_config failed, config is not of type DeepDict"
             LOG.error(msg)
             return False
         sections = ["hyperparameter"]
@@ -59,7 +59,7 @@ class ProjectManager(metaclass=Singleton):
         sections += SETTINGSCUSTOMPATH.split("/")
         for sec in sections:
             if not self.config.has_section(sec):
-                msg = f"test_config failed, config has no section {sec}"
+                msg = "test_config failed, config has no section {}".format(sec)
                 LOG.error(msg)
                 return False
         return True
@@ -72,7 +72,7 @@ class ProjectManager(metaclass=Singleton):
         elif isinstance(config, DeepDict):
             self.config = config
         else:
-            msg = f"unknown type ({type(config)}) for config passed, expected dict or DeepDict"
+            msg = "unknown type ({}) for config passed, expected dict or DeepDict".format(type(config))
             LOG.error(msg)
             raise IOError(msg)
 
@@ -84,8 +84,8 @@ class ProjectManager(metaclass=Singleton):
             self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
             self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
         except Exception as e:
-            msg = f"transfering custom section as class attributes failed, " \
-                f"is the config path to your custom section correct? {SETTINGSCUSTOMPATH}. Exception {e}"
+            msg = "transfering custom section as class attributes failed, " \
+                "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH, e)
             LOG.error(msg)
             raise LookupError(msg)
 
@@ -103,8 +103,8 @@ class ProjectManager(metaclass=Singleton):
             self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
             self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
         except Exception as e:
-            msg = f"transfering custom section as class attributes failed, " \
-                f"is the config path to your custom section correct? {SETTINGSCUSTOMPATH}. Exception {e}"
+            msg = "transfering custom section as class attributes failed, " \
+                "is the config path to your custom section correct? {}. Exception {e}".format(SETTINGSCUSTOMPATH, e)
             LOG.error(msg)
             raise LookupError(msg)
 

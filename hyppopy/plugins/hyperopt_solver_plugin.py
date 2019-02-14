@@ -41,12 +41,12 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             loss = self.loss(self.data, params)
             status = STATUS_OK
         except Exception as e:
-            LOG.error(f"execution of self.loss(self.data, params) failed due to:\n {e}")
+            LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
             status = STATUS_FAIL
         return {'loss': loss, 'status': status}
 
     def execute_solver(self, parameter):
-        LOG.debug(f"execute_solver using solution space:\n\n\t{pformat(parameter)}\n")
+        LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
         self.trials = Trials()
 
         try:
@@ -56,7 +56,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
                              max_evals=ProjectManager.max_iterations,
                              trials=self.trials)
         except Exception as e:
-            msg = f"internal error in hyperopt.fmin occured. {e}"
+            msg = "internal error in hyperopt.fmin occured. {}".format(e)
             LOG.error(msg)
             raise BrokenPipeError(msg)
 

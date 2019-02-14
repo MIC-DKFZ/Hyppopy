@@ -41,7 +41,7 @@ class optunity_Settings(SettingsPluginBase, IPlugin):
         LOG.debug("initialized")
 
     def convert_parameter(self, input_dict):
-        LOG.debug(f"convert input parameter\n\n\t{pformat(input_dict)}\n")
+        LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(input_dict)))
 
         # define function spliting input dict
         # into categorical and non-categorical

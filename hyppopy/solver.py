@@ -79,7 +79,8 @@ class Solver(object):
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            LOG.error(f"Invalid input, str type expected for value, got {type(value)} instead")
-            raise IOError(f"Invalid input, str type expected for value, got {type(value)} instead")
+            msg = "Invalid input, str type expected for value, got {} instead".format(type(value))
+            LOG.error(msg)
+            raise IOError(msg)
         self._name = value
 

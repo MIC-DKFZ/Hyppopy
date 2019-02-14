@@ -335,11 +335,11 @@ def subfiles(folder, join=True, prefix=None, suffix=None, sort=True):
 def preprocess_data(root_dir):
     print("preprocess data...")
     image_dir = os.path.join(root_dir, 'imagesTr')
-    print(f"image_dir: {image_dir}")
+    print("image_dir: {}".format(image_dir))
     label_dir = os.path.join(root_dir, 'labelsTr')
-    print(f"label_dir: {label_dir}")
+    print("label_dir: {}".format(label_dir))
     output_dir = os.path.join(root_dir, 'preprocessed')
-    print(f"output_dir: {output_dir} ... ", end="")
+    print("output_dir: {} ... ".format(output_dir), end="")
     classes = 3
 
     if not os.path.exists(output_dir):

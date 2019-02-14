@@ -42,7 +42,7 @@ class hyperopt_Settings(SettingsPluginBase, IPlugin):
         LOG.debug("initialized")
 
     def convert_parameter(self, input_dict):
-        LOG.debug(f"convert input parameter\n\n\t{pformat(input_dict)}\n")
+        LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(input_dict)))
 
         solution_space = {}
         for name, content in input_dict.items():
@@ -71,21 +71,21 @@ class hyperopt_SettingsParticle(SettingsParticle):
                 data = list(np.arange(int(self.data[0]), int(self.data[1]+1)))
                 return hp.choice(self.name, data)
             else:
-                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                msg = "cannot convert the type {} in domain {}".format(self.dtype, self.domain)
                 LOG.error(msg)
                 raise LookupError(msg)
         elif self.domain == "loguniform":
             if self.dtype == "float" or self.dtype == "double":
                 return hp.loguniform(self.name, self.data[0], self.data[1])
             else:
-                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                msg = "cannot convert the type {} in domain {}".format(self.dtype, self.domain)
                 LOG.error(msg)
                 raise LookupError(msg)
         elif self.domain == "normal":
             if self.dtype == "float" or self.dtype == "double":
                 return hp.normal(self.name, self.data[0], self.data[1])
             else:
-                msg = f"cannot convert the type {self.dtype} in domain {self.domain}"
+                msg = "cannot convert the type {} in domain {}".format(self.dtype, self.domain)
                 LOG.error(msg)
                 raise LookupError(msg)
         elif self.domain == "categorical":
@@ -99,7 +99,7 @@ class hyperopt_SettingsParticle(SettingsParticle):
                     elif elem == "false" or elem == "False" or elem == 0 or elem == "0":
                         data .append(False)
                     else:
-                        msg = f"cannot convert the type {self.dtype} in domain {self.domain}, unknown bool type value"
+                        msg = "cannot convert the type {} in domain {}, unknown bool type value".format(self.dtype, self.domain)
                         LOG.error(msg)
                         raise LookupError(msg)
                 return hp.choice(self.name, data)
