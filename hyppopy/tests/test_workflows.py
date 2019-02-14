@@ -32,58 +32,44 @@ class WorkflowTestSuite(unittest.TestCase):
     def test_workflow_svc_on_iris_from_xml(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'svc_config.xml'))
         uc = svc_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 4)
 
     def test_workflow_rf_on_iris_from_xml(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_config.xml'))
         uc = svc_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 6)
 
     def test_workflow_svc_on_iris_from_json(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'svc_config.json'))
         uc = svc_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 4)
 
     def test_workflow_rf_on_iris_from_json(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_config.json'))
         uc = randomforest_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
-
-    # def test_workflow_svc_on_titanic_from_xml(self):
-    #     ProjectManager.read_config(os.path.join(TITANIC_DATA, 'svc_config.xml'))
-    #     uc = svc_usecase()
-    #     uc.run()
-    #     self.results.append(uc.get_results())
-    #     self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 6)
 
     def test_workflow_rf_on_titanic_from_xml(self):
         ProjectManager.read_config(os.path.join(TITANIC_DATA, 'rf_config.xml'))
         uc = randomforest_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
-
-    # def test_workflow_svc_on_titanic_from_json(self):
-    #     ProjectManager.read_config(os.path.join(TITANIC_DATA, 'svc_config.json'))
-    #     uc = svc_usecase()
-    #     uc.run()
-    #     self.results.append(uc.get_results())
-    #     self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 3)
 
     def test_workflow_rf_on_titanic_from_json(self):
         ProjectManager.read_config(os.path.join(TITANIC_DATA, 'rf_config.json'))
         uc = randomforest_usecase()
-        uc.run()
-        self.results.append(uc.get_results())
-        self.assertTrue(uc.get_results().find("Solution") != -1)
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertEqual(len(best.keys()), 3)
 
     def tearDown(self):
         print("")

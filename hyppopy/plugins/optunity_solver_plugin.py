@@ -59,13 +59,6 @@ class optunity_Solver(SolverPluginBase, IPlugin):
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
 
     def convert_results(self):
-        solution = dict([(k, v) for k, v in self.best.items() if v is not None])
-
-        txt = ""
-        txt += 'Solution Optunity Plugin\n========\n'
-        txt += "\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items()))
-        txt += "\nSolver used: {}".format(self.solver_info['solver_name'])
-        txt += "\nOptimum: {}".format(self.trials.optimum)
-        txt += "\nIterations used: {}".format(self.trials.stats['num_evals'])
-        txt += "\nDuration: {} s\n".format(self.trials.stats['time'])
-        return txt
+        results = self.trials.call_log['args']
+        results['losses'] = self.trials.call_log['values']
+        return results, self.best

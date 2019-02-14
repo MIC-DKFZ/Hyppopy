@@ -55,14 +55,12 @@ class SolverFactoryTestSuite(unittest.TestCase):
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
         ProjectManager.read_config(TESTPARAMFILE + '.json')
         solver = SolverFactory.get_solver('hyperopt')
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
     def test_create_solver_from_settings_directly(self):
 
@@ -75,14 +73,12 @@ class SolverFactoryTestSuite(unittest.TestCase):
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
         solver = SolverFactory.from_settings(TESTPARAMFILE + '.json')
         self.assertEqual(solver.name, "hyperopt")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
         dd = DeepDict(TESTPARAMFILE + '.json')
         solver = SolverFactory.from_settings(dd)
@@ -90,14 +86,12 @@ class SolverFactoryTestSuite(unittest.TestCase):
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
         solver = SolverFactory.from_settings(dd.data)
         self.assertEqual(solver.name, "hyperopt")
         solver.set_data(self.my_IRIS_dta)
         solver.set_loss_function(my_SVC_loss_func)
         solver.run()
-        solver.get_results()
 
 
 if __name__ == '__main__':
