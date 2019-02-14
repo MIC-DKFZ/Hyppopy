@@ -20,6 +20,7 @@ from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.unet_usecase.unet_usecase import unet_usecase
 from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
 from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
+from hyppopy.workflows.imageregistration_usecase.imageregistration_usecase import imageregistration_usecase
 
 
 import os
@@ -61,6 +62,8 @@ if __name__ == "__main__":
         uc = randomforest_usecase()
     elif args.workflow == "unet_usecase":
         uc = unet_usecase()
+    elif args.workflow == "imageregistration_usecase":
+        uc = imageregistration_usecase()
     else:
         print("No workflow called {} found!".format(args.workflow))
         sys.exit()
