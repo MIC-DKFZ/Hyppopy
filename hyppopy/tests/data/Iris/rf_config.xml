@@ -35,6 +35,7 @@
 		<solver>
 			<max_iterations>3</max_iterations>
 			<use_plugin>optunity</use_plugin>
+			<output_dir>D:/Projects/Python/hyppopy/hyppopy/tests/data/Iris</output_dir>
 		</solver>
 		<custom>
 			<data_path>D:/Projects/Python/hyppopy/hyppopy/tests/data/Iris</data_path>

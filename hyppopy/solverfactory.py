@@ -40,7 +40,6 @@ class SolverFactory(metaclass=Singleton):
     _plugins = {}
 
     def __init__(self):
-        print("Solverfactory: I'am alive!")
         self.reset()
         self.load_plugins()
         LOG.debug("Solverfactory initialized")
@@ -57,6 +56,7 @@ class SolverFactory(metaclass=Singleton):
         for plugin in manager.getAllPlugins():
             name_elements = plugin.plugin_object.__class__.__name__.split("_")
             LOG.debug("found plugin " + " ".join(map(str, name_elements)))
+            print("Solverfactory: found plugins " + " ".join(map(str, name_elements)))
             if len(name_elements) != 2 or ("Solver" not in name_elements and "Settings" not in name_elements):
                 msg = "invalid plugin class naming for class {}, the convention is libname_Solver or libname_Settings.".format(plugin.plugin_object.__class__.__name__)
                 LOG.error(msg)

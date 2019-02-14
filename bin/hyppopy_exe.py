@@ -29,6 +29,7 @@ from hyppopy.workflows.imageregistration_usecase.imageregistration_usecase impor
 
 import os
 import sys
+import time
 import argparse
 
 
@@ -51,6 +52,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='UNet Hyppopy UseCase Example Optimization.')
     parser.add_argument('-w', '--workflow', type=str,
                         help='workflow to be executed')
+    parser.add_argument('-o', '--output', type=str, default=None)
     parser.add_argument('-c', '--config', type=str, help='config filename, .xml or .json formats are supported.'
                                                          'pass a full path filename or the filename only if the'
                                                          'configfile is in the data folder')
@@ -59,6 +61,9 @@ if __name__ == "__main__":
     args_check(args)
 
     ProjectManager.read_config(args.config)
+
+    if args.output is not None:
+        ProjectManager.output_dir = args.output
 
     if args.workflow == "svc_usecase":
         uc = svc_usecase()
@@ -72,5 +77,14 @@ if __name__ == "__main__":
         print("No workflow called {} found!".format(args.workflow))
         sys.exit()
 
+    print("\nStart optimization...")
+    start = time.process_time()
     uc.run()
-    print(uc.get_results())
+    end = time.process_time()
+
+    print("Finished optimization!\n")
+    print("Total Time: {}s\n".format(end-start))
+    res, best = uc.get_results()
+    print("---- Optimal Parameter -----\n")
+    for p in best.items():
+        print(" - {}\t:\t{}".format(p[0], p[1]))

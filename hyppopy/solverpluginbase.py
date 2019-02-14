@@ -16,6 +16,7 @@
 import abc
 
 import os
+import time
 import logging
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.settingspluginbase import SettingsPluginBase
@@ -29,6 +30,7 @@ class SolverPluginBase(object):
     loss = None
     _settings = None
     _name = None
+    _timer = []
 
     def __init__(self):
         pass
@@ -47,6 +49,7 @@ class SolverPluginBase(object):
 
     def set_data(self, data):
         self.data = data
+        self._timer = []
 
     def set_loss_function(self, func):
         self.loss = func
@@ -55,7 +58,10 @@ class SolverPluginBase(object):
         return self.convert_results()
 
     def run(self):
+        start = time.time()
         self.execute_solver(self.settings.get_hyperparameter())
+        end = time.time()
+        self._timer.append(end - start)
 
     @property
     def name(self):

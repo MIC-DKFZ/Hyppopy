@@ -34,10 +34,12 @@ class WorkflowBase(object):
         self._solver = SolverFactory.get_solver(ProjectManager.use_plugin)
         self.solver.set_hyperparameters(ProjectManager.get_hyperparameter())
 
-    def run(self):
+    def run(self, save=True):
         self.setup()
         self.solver.set_loss_function(self.blackbox_function)
         self.solver.run()
+        if save:
+            self.solver.save_results()
         self.test()
 
     def get_results(self):

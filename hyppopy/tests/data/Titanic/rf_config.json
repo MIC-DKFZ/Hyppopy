@@ -18,7 +18,8 @@
 "settings": {
 	"solver": {
 		"max_iterations": "3",
-		"use_plugin" : "optunity"
+		"use_plugin" : "optunity",
+		"output_dir": "D:/Projects/Python/hyppopy/hyppopy/tests/data/Titanic"
 	},
 	"custom": {
 		"data_path": "D:/Projects/Python/hyppopy/hyppopy/tests/data/Titanic",

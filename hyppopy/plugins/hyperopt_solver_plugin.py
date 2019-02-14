@@ -61,9 +61,20 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
             raise BrokenPipeError(msg)
 
     def convert_results(self):
-        txt = ""
-        solution = dict([(k, v) for k, v in self.best.items() if v is not None])
-        txt += 'Solution Hyperopt Plugin\n========\n'
-        txt += "\n".join(map(lambda x: "%s \t %s" % (x[0], str(x[1])), solution.items()))
-        txt += "\n"
-        return txt
+        # currently converting results in a way that this function returns a dict
+        # keeping all useful parameter as key/list item. This will be automatically
+        # converted to a pandas dataframe in the solver class
+        results = {'timing ms': [], 'losses': []}
+        pset = self.trials.trials[0]['misc']['vals']
+        for p in pset.keys():
+            results[p] = []
+
+        for n, trial in enumerate(self.trials.trials):
+            t1 = trial['book_time']
+            t2 = trial['refresh_time']
+            results['timing ms'].append((t2 - t1).microseconds/1000.0)
+            results['losses'].append(trial['result']['loss'])
+            pset = trial['misc']['vals']
+            for p in pset.items():
+                results[p[0]].append(p[1][0])
+        return results, self.best
