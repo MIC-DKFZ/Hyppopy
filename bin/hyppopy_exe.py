@@ -15,6 +15,10 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import os
+import sys
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(ROOT)
 
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.unet_usecase.unet_usecase import unet_usecase
