@@ -15,7 +15,7 @@ from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoader
 
 # until Hyppopy is not fully installable we need
 # to set the Hyppopy package folder by hand
-HYPPOPY_DIR = "D:/Projects/Python/hyppopy"
+HYPPOPY_DIR = "D:/MyPythonModules/hyppopy"
 sys.path.append(HYPPOPY_DIR)
 
 # let the ProjectManager read your config file
@@ -43,5 +43,5 @@ solver.set_loss_function(blackbox_function)
 # run the solver
 solver.run()
 # store your results
-solver.save_results(savedir="C:\\Users\\s635r\\Desktop\\myTestProject")
+solver.save_results(savedir="C:\\Users\\Me\\Desktop\\myTestProject")
 # --------------------------------------
