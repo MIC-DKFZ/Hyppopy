@@ -31,8 +31,7 @@ LOG.setLevel(DEBUGLEVEL)
 class WorkflowBase(object):
 
     def __init__(self):
-        self._solver = SolverFactory.get_solver(ProjectManager.use_plugin)
-        self.solver.set_hyperparameters(ProjectManager.get_hyperparameter())
+        self._solver = SolverFactory.get_solver()
 
     def run(self, save=True):
         self.setup()
@@ -46,7 +45,7 @@ class WorkflowBase(object):
         return self.solver.get_results()
 
     @abc.abstractmethod
-    def setup(self):
+    def setup(self, **kwargs):
         raise NotImplementedError('the user has to implement this function')
 
     @abc.abstractmethod

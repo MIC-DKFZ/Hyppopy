@@ -46,8 +46,7 @@ class Solver(object):
         if not ProjectManager.is_ready():
             LOG.error("No config data found to initialize PluginSetting object")
             raise IOError("No config data found to initialize PluginSetting object")
-        hyps = ProjectManager.get_hyperparameter()
-        self.settings.set_hyperparameter(hyps)
+        self.settings.set_hyperparameter(ProjectManager.get_hyperparameter())
         self.solver.settings = self.settings
         self.solver.run()
 
@@ -65,9 +64,9 @@ class Solver(object):
                 print("WARNING: No solver option output_dir found, cannot save results!")
                 LOG.warning("WARNING: No solver option output_dir found, cannot save results!")
         else:
+            dir = savedir
             if not os.path.isdir(savedir):
                 os.mkdir(savedir)
-                dir = savedir
 
         tstr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         name = savename + "_all_" + tstr + ".csv"

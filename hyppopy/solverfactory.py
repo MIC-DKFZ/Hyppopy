@@ -140,12 +140,19 @@ class SolverFactory(metaclass=Singleton):
             return None
         return solver
 
-    def get_solver(self, name):
+    def get_solver(self, name=None):
         """
         returns a solver by name tag
         :param name: [str] solver name
         :return: [Solver] instance
         """
+        if name is None:
+            try:
+                name = ProjectManager.use_plugin
+            except Exception as e:
+                msg = "failed to setup solver, no solver specified, check your ProjectManager for the use_plugin value!"
+                LOG.error(msg)
+                raise LookupError(msg)
         if not isinstance(name, str):
             msg = "Invalid input, str type expected for name, got {} instead".format(type(name))
             LOG.error(msg)

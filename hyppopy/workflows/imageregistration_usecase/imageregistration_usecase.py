@@ -29,7 +29,7 @@ from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoaderBase # Thi
 
 class imageregistration_usecase(WorkflowBase):
 
-    def setup(self):
+    def setup(self, **kwargs):
         # here you create your own DataLoader instance
         dl = SimpleDataLoaderBase()
         # call the start function of your DataLoader

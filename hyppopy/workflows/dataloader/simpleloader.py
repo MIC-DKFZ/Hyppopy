@@ -20,7 +20,7 @@ import pandas as pd
 from hyppopy.workflows.dataloader.dataloaderbase import DataLoaderBase
 
 
-class SimpleDataLoaderBase(DataLoaderBase):
+class SimpleDataLoader(DataLoaderBase):
 
     def read(self, **kwargs):
         if kwargs['data_name'].endswith(".npy"):
