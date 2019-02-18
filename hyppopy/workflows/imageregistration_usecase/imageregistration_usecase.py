@@ -24,14 +24,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
 # import your custom DataLoader
-from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoaderBase # This is a dataloader class create your own
+from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoader # This is a dataloader class create your own
 
 
 class imageregistration_usecase(WorkflowBase):
 
     def setup(self, **kwargs):
         # here you create your own DataLoader instance
-        dl = SimpleDataLoaderBase()
+        dl = SimpleDataLoader()
         # call the start function of your DataLoader
         dl.start(path=ProjectManager.data_path,
                  data_name=ProjectManager.data_name,
