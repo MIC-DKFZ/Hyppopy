@@ -26,8 +26,8 @@ LOG.setLevel(DEBUGLEVEL)
 
 
 class SolverPluginBase(object):
-    data = None
-    loss = None
+    _data = None
+    _loss = None
     _settings = None
     _name = None
 
@@ -47,16 +47,24 @@ class SolverPluginBase(object):
         raise NotImplementedError('users must define convert_results to use this base class')
 
     def set_data(self, data):
-        self.data = data
+        self._data = data
 
     def set_loss_function(self, func):
-        self.loss = func
+        self._loss = func
 
     def get_results(self):
         return self.convert_results()
 
     def run(self):
         self.execute_solver(self.settings.get_hyperparameter())
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def loss(self):
+        return self._loss
 
     @property
     def name(self):
