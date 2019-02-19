@@ -32,7 +32,5 @@ class randomforest_usecase(WorkflowBase):
         self.solver.set_data(dl.data)
 
     def blackbox_function(self, data, params):
-        if "n_estimators" in params.keys():
-            params["n_estimators"] = int(round(params["n_estimators"]))
         clf = RandomForestClassifier(**params)
         return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()

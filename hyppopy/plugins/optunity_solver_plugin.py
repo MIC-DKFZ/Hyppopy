@@ -37,9 +37,12 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         SolverPluginBase.__init__(self)
         LOG.debug("initialized")
 
-    def loss_function(self, **params):
+    def blackbox_function(self, **params):
         try:
-            loss = self.loss(self.data, params)
+            for key in params.keys():
+                if self.settings.get_type_of(key) == 'int':
+                    params[key] = int(round(params[key]))
+            loss = self.blackbox_function_template(self.data, params)
             self.status.append('ok')
             return loss
         except Exception as e:
@@ -51,7 +54,7 @@ class optunity_Solver(SolverPluginBase, IPlugin):
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
         self.status = []
         try:
-            self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.loss_function,
+            self.best, self.trials, self.solver_info = optunity.minimize_structured(f=self.blackbox_function,
                                                                                     num_evals=ProjectManager.max_iterations,
                                                                                     search_space=parameter)
         except Exception as e:

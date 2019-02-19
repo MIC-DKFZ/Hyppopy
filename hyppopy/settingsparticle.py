@@ -67,6 +67,10 @@ class SettingsParticle(object):
 
     @domain.setter
     def domain(self, value):
+        if not value in self.domains:
+            msg = "domain named {} not available, check your domain name or implement new domain!".format(value)
+            LOG.error(msg)
+            raise LookupError(msg)
         self._domain = value
 
     @property

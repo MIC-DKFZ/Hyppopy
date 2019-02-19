@@ -15,11 +15,13 @@
 
 
 from hyppopy.projectmanager import ProjectManager
+from hyppopy.resultviewer import ResultViewer
 
 import os
 import datetime
 import logging
 import pandas as pd
+from hyppopy.globals import LIBNAME
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -34,27 +36,27 @@ class Solver(object):
         pass
 
     def set_data(self, data):
-        self.solver.set_data(data)
+        self._solver_plugin.set_data(data)
 
     def set_hyperparameters(self, params):
-        self.settings.set_hyperparameter(params)
+        self.settings_plugin.set_hyperparameter(params)
 
-    def set_loss_function(self, loss_func):
-        self.solver.set_loss_function(loss_func)
+    def set_loss_function(self, func):
+        self._solver_plugin.set_blackbox_function(func)
 
     def run(self):
         if not ProjectManager.is_ready():
             LOG.error("No config data found to initialize PluginSetting object")
             raise IOError("No config data found to initialize PluginSetting object")
-        self.settings.set_hyperparameter(ProjectManager.get_hyperparameter())
-        self.solver.settings = self.settings
-        self.solver.run()
+        self.settings_plugin.set_hyperparameter(ProjectManager.get_hyperparameter())
+        self._solver_plugin.settings = self.settings_plugin
+        self._solver_plugin.run()
 
-    def save_results(self, savedir=None, savename=None):
+    def save_results(self, savedir=None, savename=None, show=False):
         df, best = self.get_results()
         dir = None
         if savename is None:
-            savename = "hypopy"
+            savename = LIBNAME
         if savedir is None:
             if 'output_dir' in ProjectManager.__dict__.keys():
                 if not os.path.isdir(ProjectManager.output_dir):
@@ -70,37 +72,44 @@ class Solver(object):
 
         tstr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         name = savename + "_all_" + tstr + ".csv"
-        fname = os.path.join(dir, name)
-        df.to_csv(fname)
+        fname_all = os.path.join(dir, name)
+        df.to_csv(fname_all)
         name = savename + "_best_" + tstr + ".txt"
-        fname = os.path.join(dir, name)
-        with open(fname, "w") as text_file:
+        fname_best = os.path.join(dir, name)
+        with open(fname_best, "w") as text_file:
             for item in best.items():
                 text_file.write("{}\t:\t{}\n".format(item[0], item[1]))
 
+        if show:
+            viewer = ResultViewer(fname_all)
+            viewer.show()
+        else:
+            viewer = ResultViewer(fname_all, save_only=True)
+            viewer.show()
+
     def get_results(self):
-        results, best = self.solver.get_results()
+        results, best = self._solver_plugin.get_results()
         df = pd.DataFrame.from_dict(results)
         return df, best
 
     @property
     def is_ready(self):
-        return self.solver is not None and self.settings is not None
+        return self._solver_plugin is not None and self.settings_plugin is not None
 
     @property
-    def solver(self):
+    def solver_plugin(self):
         return self._solver_plugin
 
-    @solver.setter
-    def solver(self, value):
+    @solver_plugin.setter
+    def solver_plugin(self, value):
         self._solver_plugin = value
 
     @property
-    def settings(self):
+    def settings_plugin(self):
         return self._settings_plugin
 
-    @settings.setter
-    def settings(self, value):
+    @settings_plugin.setter
+    def settings_plugin(self, value):
         self._settings_plugin = value
 
     @property

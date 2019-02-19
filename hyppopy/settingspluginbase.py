@@ -43,6 +43,27 @@ class SettingsPluginBase(object):
         self.data.clear()
         self.data = copy.deepcopy(input_data)
 
+    def get_type_of(self, name):
+        if not name in self.data:
+            msg = "hyperparameter named {} not found!".format(name)
+            LOG.error(msg)
+            raise LookupError(msg)
+        return self.data[name]["type"]
+
+    def get_domain_of(self, name):
+        if not name in self.data:
+            msg = "hyperparameter named {} not found!".format(name)
+            LOG.error(msg)
+            raise LookupError(msg)
+        return self.data[name]["domain"]
+
+    def get_data_of(self, name):
+        if not name in self.data:
+            msg = "hyperparameter named {} not found!".format(name)
+            LOG.error(msg)
+            raise LookupError(msg)
+        return self.data[name]["data"]
+
     def read(self, fname):
         self.data.clear()
         self.data.from_file(fname)

@@ -68,7 +68,7 @@ class SolverFactory(metaclass=Singleton):
                 try:
                     obj = plugin.plugin_object.__class__()
                     obj.name = name_elements[0]
-                    self._plugins[name_elements[0]].solver = obj
+                    self._plugins[name_elements[0]].solver_plugin = obj
                     LOG.info("plugin: {} Solver loaded".format(name_elements[0]))
                 except Exception as e:
                     msg = "failed to instanciate class {}".format(plugin.plugin_object.__class__.__name__)
@@ -78,7 +78,7 @@ class SolverFactory(metaclass=Singleton):
                 try:
                     obj = plugin.plugin_object.__class__()
                     obj.name = name_elements[0]
-                    self._plugins[name_elements[0]].settings = obj
+                    self._plugins[name_elements[0]].settings_plugin = obj
                     LOG.info("plugin: {} ParameterSpace loaded".format(name_elements[0]))
                 except Exception as e:
                     msg = "failed to instanciate class {}".format(plugin.plugin_object.__class__.__name__)

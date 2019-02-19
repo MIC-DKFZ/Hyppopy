@@ -16,7 +16,6 @@
 import abc
 
 import os
-import time
 import logging
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.settingspluginbase import SettingsPluginBase
@@ -27,7 +26,7 @@ LOG.setLevel(DEBUGLEVEL)
 
 class SolverPluginBase(object):
     _data = None
-    _loss = None
+    _blackbox_function_template = None
     _settings = None
     _name = None
 
@@ -35,7 +34,7 @@ class SolverPluginBase(object):
         pass
 
     @abc.abstractmethod
-    def loss_function(self, params):
+    def blackbox_function(self, params):
         raise NotImplementedError('users must define loss_func to use this base class')
 
     @abc.abstractmethod
@@ -49,8 +48,8 @@ class SolverPluginBase(object):
     def set_data(self, data):
         self._data = data
 
-    def set_loss_function(self, func):
-        self._loss = func
+    def set_blackbox_function(self, func):
+        self._blackbox_function_template = func
 
     def get_results(self):
         return self.convert_results()
@@ -63,8 +62,8 @@ class SolverPluginBase(object):
         return self._data
 
     @property
-    def loss(self):
-        return self._loss
+    def blackbox_function_template(self):
+        return self._blackbox_function_template
 
     @property
     def name(self):

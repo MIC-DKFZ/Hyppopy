@@ -17,13 +17,14 @@ import logging
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *("hyppopy", "plugins"))
-TESTDATA_DIR = os.path.join(ROOT, *("hyppopy", "tests", "data"))
+LIBNAME = "hyppopy"
+PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *(LIBNAME, "plugins"))
+TESTDATA_DIR = os.path.join(ROOT, *(LIBNAME, "tests", "data"))
 SETTINGSSOLVERPATH = "settings/solver"
 SETTINGSCUSTOMPATH = "settings/custom"
-DEEPDICT_XML_ROOT = "hyppopy"
+DEEPDICT_XML_ROOT = LIBNAME
 
-LOGFILENAME = os.path.join(ROOT, 'logfile.log')
+LOGFILENAME = os.path.join(ROOT, 'logfile2.log')
 DEBUGLEVEL = logging.DEBUG
 logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(levelname)s: %(name)s - %(message)s')
 

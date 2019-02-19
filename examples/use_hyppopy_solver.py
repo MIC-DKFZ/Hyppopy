@@ -22,12 +22,12 @@ sys.path.append(HYPPOPY_DIR)
 DATA = os.path.join(HYPPOPY_DIR, *("hyppopy", "tests", "data", "Titanic"))
 ProjectManager.read_config(os.path.join(DATA, 'rf_config.json'))
 
-# ----- reading data ------
+# ----- reading data somehow ------
 dl = SimpleDataLoader()
 dl.start(path=ProjectManager.data_path,
          data_name=ProjectManager.data_name,
          labels_name=ProjectManager.labels_name)
-# -------------------------
+# ---------------------------------
 
 # ----- defining loss function ------
 def blackbox_function(params):

@@ -36,9 +36,9 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         SolverPluginBase.__init__(self)
         LOG.debug("initialized")
 
-    def loss_function(self, params):
+    def blackbox_function(self, params):
         try:
-            loss = self.loss(self.data, params)
+            loss = self.blackbox_function_template(self.data, params)
             status = STATUS_OK
         except Exception as e:
             LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
@@ -50,7 +50,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         self.trials = Trials()
 
         try:
-            self.best = fmin(fn=self.loss_function,
+            self.best = fmin(fn=self.blackbox_function,
                              space=parameter,
                              algo=tpe.suggest,
                              max_evals=ProjectManager.max_iterations,
@@ -64,7 +64,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         # currently converting results in a way that this function returns a dict
         # keeping all useful parameter as key/list item. This will be automatically
         # converted to a pandas dataframe in the solver class
-        results = {'timing ms': [], 'losses': []}
+        results = {'duration': [], 'losses': []}
         pset = self.trials.trials[0]['misc']['vals']
         for p in pset.keys():
             results[p] = []
@@ -72,7 +72,7 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         for n, trial in enumerate(self.trials.trials):
             t1 = trial['book_time']
             t2 = trial['refresh_time']
-            results['timing ms'].append((t2 - t1).microseconds/1000.0)
+            results['duration'].append((t2 - t1).microseconds/1000.0)
             results['losses'].append(trial['result']['loss'])
             pset = trial['misc']['vals']
             for p in pset.items():
