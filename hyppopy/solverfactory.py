@@ -53,10 +53,11 @@ class SolverFactory(metaclass=Singleton):
         LOG.debug("setPluginPlaces(" + " ".join(map(str, self._plugin_dirs)))
         manager.setPluginPlaces(self._plugin_dirs)
         manager.collectPlugins()
+        print("")
         for plugin in manager.getAllPlugins():
             name_elements = plugin.plugin_object.__class__.__name__.split("_")
             LOG.debug("found plugin " + " ".join(map(str, name_elements)))
-            print("Solverfactory: found plugins " + " ".join(map(str, name_elements)))
+            print("Hyppopy: found plugin " + " ".join(map(str, name_elements)))
             if len(name_elements) != 2 or ("Solver" not in name_elements and "Settings" not in name_elements):
                 msg = "invalid plugin class naming for class {}, the convention is libname_Solver or libname_Settings.".format(plugin.plugin_object.__class__.__name__)
                 LOG.error(msg)
@@ -150,7 +151,7 @@ class SolverFactory(metaclass=Singleton):
             try:
                 name = ProjectManager.use_plugin
             except Exception as e:
-                msg = "failed to setup solver, no solver specified, check your ProjectManager for the use_plugin value!"
+                msg = "failed to setup solver, no solver specified, check your ProjectManager for the use_plugin value! Error {}".format(e)
                 LOG.error(msg)
                 raise LookupError(msg)
         if not isinstance(name, str):

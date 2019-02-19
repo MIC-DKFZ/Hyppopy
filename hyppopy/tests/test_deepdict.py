@@ -154,7 +154,7 @@ class DeepDictTestSuite(unittest.TestCase):
             def __init__(self):
                 pass
         foo = Foo
-        dd.transfer_attrs(foo, 'solver')
+        dd.transfer_attrs(foo, 'solver_plugin')
         self.assertEqual(foo.max_iterations, 50)
         self.assertEqual(foo.use_plugin, 'optunity')
 

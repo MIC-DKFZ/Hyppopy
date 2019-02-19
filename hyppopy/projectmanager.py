@@ -19,6 +19,7 @@ from hyppopy.globals import SETTINGSCUSTOMPATH, SETTINGSSOLVERPATH
 
 import os
 import logging
+import datetime
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -31,6 +32,7 @@ class ProjectManager(metaclass=Singleton):
         self.configfilename = None
         self.config = None
         self._extmembers = []
+        self._identifier = None
 
     def clear(self):
         self.configfilename = None
@@ -53,16 +55,18 @@ class ProjectManager(metaclass=Singleton):
         if not isinstance(self.config, DeepDict):
             msg = "test_config failed, config is not of type DeepDict"
             LOG.error(msg)
-            return False
+            raise IOError(msg)
         sections = ["hyperparameter"]
-        sections += SETTINGSSOLVERPATH.split("/")
-        sections += SETTINGSCUSTOMPATH.split("/")
-        for sec in sections:
+        sections += [SETTINGSSOLVERPATH.split("/")[-1]]
+        sections += [SETTINGSCUSTOMPATH.split("/")[-1]]
+        sections_available = [True, True, True]
+        for n, sec in enumerate(sections):
             if not self.config.has_section(sec):
-                msg = "test_config failed, config has no section {}".format(sec)
-                LOG.error(msg)
-                return False
-        return True
+                msg = "WARNING: config has no section {}".format(sec)
+                LOG.warning(msg)
+                sections_available[n] = False
+        return sections_available
+
 
     def set_config(self, config):
         self.clear()
@@ -76,36 +80,68 @@ class ProjectManager(metaclass=Singleton):
             LOG.error(msg)
             raise IOError(msg)
 
-        if not self.test_config():
-            self.clear()
-            return False
-
-        try:
-            self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
-            self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
-        except Exception as e:
-            msg = "transfering custom section as class attributes failed, " \
-                "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH, e)
+        sections_available = self.test_config()
+        if not sections_available[0]:
+            msg = "Missing section {}".format("hyperparameter")
             LOG.error(msg)
             raise LookupError(msg)
-
+        if not sections_available[1]:
+            msg = "Missing section {}".format(SETTINGSSOLVERPATH)
+            LOG.error(msg)
+            raise LookupError(msg)
+        else:
+            try:
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
+            except Exception as e:
+                msg = "transfering custom section as class attributes failed, " \
+                      "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH,
+                                                                                                   e)
+                LOG.error(msg)
+                raise LookupError(msg)
+        if sections_available[2]:
+            try:
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
+            except Exception as e:
+                msg = "transfering custom section as class attributes failed, " \
+                      "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH,
+                                                                                                   e)
+                LOG.error(msg)
+                raise LookupError(msg)
         return True
 
     def read_config(self, configfile):
         self.clear()
         self.configfilename = configfile
         self.config = DeepDict(configfile)
-        if not self.test_config():
-            self.clear()
-            return False
-
-        try:
-            self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
-            self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
-        except Exception as e:
-            msg = "transfering custom section as class attributes failed, " \
-                "is the config path to your custom section correct? {}. Exception {e}".format(SETTINGSCUSTOMPATH, e)
+        sections_available = self.test_config()
+        if not sections_available[0]:
+            msg = "Missing section {}".format("hyperparameter")
             LOG.error(msg)
             raise LookupError(msg)
+        if not sections_available[1]:
+            msg = "Missing section {}".format(SETTINGSSOLVERPATH)
+            LOG.error(msg)
+            raise LookupError(msg)
+        else:
+            try:
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
+            except Exception as e:
+                msg = "transfering custom section as class attributes failed, " \
+                      "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSSOLVERPATH, e)
+                LOG.error(msg)
+                raise LookupError(msg)
+        if sections_available[2]:
+            try:
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
+            except Exception as e:
+                msg = "transfering custom section as class attributes failed, " \
+                      "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH, e)
+                LOG.error(msg)
+                raise LookupError(msg)
 
         return True
+
+    def identifier(self, force=False):
+        if self._identifier is None or force:
+            self._identifier = datetime.datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+        return self._identifier

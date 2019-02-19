@@ -18,7 +18,6 @@ from hyppopy.projectmanager import ProjectManager
 from hyppopy.resultviewer import ResultViewer
 
 import os
-import datetime
 import logging
 import pandas as pd
 from hyppopy.globals import LIBNAME
@@ -70,11 +69,11 @@ class Solver(object):
             if not os.path.isdir(savedir):
                 os.mkdir(savedir)
 
-        tstr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        name = savename + "_all_" + tstr + ".csv"
+        appendix = ProjectManager.identifier(True)
+        name = savename + "_all_" + appendix + ".csv"
         fname_all = os.path.join(dir, name)
         df.to_csv(fname_all)
-        name = savename + "_best_" + tstr + ".txt"
+        name = savename + "_best_" + appendix + ".txt"
         fname_best = os.path.join(dir, name)
         with open(fname_best, "w") as text_file:
             for item in best.items():

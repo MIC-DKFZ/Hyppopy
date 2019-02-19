@@ -21,7 +21,7 @@
     }
 },
 "settings": {
-	"solver": {
+	"solver_plugin": {
 		"max_iterations": "3",
 		"use_plugin" : "hyperopt",
 		"output_dir": "D:/Projects/Python/hyppopy/hyppopy/tests/data/Titanic"

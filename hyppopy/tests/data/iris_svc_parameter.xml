@@ -17,10 +17,10 @@
 		</kernel>
 	</hyperparameter>
 	<settings>
-		<solver>
+		<solver_plugin>
 			<max_iterations>50</max_iterations>
 			<use_plugin>optunity</use_plugin>
-		</solver>
+		</solver_plugin>
 		<custom>
 			<data_path>C:/path/to/my/data</data_path>
 		</custom>

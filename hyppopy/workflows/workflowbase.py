@@ -44,6 +44,11 @@ class WorkflowBase(object):
     def get_results(self):
         return self.solver.get_results()
 
+    def save_results(self, savedir=None, show=False):
+        if savedir is None:
+            savedir = ProjectManager.output_dir
+        return self.solver.save_results(savedir=savedir, show=show)
+
     @abc.abstractmethod
     def setup(self, **kwargs):
         raise NotImplementedError('the user has to implement this function')

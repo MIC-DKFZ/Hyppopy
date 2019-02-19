@@ -16,7 +16,7 @@
     }
 },
 "settings": {
-	"solver": {
+	"solver_plugin": {
 		"max_iterations": "50",
 		"use_plugin" : "hyperopt"
 	},

@@ -1,40 +1,30 @@
 <hyppopy>
 	<hyperparameter>
-		<n_estimators>
+		<n_neighbors>
 			<domain>uniform</domain>
-			<data>[3,200]</data>
+			<data>[1,50]</data>
 			<type>int</type>
-		</n_estimators>
-		<criterion>
+		</n_neighbors>
+		<leaf_size >
+			<domain>uniform</domain>
+			<data>[1,100]</data>
+			<type>int</type>
+		</leaf_size >
+		<weights>
 			<domain>categorical</domain>
-			<data>[gini,entropy]</data>
+			<data>[uniform,distance]</data>
 			<type>str</type>
-		</criterion>
-		<max_depth>
-			<domain>uniform</domain>
-			<data>[3, 50]</data>
-			<type>int</type>
-		</max_depth>
-		<min_samples_split>
-			<domain>uniform</domain>
-			<data>[0.0001,1]</data>
-			<type>float</type>
-		</min_samples_split>
-		<min_samples_leaf>
-			<domain>uniform</domain>
-			<data>[0.0001,0.5]</data>
-			<type>float</type>
-		</min_samples_leaf>
+		</weights>
 		<max_features >
 			<domain>categorical</domain>
-			<data>[auto,sqrt,log2]</data>
+			<data>[auto,ball_tree,kd_tree,brute]</data>
 			<type>str</type>
 		</max_features >
 	</hyperparameter>
 	<settings>
 		<solver_plugin>
 			<max_iterations>3</max_iterations>
-			<use_plugin>optunity</use_plugin>
+			<use_plugin>hyperopt</use_plugin>
 			<output_dir>D:/Projects/Python/hyppopy/hyppopy/tests/data/Iris</output_dir>
 		</solver_plugin>
 		<custom>

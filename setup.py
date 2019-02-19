@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
 from setuptools import setup, find_packages
-
 
 with open('README.rst') as f:
     readme = f.read()
@@ -9,9 +9,25 @@ with open('README.rst') as f:
 with open('LICENSE') as f:
     license = f.read()
 
+VERSION = "0.1.1dev"
+
+ROOT = os.path.dirname(os.path.realpath(__file__))
+
+new_init = []
+with open(os.path.join(ROOT, *("hyppopy", "__init__.py")), "r") as infile:
+	for line in infile:
+		new_init.append(line)
+for n in range(len(new_init)):
+	if new_init[n].startswith("__version__"):
+		split = line.split("=")
+		new_init[n] = "__version__ = '" + VERSION + "'\n"
+with open(os.path.join(ROOT, *("hyppopy", "__init__.py")), "w") as outfile:
+	outfile.writelines(new_init)
+
+
 setup(
     name='hyppopy',
-    version='0.0.1',
+    version=VERSION,
     description='Hyper-Parameter Optimization Toolbox for Blackboxfunction Optimization',
     long_description=readme,
     # if you want, put your own name here
@@ -20,20 +36,26 @@ setup(
     author_email='s.wanner@dkfz.de',
     url='',
     license=license,
-    packages=find_packages(exclude=('bin', '*test*', 'doc', 'hyppopy')),
+    packages=find_packages(exclude=('*test*', 'doc')),
+	package_data={
+	   'hyppopy.plugins': ['*.yapsy-plugin']
+    },
     # the requirements to install this project.
     # Since this one is so simple this is empty.
-    install_requires=['dicttoxml>=1.7.4', 'hyperopt>=0.1.1', 'matplotlib>=3.0.2', 'numpy>=1.16.0',
-	'Optunity>=1.1.1', 'pytest>=4.1.1', 'scikit-learn>=0.20.2', 'scipy>=1.2.0', 'sklearn>=0.0', 'Sphinx>=1.8.3',
-	'xmlrunner>=1.7.7', 'xmltodict>=0.11.0', 'Yapsy>=1.11.223', 'visdom>=0.1.8.8'],
-    # a more sophisticated project might have something like:
-    #install_requires=['numpy>=1.11.0', 'scipy>=0.17', 'scikit-learn']
-
-    # after running setup.py, you will be able to call hypopy_exe
-    # from the console as if it was a normal binary. It will call the function
-    # main in bin/hypopy_exe.py
-    entry_points={
-        'console_scripts': ['hyppopy_exe=bin.hypopy_exe:main'],
-    }
+    install_requires=[
+	'dicttoxml>=1.7.4',
+	'xmltodict>=0.11.0',
+	'hyperopt>=0.1.1',
+	'Optunity>=1.1.1',
+	'numpy>=1.16.0',
+	'matplotlib>=3.0.2',
+	'scikit-learn>=0.20.2',
+	'scipy>=1.2.0',
+	'Sphinx>=1.8.3',
+	'xmlrunner>=1.7.7',
+	'Yapsy>=1.11.223',
+	'pandas>=0.24.1',
+	'seaborn>=0.9.0'
+	],
 )
 

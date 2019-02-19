@@ -13,7 +13,7 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-from sklearn.svm import SVC
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
 
 from hyppopy.projectmanager import ProjectManager
@@ -21,7 +21,7 @@ from hyppopy.workflows.workflowbase import WorkflowBase
 from hyppopy.workflows.dataloader.simpleloader import SimpleDataLoader
 
 
-class svc_usecase(WorkflowBase):
+class lda_usecase(WorkflowBase):
 
     def setup(self, **kwargs):
         dl = SimpleDataLoader()
@@ -31,5 +31,5 @@ class svc_usecase(WorkflowBase):
         self.solver.set_data(dl.data)
 
     def blackbox_function(self, data, params):
-        clf = SVC(**params)
+        clf = LinearDiscriminantAnalysis(**params)
         return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()

@@ -20,11 +20,11 @@ sys.path.insert(0, ROOT)
 LIBNAME = "hyppopy"
 PLUGIN_DEFAULT_DIR = os.path.join(ROOT, *(LIBNAME, "plugins"))
 TESTDATA_DIR = os.path.join(ROOT, *(LIBNAME, "tests", "data"))
-SETTINGSSOLVERPATH = "settings/solver"
+SETTINGSSOLVERPATH = "settings/solver_plugin"
 SETTINGSCUSTOMPATH = "settings/custom"
 DEEPDICT_XML_ROOT = LIBNAME
 
-LOGFILENAME = os.path.join(ROOT, 'logfile2.log')
+LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))
 DEBUGLEVEL = logging.DEBUG
 logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(levelname)s: %(name)s - %(message)s')
 

@@ -41,7 +41,7 @@ class ResultViewer(object):
     def read(self, fname):
         self.path = os.path.dirname(fname)
         split = os.path.basename(fname).split("_")
-        self.appendix = split[-2]+"_"+split[-1]
+        self.appendix = split[-1]
         self.appendix = self.appendix[:-4]
         self.df = pd.read_csv(fname, index_col=0)
         const_data = ["duration", "losses"]
