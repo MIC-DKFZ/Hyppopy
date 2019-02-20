@@ -37,9 +37,11 @@ class hyperopt_Solver(SolverPluginBase, IPlugin):
         LOG.debug("initialized")
 
     def blackbox_function(self, params):
+        status = STATUS_FAIL
         try:
             loss = self.blackbox_function_template(self.data, params)
-            status = STATUS_OK
+            if loss is not None:
+                status = STATUS_OK
         except Exception as e:
             LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
             status = STATUS_FAIL

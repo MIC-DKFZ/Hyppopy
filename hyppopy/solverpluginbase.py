@@ -55,7 +55,10 @@ class SolverPluginBase(object):
         return self.convert_results()
 
     def run(self):
-        self.execute_solver(self.settings.get_hyperparameter())
+        try:
+            self.execute_solver(self.settings.get_hyperparameter())
+        except Exception as e:
+            raise e
 
     @property
     def data(self):
