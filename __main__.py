@@ -64,7 +64,7 @@ if __name__ == "__main__":
     ProjectManager.read_config(args.config)
 
     if args.output is not None:
-        ProjectManager.output_dir = args.output
+        ProjectManager.register_member("output_dir", args.output)
 
     if args.workflow == "svc_usecase":
         uc = svc_usecase()

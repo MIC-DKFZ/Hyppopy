@@ -145,3 +145,6 @@ class ProjectManager(metaclass=Singleton):
         if self._identifier is None or force:
             self._identifier = datetime.datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
         return self._identifier
+
+    def register_member(self, name, value):
+        setattr(name, value)
