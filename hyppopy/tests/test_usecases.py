@@ -18,13 +18,15 @@ import shutil
 import unittest
 import tempfile
 import numpy as np
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
 from hyppopy.workflows.knc_usecase.knc_usecase import knc_usecase
-from hyppopy.workflows.lda_usecase.lda_usecase import lda_usecase
+from hyppopy.workflows.lda_usecase.adaboost_usecase import lda_usecase
 from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
 
 
@@ -52,7 +54,7 @@ class ProjectManagerTestSuite(unittest.TestCase):
             "hyperparameter": {},
             "settings": {
                 "solver_plugin": {
-                    "max_iterations": 5,
+                    "max_iterations": 50,
                     "use_plugin": "hyperopt",
                     "output_dir": os.path.join(self.root, 'test_results')
                 },
@@ -63,21 +65,33 @@ class ProjectManagerTestSuite(unittest.TestCase):
                 }
             }}
 
-    # def test_svc_usecase(self):
-    #     hyperparameter = {
-    #         "C": {
-    #             "domain": "uniform",
-    #             "data": [0.0001, 300.0],
-    #             "type": "float"
-    #         }
-    #     }
-    #
-    #     self.config["hyperparameter"] = hyperparameter
-    #     ProjectManager.set_config(self.config)
-    #     uc = svc_usecase()
-    #     uc.run(save=True)
-    #     res, best = uc.get_results()
-    #     print(best)
+    def test_svc_usecase(self):
+        hyperparameter = {
+            "C": {
+                "domain": "uniform",
+                "data": [0.0001, 300.0],
+                "type": "float"
+            },
+            "kernel": {
+                "domain": "categorical",
+                "data": ["linear", "poly", "rbf"],
+                "type": "str"
+            }
+        }
+
+        self.config["hyperparameter"] = hyperparameter
+        ProjectManager.set_config(self.config)
+        uc = svc_usecase()
+        uc.run(save=True)
+        res, best = uc.get_results()
+        print("="*30)
+        print(best)
+        print("=" * 30)
+        clf = SVC(**best)
+        train_predictions = clf.predict(self.test[0])
+        acc = accuracy_score(self.test[1], train_predictions)
+        print("Accuracy: {:.4%}".format(acc))
+        print("=" * 30)
 
     def test_randomforest_usecase(self):
         hyperparameter = {
@@ -110,26 +124,26 @@ class ProjectManagerTestSuite(unittest.TestCase):
         res, best = uc.get_results()
         print(best)
 
-    # def test_lda_usecase(self):
-    #     hyperparameter = {
-    #         "solver": {
-    #             "domain": "categorical",
-    #             "data": ["svd", "lsqr", "eigen"],
-    #             "type": "str"
-    #         },
-    #         "tol": {
-    #             "domain": "uniform",
-    #             "data": [0.00000001, 1.0],
-    #             "type": "float"
-    #         }
-    #     }
-    #
-    #     self.config["hyperparameter"] = hyperparameter
-    #     ProjectManager.set_config(self.config)
-    #     uc = lda_usecase()
-    #     uc.run(save=True)
-    #     res, best = uc.get_results()
-    #     print(best)
+    def test_lda_usecase(self):
+        hyperparameter = {
+            "solver": {
+                "domain": "categorical",
+                "data": ["svd", "lsqr", "eigen"],
+                "type": "str"
+            },
+            "tol": {
+                "domain": "uniform",
+                "data": [0.00000001, 1.0],
+                "type": "float"
+            }
+        }
+
+        self.config["hyperparameter"] = hyperparameter
+        ProjectManager.set_config(self.config)
+        uc = lda_usecase()
+        uc.run(save=True)
+        res, best = uc.get_results()
+        print(best)
 
     def test_knc_usecase(self):
         hyperparameter = {
@@ -158,8 +172,9 @@ class ProjectManagerTestSuite(unittest.TestCase):
         print(best)
 
     def tearDown(self):
-        if os.path.isdir(self.root):
-            shutil.rmtree(self.root)
+        pass
+        # if os.path.isdir(self.root):
+        #     shutil.rmtree(self.root)
 
 
 if __name__ == '__main__':

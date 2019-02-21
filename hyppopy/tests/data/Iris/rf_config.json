@@ -13,21 +13,6 @@
         "domain": "uniform",
         "data": "[3, 50]",
         "type": "int"
-    },
-	"min_samples_split": {
-        "domain": "uniform",
-        "data": "[0.0001,1]",
-        "type": "float"
-    },
-	"min_samples_leaf": {
-        "domain": "uniform",
-        "data": "[0.0001,0.5]",
-        "type": "float"
-    },
-	"max_features": {
-        "domain": "categorical",
-        "data": "[auto,sqrt,log2]",
-        "type": "str"
     }
 },
 "settings": {

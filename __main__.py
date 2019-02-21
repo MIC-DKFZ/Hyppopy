@@ -23,7 +23,7 @@ sys.path.append(ROOT)
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
 from hyppopy.workflows.knc_usecase.knc_usecase import knc_usecase
-from hyppopy.workflows.lda_usecase.lda_usecase import lda_usecase
+from hyppopy.workflows.lda_usecase.adaboost_usecase import lda_usecase
 from hyppopy.workflows.unet_usecase.unet_usecase import unet_usecase
 from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
 from hyppopy.workflows.imageregistration_usecase.imageregistration_usecase import imageregistration_usecase

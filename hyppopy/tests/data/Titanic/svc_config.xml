@@ -12,14 +12,9 @@
 		</gamma>
 		<kernel>
 			<domain>categorical</domain>
-			<data>[linear,sigmoid,poly,rbf]</data>
+			<data>[linear,poly,rbf]</data>
 			<type>str</type>
 		</kernel>
-		<decision_function_shape>
-			<domain>categorical</domain>
-			<data>[ovo,ovr]</data>
-			<type>str</type>
-		</decision_function_shape>
 	</hyperparameter>
 	<settings>
 		<solver_plugin>

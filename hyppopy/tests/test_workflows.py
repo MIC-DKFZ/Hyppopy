@@ -34,34 +34,69 @@ class WorkflowTestSuite(unittest.TestCase):
         uc = svc_usecase()
         uc.run(False)
         res, best = uc.get_results()
-        self.assertEqual(len(best.keys()), 4)
-
-    def test_workflow_rf_on_iris_from_xml(self):
-        ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_config.xml'))
-        uc = svc_usecase()
-        uc.run(False)
-        res, best = uc.get_results()
-        self.assertEqual(len(best.keys()), 6)
+        self.assertTrue('C' in res.columns)
+        self.assertTrue('gamma' in res.columns)
+        self.assertTrue('kernel' in res.columns)
+        self.assertEqual(len(best.keys()), 3)
 
     def test_workflow_svc_on_iris_from_json(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'svc_config.json'))
         uc = svc_usecase()
         uc.run(False)
         res, best = uc.get_results()
-        self.assertEqual(len(best.keys()), 4)
+        self.assertTrue('C' in res.columns)
+        self.assertTrue('gamma' in res.columns)
+        self.assertTrue('kernel' in res.columns)
+        self.assertEqual(len(best.keys()), 3)
+
+    def test_workflow_rf_on_iris_from_xml(self):
+        ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_config.xml'))
+        uc = randomforest_usecase()
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('criterion' in res.columns)
+        self.assertTrue('max_depth' in res.columns)
+        self.assertEqual(len(best.keys()), 3)
 
     def test_workflow_rf_on_iris_from_json(self):
         ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_config.json'))
         uc = randomforest_usecase()
         uc.run(False)
         res, best = uc.get_results()
-        self.assertEqual(len(best.keys()), 6)
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('criterion' in res.columns)
+        self.assertTrue('max_depth' in res.columns)
+        self.assertEqual(len(best.keys()), 3)
+
+    # def test_workflow_svc_on_titanic_from_xml(self):
+    #     ProjectManager.read_config(os.path.join(TITANIC_DATA, 'svc_config.xml'))
+    #     uc = svc_usecase()
+    #     uc.run(False)
+    #     res, best = uc.get_results()
+    #     self.assertTrue('C' in res.columns)
+    #     self.assertTrue('gamma' in res.columns)
+    #     self.assertTrue('kernel' in res.columns)
+    #     self.assertEqual(len(best.keys()), 3)
+    #
+    # def test_workflow_svc_on_titanic_from_json(self):
+    #     ProjectManager.read_config(os.path.join(TITANIC_DATA, 'svc_config.json'))
+    #     uc = svc_usecase()
+    #     uc.run(False)
+    #     res, best = uc.get_results()
+    #     self.assertTrue('C' in res.columns)
+    #     self.assertTrue('gamma' in res.columns)
+    #     self.assertTrue('kernel' in res.columns)
+    #     self.assertEqual(len(best.keys()), 3)
 
     def test_workflow_rf_on_titanic_from_xml(self):
         ProjectManager.read_config(os.path.join(TITANIC_DATA, 'rf_config.xml'))
         uc = randomforest_usecase()
         uc.run(False)
         res, best = uc.get_results()
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('criterion' in res.columns)
+        self.assertTrue('max_depth' in res.columns)
         self.assertEqual(len(best.keys()), 3)
 
     def test_workflow_rf_on_titanic_from_json(self):
@@ -69,6 +104,9 @@ class WorkflowTestSuite(unittest.TestCase):
         uc = randomforest_usecase()
         uc.run(False)
         res, best = uc.get_results()
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('criterion' in res.columns)
+        self.assertTrue('max_depth' in res.columns)
         self.assertEqual(len(best.keys()), 3)
 
     def tearDown(self):

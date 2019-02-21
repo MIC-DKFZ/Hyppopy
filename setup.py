@@ -55,7 +55,9 @@ setup(
 	'xmlrunner>=1.7.7',
 	'Yapsy>=1.11.223',
 	'pandas>=0.24.1',
-	'seaborn>=0.9.0'
+	'seaborn>=0.9.0',
+	'deap>=1.2.2',
+	'bayesian-optimization>=1.0.1'
 	],
 )
 

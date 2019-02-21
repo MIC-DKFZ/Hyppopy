@@ -31,5 +31,30 @@ class svc_usecase(WorkflowBase):
         self.solver.set_data(dl.data)
 
     def blackbox_function(self, data, params):
-        clf = SVC(**params)
+        if 'C' not in params.keys():
+            print("Warning: missing parameter C, use default value 1.0!")
+            params['C'] = 1.0
+        if 'kernel' not in params.keys():
+            print("Warning: missing parameter kernel, use default value linear!")
+            params['kernel'] = 'linear'
+
+        if params['kernel'] == 'linear':
+            clf = SVC(kernel='linear', C=params['C'])
+        elif params['kernel'] == 'poly':
+            if 'degree' not in params.keys():
+                print("Warning: missing parameter degree, use default value 3!")
+                params['degree'] = 3
+            if 'coef0' not in params.keys():
+                print("Warning: missing parameter coef0, use default value 0.0!")
+                params['coef0'] = 0.0
+            clf = SVC(kernel='poly', C=params['C'], degree=params['degree'], coef0=params['coef0'])
+        elif params['kernel'] == 'rbf':
+            if 'gamma' not in params.keys():
+                print("Warning: missing parameter gamma, use default value 'auto'!")
+                params['gamma'] = 'scale'
+            clf = SVC(kernel='rbf', C=params['C'], gamma=params['gamma'])
+        else:
+            raise IOError("Unknown kernel function: %s".format(params['kernel']))
+
         return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()
+

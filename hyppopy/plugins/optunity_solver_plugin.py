@@ -28,6 +28,7 @@ from hyppopy.solverpluginbase import SolverPluginBase
 
 
 class optunity_Solver(SolverPluginBase, IPlugin):
+
     solver_info = None
     trials = None
     best = None

@@ -15,21 +15,6 @@
 			<data>[3, 50]</data>
 			<type>int</type>
 		</max_depth>
-		<min_samples_split>
-			<domain>uniform</domain>
-			<data>[0.0001,1]</data>
-			<type>float</type>
-		</min_samples_split>
-		<min_samples_leaf>
-			<domain>uniform</domain>
-			<data>[0.0001,0.5]</data>
-			<type>float</type>
-		</min_samples_leaf>
-		<max_features >
-			<domain>categorical</domain>
-			<data>[auto,sqrt,log2]</data>
-			<type>str</type>
-		</max_features >
 	</hyperparameter>
 	<settings>
 		<solver_plugin>

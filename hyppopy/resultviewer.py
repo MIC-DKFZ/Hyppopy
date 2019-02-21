@@ -38,6 +38,9 @@ class ResultViewer(object):
         if fname is not None:
             self.read(fname)
 
+    def close_all(self):
+        plt.close('all')
+
     def read(self, fname):
         self.path = os.path.dirname(fname)
         split = os.path.basename(fname).split("_")
@@ -81,3 +84,4 @@ class ResultViewer(object):
                 msg = "failed to save file {}, reason {}".format(save_name, e)
                 LOG.error(msg)
                 raise IOError(msg)
+
