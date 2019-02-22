@@ -31,7 +31,7 @@ except:
     print("optunity package not installed, will ignore this plugin!")
 
 from hyppopy.settingspluginbase import SettingsPluginBase
-from hyppopy.settingsparticle import SettingsParticle
+from hyppopy.settingsparticle import split_categorical
 
 
 class optunity_Settings(SettingsPluginBase, IPlugin):
@@ -42,19 +42,6 @@ class optunity_Settings(SettingsPluginBase, IPlugin):
 
     def convert_parameter(self, input_dict):
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(input_dict)))
-
-        # define function spliting input dict
-        # into categorical and non-categorical
-        def split_categorical(pdict):
-            categorical = {}
-            uniform = {}
-            for name, pset in pdict.items():
-                for key, value in pset.items():
-                    if key == 'domain' and value == 'categorical':
-                        categorical[name] = pset
-                    elif key == 'domain':
-                        uniform[name] = pset
-            return categorical, uniform
 
         solution_space = {}
         # split input in categorical and non-categorical data

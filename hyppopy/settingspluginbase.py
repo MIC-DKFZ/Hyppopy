@@ -33,7 +33,7 @@ class SettingsPluginBase(object):
         self._data = {}
 
     @abc.abstractmethod
-    def convert_parameter(self):
+    def convert_parameter(self, input_dict):
         raise NotImplementedError('users must define convert_parameter to use this base class')
 
     def get_hyperparameter(self):

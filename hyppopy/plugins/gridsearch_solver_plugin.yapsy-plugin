@@ -1,0 +1,9 @@
+[Core]
+Name = gridsearch
+Module = gridsearch_solver_plugin
+
+[Documentation]
+Author = Sven Wanner
+Version = 0.1
+Website =
+Description = GridSearch Solver Plugin

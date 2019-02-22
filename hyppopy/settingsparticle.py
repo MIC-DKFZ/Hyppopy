@@ -21,6 +21,20 @@ LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 
+# define function spliting input dict
+# into categorical and non-categorical
+def split_categorical(pdict):
+    categorical = {}
+    uniform = {}
+    for name, pset in pdict.items():
+        for key, value in pset.items():
+            if key == 'domain' and value == 'categorical':
+                categorical[name] = pset
+            elif key == 'domain':
+                uniform[name] = pset
+    return categorical, uniform
+
+
 class SettingsParticle(object):
     domains = ["uniform", "loguniform", "normal", "categorical"]
     _name = None
