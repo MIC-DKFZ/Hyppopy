@@ -21,6 +21,8 @@ TITANIC_DATA = os.path.join(TESTDATA_DIR, 'Titanic')
 
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
+from hyppopy.workflows.knc_usecase.knc_usecase import knc_usecase
+from hyppopy.workflows.adaboost_usecase.adaboost_usecase import adaboost_usecase
 from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
 
 
@@ -69,6 +71,16 @@ class WorkflowTestSuite(unittest.TestCase):
         self.assertTrue('max_depth' in res.columns)
         self.assertEqual(len(best.keys()), 3)
 
+    def test_workflow_rf_on_iris_from_grid_xml(self):
+        ProjectManager.read_config(os.path.join(IRIS_DATA, 'rf_grid_config.xml'))
+        uc = randomforest_usecase()
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('criterion' in res.columns)
+        self.assertTrue('max_depth' in res.columns)
+        self.assertEqual(len(best.keys()), 3)
+
     # def test_workflow_svc_on_titanic_from_xml(self):
     #     ProjectManager.read_config(os.path.join(TITANIC_DATA, 'svc_config.xml'))
     #     uc = svc_usecase()
@@ -108,6 +120,25 @@ class WorkflowTestSuite(unittest.TestCase):
         self.assertTrue('criterion' in res.columns)
         self.assertTrue('max_depth' in res.columns)
         self.assertEqual(len(best.keys()), 3)
+
+    def test_workflow_adaboost_on_titanic_from_xml(self):
+        ProjectManager.read_config(os.path.join(TITANIC_DATA, 'adaboost_config.xml'))
+        uc = adaboost_usecase()
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertTrue('n_estimators' in res.columns)
+        self.assertTrue('learning_rate' in res.columns)
+        self.assertEqual(len(best.keys()), 2)
+
+    def test_workflow_knc_on_titanic_from_xml(self):
+        ProjectManager.read_config(os.path.join(TITANIC_DATA, 'knc_config.xml'))
+        uc = knc_usecase()
+        uc.run(False)
+        res, best = uc.get_results()
+        self.assertTrue('n_neighbors' in res.columns)
+        self.assertTrue('leaf_size' in res.columns)
+        self.assertTrue('weights' in res.columns)
+        self.assertEqual(len(best.keys()), 4)
 
     def tearDown(self):
         print("")

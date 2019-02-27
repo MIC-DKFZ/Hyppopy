@@ -111,7 +111,10 @@ class gridsearch_Settings(SettingsPluginBase, IPlugin):
                         tmp[elem] = inner_level
             tmp2[key] = tmp
             inner_level = tmp2
-        solution_space = tmp2
+        if len(cat) > 0:
+            solution_space = tmp2
+        else:
+            solution_space = inner_level
         return solution_space
 
 

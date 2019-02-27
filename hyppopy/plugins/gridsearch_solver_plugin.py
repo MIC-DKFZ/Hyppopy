@@ -14,17 +14,83 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
+import time
 import logging
+from numpy import argmin, argmax, unique
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 from pprint import pformat
 from yapsy.IPlugin import IPlugin
-from sklearn.model_selection import GridSearchCV
 
-from hyppopy.projectmanager import ProjectManager
+from hyppopy.helpers import NestedDictUnfolder
 from hyppopy.solverpluginbase import SolverPluginBase
+
+
+class Trials(object):
+
+    def __init__(self):
+        self.loss = []
+        self.duration = []
+        self.status = []
+        self.parameter = []
+        self.best = None
+        self._tick = None
+
+    def start_iteration(self):
+        self._tick = time.process_time()
+
+    def stop_iteration(self):
+        if self._tick is None:
+            return
+        self.duration.append(time.process_time()-self._tick)
+        self._tick = None
+
+    def set_status(self, status=True):
+        self.status.append(status)
+
+    def set_parameter(self, params):
+        self.parameter.append(params)
+
+    def set_loss(self, value):
+        self.loss.append(value)
+
+    def get(self):
+        if len(self.loss) <= 0:
+            raise Exception("Empty solver results!")
+        if len(self.loss) != len(self.duration) or len(self.loss) != len(self.parameter) or len(self.loss) != len(self.status):
+            raise Exception("Inconsistent results in gridsearch solver!")
+        best_index = argmin(self.loss)
+        best = self.parameter[best_index]
+        worst_loss = self.loss[argmax(self.loss)]
+        for n in range(len(self.status)):
+            if not self.status[n]:
+                self.loss[n] = worst_loss
+
+        res = {
+            'losses': self.loss,
+            'duration': self.duration
+        }
+        is_string = []
+        for key, value in self.parameter[0].items():
+            res[key] = []
+            if isinstance(value, str):
+                is_string.append(key)
+
+        for p in self.parameter:
+            for key, value in p.items():
+                res[key].append(value)
+
+        for key in is_string:
+            uniques = unique(res[key])
+            lookup = {}
+            for n, p in enumerate(uniques):
+                lookup[p] = n
+            for n in range(len(res[key])):
+                res[key][n] = lookup[res[key][n]]
+
+        return res, best
 
 
 class gridsearch_Solver(SolverPluginBase, IPlugin):
@@ -36,49 +102,39 @@ class gridsearch_Solver(SolverPluginBase, IPlugin):
         LOG.debug("initialized")
 
     def blackbox_function(self, params):
-        pass
-        # status = STATUS_FAIL
-        # try:
-        #     loss = self.blackbox_function_template(self.data, params)
-        #     if loss is not None:
-        #         status = STATUS_OK
-        # except Exception as e:
-        #     LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
-        #     status = STATUS_FAIL
-        # return {'loss': loss, 'status': status}
+        loss = None
+        self.trials.set_parameter(params)
+        try:
+            self.trials.start_iteration()
+            loss = self.blackbox_function_template(self.data, params)
+            self.trials.stop_iteration()
+            if loss is None:
+                self.trials.set_status(False)
+        except Exception as e:
+            LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
+            self.trials.set_status(False)
+            self.trials.stop_iteration()
+        self.trials.set_status(True)
+        self.trials.set_loss(loss)
+        return
 
     def execute_solver(self, parameter):
-        pass
-        # LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
-        # self.trials = Trials()
-        #
-        # try:
-        #     self.best = fmin(fn=self.blackbox_function,
-        #                      space=parameter,
-        #                      algo=tpe.suggest,
-        #                      max_evals=ProjectManager.max_iterations,
-        #                      trials=self.trials)
-        # except Exception as e:
-        #     msg = "internal error in hyperopt.fmin occured. {}".format(e)
-        #     LOG.error(msg)
-        #     raise BrokenPipeError(msg)
+        LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
+
+        self.trials = Trials()
+        unfolder = NestedDictUnfolder(parameter)
+        parameter_set = unfolder.unfold()
+        N = len(parameter_set)
+        print("")
+        try:
+            for n, params in enumerate(parameter_set):
+                self.blackbox_function(params)
+                print("\r{}% done".format(int(round(100.0/N*n))), end="")
+        except Exception as e:
+            msg = "internal error in gridsearch execute_solver occured. {}".format(e)
+            LOG.error(msg)
+            raise BrokenPipeError(msg)
+        print("")
 
     def convert_results(self):
-        pass
-        # currently converting results in a way that this function returns a dict
-        # keeping all useful parameter as key/list item. This will be automatically
-        # converted to a pandas dataframe in the solver class
-        # results = {'duration': [], 'losses': []}
-        # pset = self.trials.trials[0]['misc']['vals']
-        # for p in pset.keys():
-        #     results[p] = []
-        #
-        # for n, trial in enumerate(self.trials.trials):
-        #     t1 = trial['book_time']
-        #     t2 = trial['refresh_time']
-        #     results['duration'].append((t2 - t1).microseconds/1000.0)
-        #     results['losses'].append(trial['result']['loss'])
-        #     pset = trial['misc']['vals']
-        #     for p in pset.items():
-        #         results[p[0]].append(p[1][0])
-        # return results, self.best
+        return self.trials.get()

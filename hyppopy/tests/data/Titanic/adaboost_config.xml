@@ -1,25 +1,15 @@
 <hyppopy>
 	<hyperparameter>
-		<n_neighbors>
+		<n_estimators>
 			<domain>uniform</domain>
-			<data>[1,50]</data>
+			<data>[1, 100]</data>
 			<type>int</type>
-		</n_neighbors>
-		<leaf_size >
-			<domain>uniform</domain>
-			<data>[1,100]</data>
-			<type>int</type>
-		</leaf_size >
-		<weights>
-			<domain>categorical</domain>
-			<data>[uniform,distance]</data>
-			<type>str</type>
-		</weights>
-		<algorithm>
-			<domain>categorical</domain>
-			<data>[auto,ball_tree,kd_tree,brute]</data>
-			<type>str</type>
-		</algorithm>
+		</n_estimators>
+		<learning_rate>
+			<domain>loguniform</domain>
+			<data>[-10,3]</data>
+			<type>float</type>
+		</learning_rate>
 	</hyperparameter>
 	<settings>
 		<solver_plugin>

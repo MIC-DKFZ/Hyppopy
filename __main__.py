@@ -17,22 +17,18 @@
 
 import os
 import sys
+import time
+import argparse
 ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(ROOT)
 
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.workflows.svc_usecase.svc_usecase import svc_usecase
 from hyppopy.workflows.knc_usecase.knc_usecase import knc_usecase
-from hyppopy.workflows.lda_usecase.adaboost_usecase import lda_usecase
+from hyppopy.workflows.adaboost_usecase.adaboost_usecase import adaboost_usecase
 from hyppopy.workflows.unet_usecase.unet_usecase import unet_usecase
 from hyppopy.workflows.randomforest_usecase.randomforest_usecase import randomforest_usecase
 from hyppopy.workflows.imageregistration_usecase.imageregistration_usecase import imageregistration_usecase
-
-
-import os
-import sys
-import time
-import argparse
 
 
 def print_warning(msg):
@@ -72,8 +68,8 @@ if __name__ == "__main__":
         uc = randomforest_usecase()
     elif args.workflow == "knc_usecase":
         uc = knc_usecase()
-    elif args.workflow == "lda_usecase":
-        uc = lda_usecase()
+    elif args.workflow == "adaboost_usecase":
+        uc = adaboost_usecase()
     elif args.workflow == "unet_usecase":
         uc = unet_usecase()
     elif args.workflow == "imageregistration_usecase":

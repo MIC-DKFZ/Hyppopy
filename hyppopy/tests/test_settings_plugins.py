@@ -13,11 +13,11 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-import os
 import unittest
 
 from hyppopy.plugins.gridsearch_settings_plugin import gridsearch_SettingsParticle
 from hyppopy.plugins.gridsearch_settings_plugin import gridsearch_Settings
+
 
 class ProjectManagerTestSuite(unittest.TestCase):
 
@@ -83,24 +83,43 @@ class ProjectManagerTestSuite(unittest.TestCase):
             'CategoricalInt': [0, 1]
         }
 
-
     def test_gridsearch_settings(self):
         gss = gridsearch_Settings()
         gss.set_hyperparameter(self.hp)
         res = gss.get_hyperparameter()
-        # TODO check...
+        self.assertTrue('CategoricalInt' in res.keys())
+        self.assertTrue(len(res) == 1)
+        self.assertTrue(0 in res['CategoricalInt'].keys())
+        self.assertTrue(1 in res['CategoricalInt'].keys())
+        self.assertTrue(len(res['CategoricalInt']) == 2)
+        self.assertTrue('a' in res['CategoricalInt'][0]['CategoricalStr'].keys())
+        self.assertTrue('b' in res['CategoricalInt'][0]['CategoricalStr'].keys())
+        self.assertTrue(len(res['CategoricalInt'][0]['CategoricalStr']) == 2)
+        self.assertTrue('a' in res['CategoricalInt'][1]['CategoricalStr'].keys())
+        self.assertTrue('b' in res['CategoricalInt'][1]['CategoricalStr'].keys())
+        self.assertTrue(len(res['CategoricalInt'][1]['CategoricalStr']) == 2)
 
+        def check_truth(input_dict):
+            for key, value in self.truth.items():
+                if not key.startswith('Categorical'):
+                    self.assertTrue(key in input_dict.keys())
+                    for n, v in enumerate(self.truth[key]):
+                        self.assertAlmostEqual(v, input_dict[key][n])
+
+        check_truth(res['CategoricalInt'][0]['CategoricalStr']['a'])
+        check_truth(res['CategoricalInt'][1]['CategoricalStr']['a'])
+        check_truth(res['CategoricalInt'][0]['CategoricalStr']['b'])
+        check_truth(res['CategoricalInt'][1]['CategoricalStr']['b'])
 
     def test_gridsearch_particle(self):
         for name, data in self.hp.items():
             gsp = gridsearch_SettingsParticle(name=name,
                                               domain=data['domain'],
-                                              dtype=data['dtype'],
+                                              dtype=data['type'],
                                               data=data['data'])
             data = gsp.get()
             for n in range(len(self.truth[name])):
                 self.assertAlmostEqual(data[n], self.truth[name][n])
-
 
     def tearDown(self):
         pass
