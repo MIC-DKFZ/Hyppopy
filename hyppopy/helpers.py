@@ -1,6 +1,119 @@
 import copy
+import time
 import itertools
+import numpy as np
+from numpy import argmin, argmax, unique
 from collections import OrderedDict, abc
+
+
+def gaussian(x, mu, sigma):
+    return 1.0/(sigma * np.sqrt(2*np.pi))*np.exp(-(x-mu)**2/(2*sigma**2))
+
+
+def gaussian_axis_sampling(a, b, N):
+    center = a + (b - a) / 2.0
+    delta = (b - a) / N
+    bn = b - center
+    xn = np.arange(0, bn, delta)
+    dn = []
+    for x in xn:
+        dn.append(1/gaussian(x, 0, bn/2.5))
+    dn = np.array(dn)
+    dn /= np.sum(dn)
+    dn *= bn
+
+    axis = [0]
+    for x in dn:
+        axis.append(x+axis[-1])
+        axis.insert(0, -axis[-1])
+    axis = np.array(axis)
+    axis += center
+    return axis
+
+
+def log_axis_sampling(a, b, N):
+    delta = (b - a) / N
+    logrange = np.arange(a, b + delta, delta)
+    for n in range(logrange.shape[0]):
+        logrange[n] = np.exp(logrange[n])
+    return logrange
+
+
+def sample_domain(start, stop, count, ftype="uniform"):
+    assert stop > start, "Precondition Violation, stop <= start not allowed!"
+    assert count > 0, "Precondition Violation, N <= 0 not allowed!"
+    if ftype == 'uniform':
+        delta = (stop - start)/count
+        return np.arange(start, stop + delta, delta)
+    elif ftype == 'loguniform':
+        return log_axis_sampling(start, stop, count)
+    elif ftype == 'normal':
+        return gaussian_axis_sampling(start, stop, count)
+    raise IOError("Precondition Violation, unknown sampling function type!")
+
+class Trials(object):
+
+    def __init__(self):
+        self.loss = []
+        self.duration = []
+        self.status = []
+        self.parameter = []
+        self.best = None
+        self._tick = None
+
+    def start_iteration(self):
+        self._tick = time.process_time()
+
+    def stop_iteration(self):
+        if self._tick is None:
+            return
+        self.duration.append(time.process_time()-self._tick)
+        self._tick = None
+
+    def set_status(self, status=True):
+        self.status.append(status)
+
+    def set_parameter(self, params):
+        self.parameter.append(params)
+
+    def set_loss(self, value):
+        self.loss.append(value)
+
+    def get(self):
+        if len(self.loss) <= 0:
+            raise Exception("Empty solver results!")
+        if len(self.loss) != len(self.duration) or len(self.loss) != len(self.parameter) or len(self.loss) != len(self.status):
+            raise Exception("Inconsistent results in gridsearch solver!")
+        best_index = argmin(self.loss)
+        best = self.parameter[best_index]
+        worst_loss = self.loss[argmax(self.loss)]
+        for n in range(len(self.status)):
+            if not self.status[n]:
+                self.loss[n] = worst_loss
+
+        res = {
+            'losses': self.loss,
+            'duration': self.duration
+        }
+        is_string = []
+        for key, value in self.parameter[0].items():
+            res[key] = []
+            if isinstance(value, str):
+                is_string.append(key)
+
+        for p in self.parameter:
+            for key, value in p.items():
+                res[key].append(value)
+
+        for key in is_string:
+            uniques = unique(res[key])
+            lookup = {}
+            for n, p in enumerate(uniques):
+                lookup[p] = n
+            for n in range(len(res[key])):
+                res[key][n] = lookup[res[key][n]]
+
+        return res, best
 
 
 class NestedDictUnfolder(object):

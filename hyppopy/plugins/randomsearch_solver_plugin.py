@@ -23,11 +23,11 @@ from pprint import pformat
 from yapsy.IPlugin import IPlugin
 
 from hyppopy.helpers import Trials
-from hyppopy.helpers import NestedDictUnfolder
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.solverpluginbase import SolverPluginBase
 
 
-class gridsearch_Solver(SolverPluginBase, IPlugin):
+class randomsearch_Solver(SolverPluginBase, IPlugin):
     trials = None
     best = None
 
@@ -54,18 +54,18 @@ class gridsearch_Solver(SolverPluginBase, IPlugin):
 
     def execute_solver(self, parameter):
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
-
         self.trials = Trials()
-        unfolder = NestedDictUnfolder(parameter)
-        parameter_set = unfolder.unfold()
-        N = len(parameter_set)
+        N = ProjectManager.max_iterations
         print("")
         try:
-            for n, params in enumerate(parameter_set):
+            for n in range(N):
+                params = {}
+                for key, value in parameter.items():
+                    params[key] = value[n]
                 self.blackbox_function(params)
-                print("\r{}% done".format(int(round(100.0/N*n))), end="")
+                print("\r{}% done".format(int(round(100.0 / N * n))), end="")
         except Exception as e:
-            msg = "internal error in gridsearch execute_solver occured. {}".format(e)
+            msg = "internal error in randomsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
             raise BrokenPipeError(msg)
         print("\r{}% done".format(100), end="")

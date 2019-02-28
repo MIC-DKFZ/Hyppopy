@@ -14,6 +14,7 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
+import random
 import logging
 import numpy as np
 from pprint import pformat
@@ -23,14 +24,14 @@ LOG.setLevel(DEBUGLEVEL)
 
 from yapsy.IPlugin import IPlugin
 
-
 from hyppopy.helpers import sample_domain
-from hyppopy.settingspluginbase import SettingsPluginBase
-from hyppopy.settingsparticle import split_categorical
+from hyppopy.projectmanager import ProjectManager
 from hyppopy.settingsparticle import SettingsParticle
+from hyppopy.settingspluginbase import SettingsPluginBase
+from hyppopy.globals import RANDOMSAMPLES, DEFAULTITERATIONS
 
 
-class gridsearch_Settings(SettingsPluginBase, IPlugin):
+class randomsearch_Settings(SettingsPluginBase, IPlugin):
 
     def __init__(self):
         SettingsPluginBase.__init__(self)
@@ -40,12 +41,8 @@ class gridsearch_Settings(SettingsPluginBase, IPlugin):
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(input_dict)))
 
         solution_space = {}
-        # split input in categorical and non-categorical data
-        cat, uni = split_categorical(input_dict)
-        # build up dictionary keeping all non-categorical data
-        uniforms = {}
-        for name, content in uni.items():
-            particle = gridsearch_SettingsParticle(name=name)
+        for name, content in input_dict.items():
+            particle = randomsearch_SettingsParticle(name=name)
             for key, value in content.items():
                 if key == 'domain':
                     particle.domain = value
@@ -53,49 +50,46 @@ class gridsearch_Settings(SettingsPluginBase, IPlugin):
                     particle.data = value
                 elif key == 'type':
                     particle.dtype = value
-            uniforms[name] = particle.get()
-
-        # build nested categorical structure
-        inner_level = uniforms
-        for key, value in cat.items():
-            tmp = {}
-            tmp2 = {}
-            for key2, value2 in value.items():
-                if key2 == 'data':
-                    for elem in value2:
-                        tmp[elem] = inner_level
-            tmp2[key] = tmp
-            inner_level = tmp2
-        if len(cat) > 0:
-            solution_space = tmp2
-        else:
-            solution_space = inner_level
+            solution_space[name] = particle.get()
         return solution_space
 
 
-class gridsearch_SettingsParticle(SettingsParticle):
+class randomsearch_SettingsParticle(SettingsParticle):
 
     def __init__(self, name=None, domain=None, dtype=None, data=None):
         SettingsParticle.__init__(self, name, domain, dtype, data)
 
     def convert(self):
         assert isinstance(self.data, list), "Precondition Violation, invalid input type for data!"
+        N = DEFAULTITERATIONS
+        if "max_iterations" in ProjectManager.__dict__.keys():
+            N = ProjectManager.max_iterations
+        else:
+            setattr(ProjectManager, 'max_iterations', N)
+            ProjectManager.max_iterations
+            msg = "No max_iterrations set, set it to default [{}]".format(DEFAULTITERATIONS)
+            LOG.warning(msg)
+            print("WARNING: {}".format(msg))
+
         if self.domain == "categorical":
-            return self.data
+            samples = []
+            for n in range(N):
+                samples.append(random.sample(self.data, 1)[0])
+            return samples
         else:
             assert len(self.data) >= 2, "Precondition Violation, invalid input data!"
-            if len(self.data) < 3:
-                self.data.append(10)
-                LOG.warning("Grid sampling has set number of samples automatically to 10!")
-                print("WARNING: Grid sampling has set number of samples automatically to 10!")
 
-            samples = sample_domain(start=self.data[0], stop=self.data[1], count=self.data[2], ftype=self.domain)
+            full_range = list(sample_domain(start=self.data[0], stop=self.data[1], count=RANDOMSAMPLES, ftype=self.domain))
             if self.dtype == "int":
                 data = []
-                for s in samples:
+                for s in full_range:
                     val = int(np.round(s))
                     if len(data) > 0:
-                        if val == data[-1]: continue
+                        if val == data[-1]:
+                            continue
                     data.append(val)
-                return data
-            return list(samples)
+                full_range = data
+            samples = []
+            for n in range(N):
+                samples.append(random.sample(full_range, 1)[0])
+            return samples

@@ -60,7 +60,7 @@ class ResultViewer(object):
         grid = [len(x), len(y)]
         if grid[0] == 1 and grid[1] == 1:
             fig = plt.figure(figsize=(10.0, 8))
-            plt.plot(df[x[0]].values, df[y[0]].values, 'o')
+            plt.plot(df[x[0]].values, df[y[0]].values, '.')
             plt.plot(df[x[0]].values[argmin], df[y[0]].values[argmin], 'ro')
             plt.grid(True)
             plt.ylabel(y[0])
@@ -83,7 +83,7 @@ class ResultViewer(object):
                         ax = axs[ny]
                     else:
                         ax = axs[ny, nx]
-                    ax.plot(df[_x].values, df[_y].values, 'o')
+                    ax.plot(df[_x].values, df[_y].values, '.')
                     ax.plot(df[_x].values[argmin], df[_y].values[argmin], 'ro')
                     ax.grid(True)
                     if nx == 0:

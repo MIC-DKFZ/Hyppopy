@@ -23,6 +23,8 @@ TESTDATA_DIR = os.path.join(ROOT, *(LIBNAME, "tests", "data"))
 SETTINGSSOLVERPATH = "settings/solver_plugin"
 SETTINGSCUSTOMPATH = "settings/custom"
 DEEPDICT_XML_ROOT = LIBNAME
+RANDOMSAMPLES = 10000
+DEFAULTITERATIONS = 500
 
 LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))
 DEBUGLEVEL = logging.DEBUG
