@@ -9,7 +9,7 @@ with open('README.rst') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
