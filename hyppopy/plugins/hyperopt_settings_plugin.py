@@ -81,7 +81,9 @@ class hyperopt_SettingsParticle(SettingsParticle):
                 raise LookupError(msg)
         elif self.domain == "normal":
             if self.dtype == "float" or self.dtype == "double":
-                return hp.normal(self.name, self.data[0], self.data[1])
+                mu = (self.data[1] - self.data[0])/2.0
+                sigma = mu/3
+                return hp.normal(self.name, mu, sigma)
             else:
                 msg = "cannot convert the type {} in domain {}".format(self.dtype, self.domain)
                 LOG.error(msg)
