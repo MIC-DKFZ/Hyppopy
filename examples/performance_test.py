@@ -14,7 +14,9 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
+import sys
 import shutil
+import argparse
 import tempfile
 import numpy as np
 import pandas as pd
@@ -42,7 +44,7 @@ sns.set(style="darkgrid")
 
 class PerformanceTest(object):
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, size='small', plugin='hyperopt'):
         if root is None:
             self.root = os.path.join(tempfile.gettempdir(), 'test_data')
         else:
@@ -52,20 +54,41 @@ class PerformanceTest(object):
         self.test = None
         self.train = None
         self.config = None
-        self.iter_sequence = [5, 10, 25, 50, 100, 150, 300, 500, 800, 1200]
-        self.iter_sequence = [25]
+        self.size = size
+        self.plugin = plugin
+        if plugin == 'gridsearch':
+            print("Gridsearch is not available for this performance test!")
+            sys.exit()
+        if size == 'small':
+            self.iter_sequence = [25]
+        elif size == 'medium':
+            self.iter_sequence = [50, 150, 500]
+        elif size == 'big':
+            self.iter_sequence = [5, 10, 25, 50, 100, 150, 300, 500, 800, 1200]
 
-    def run(self):
+
+    def run(self, usecase='all'):
         self.set_up()
-        #self.run_svc_usecase()
-        #self.run_gradientboost_usecase()
-        self.run_randomforest_usecase()
-        #self.run_adaboost_usecase()
-        #self.run_knc_usecase()
-        #self.clean_up()
+        print("")
+        print("#" * 40)
+        print("#   Hyppopy performance test\n#   usecase={}\n#   size={}\n#   plugin={}".format(usecase, self.size, self.plugin))
+        print("#" * 40)
+        # if usecase == 'svc' or usecase == 'all':
+        #     self.run_svc_usecase()
+        if usecase == 'knc' or usecase == 'all':
+            self.run_knc_usecase()
+        if usecase == 'randomforest' or usecase == 'all':
+            self.run_randomforest_usecase()
+        if usecase == 'gradientboost' or usecase == 'all':
+            self.run_gradientboost_usecase()
+        if usecase == 'adaboost' or usecase == 'all':
+            self.run_adaboost_usecase()
 
     def set_hyperparameter(self, params):
         self.config["hyperparameter"] = params
+
+    def set_output_dir(self, dirname):
+        self.config["settings"]["solver_plugin"]["output_dir"] = os.path.join(self.root, dirname)
 
     def set_iterations(self, value):
         self.config["settings"]["solver_plugin"]["max_iterations"] = value
@@ -129,7 +152,7 @@ class PerformanceTest(object):
             "settings": {
                 "solver_plugin": {
                     "max_iterations": 1,
-                    "use_plugin": "hyperopt",
+                    "use_plugin": self.plugin,
                     "output_dir": os.path.join(self.root, 'test_results')
                 },
                 "custom": {
@@ -159,51 +182,59 @@ class PerformanceTest(object):
         }
 
         self.set_hyperparameter(hp)
+        self.set_output_dir("svc_usecase")
 
         results = {"iterations": [], "C": [], "kernel": [], "accuracy": [], "losses": [], "duration": []}
+        status = True
         for n in self.iter_sequence:
-            self.set_iterations(n)
-            ProjectManager.set_config(self.config)
-            uc = svc_usecase()
-            uc.run(save=False)
-            res, best = uc.get_results()
-            clf = SVC(C=best['n_estimators'],
-                      kernel=hp['kernel']['data'][best['kernel']])
-            clf.fit(self.train[0], self.train[1])
-            train_predictions = clf.predict(self.test[0])
-            acc = accuracy_score(self.test[1], train_predictions)
+            try:
+                self.set_iterations(n)
+                ProjectManager.set_config(self.config)
+                uc = svc_usecase()
+                uc.run(save=True)
+                res, best = uc.get_results()
+                clf = SVC(C=best['n_estimators'],
+                          kernel=hp['kernel']['data'][best['kernel']])
+                clf.fit(self.train[0], self.train[1])
+                train_predictions = clf.predict(self.test[0])
+                acc = accuracy_score(self.test[1], train_predictions)
 
-            results['accuracy'].append(acc)
-            results['iterations'].append(n)
-            results['kernel'].append(best['kernel'])
-            results['C'].append(best['C'])
+                results['accuracy'].append(acc)
+                results['iterations'].append(n)
+                results['kernel'].append(best['kernel'])
+                results['C'].append(best['C'])
 
-            self.find_loss_and_time(res, results)
+                self.find_loss_and_time(res, results)
 
-            print("=" * 30)
-            print("Number of iterations: {}".format(n))
-            print("Classifier: {}".format(clf.__class__.__name__))
-            print("=" * 30)
-            print("=" * 30)
-            for p in best.items():
-                print(p[0], ":", p[1])
-            print("=" * 30)
-            print("Accuracy: {:.4%}".format(acc))
-            print("=" * 30)
-            print("\n")
+                print("=" * 30)
+                print("Number of iterations: {}".format(n))
+                print("Classifier: {}".format(clf.__class__.__name__))
+                print("=" * 30)
+                print("=" * 30)
+                for p in best.items():
+                    print(p[0], ":", p[1])
+                print("=" * 30)
+                print("Accuracy: {:.4%}".format(acc))
+                print("=" * 30)
+                print("\n")
 
-        df = pd.DataFrame.from_dict(results)
-        df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
-        self.plot(df, x=["iterations", "losses"],
-                  y=['accuracy', 'duration'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
-                  show=False)
-        self.plot(df, x=["iterations", "losses"],
-                  y=['n_estimators', 'max_depth', 'max_features'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
-                  show=False)
+            except Exception as e:
+                print("Failed at iteration step {}, reason: {}".format(n, e))
+                status = False
+
+        if status:
+            df = pd.DataFrame.from_dict(results)
+            df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
+            self.plot(df, x=["iterations", "losses"],
+                      y=['accuracy', 'duration'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
+                      show=False)
+            self.plot(df, x=["iterations", "losses"],
+                      y=['n_estimators', 'max_depth', 'max_features'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
+                      show=False)
 
     def run_randomforest_usecase(self):
         print("\n")
@@ -230,18 +261,20 @@ class PerformanceTest(object):
         }
 
         self.set_hyperparameter(hp)
+        self.set_output_dir("randomforest_usecase")
 
         results = {"iterations": [], "n_estimators": [], "max_depth": [], "max_features": [], "accuracy": [], "losses": [], "duration": []}
+        status = True
         for n in self.iter_sequence:
             try:
                 self.set_iterations(n)
                 ProjectManager.set_config(self.config)
                 uc = randomforest_usecase()
-                uc.run(save=False)
+                uc.run(save=True)
                 res, best = uc.get_results()
                 clf = RandomForestClassifier(n_estimators=best['n_estimators'],
                                              max_depth=best['max_depth'],
-                                             max_features=hp['max_features']['data'][best['max_features']])
+                                             max_features=best['max_features'])
                 clf.fit(self.train[0], self.train[1])
                 train_predictions = clf.predict(self.test[0])
                 acc = accuracy_score(self.test[1], train_predictions)
@@ -267,19 +300,21 @@ class PerformanceTest(object):
                 print("\n")
             except Exception as e:
                 print("Failed at iteration step {}, reason: {}".format(n, e))
+                status = False
 
-        df = pd.DataFrame.from_dict(results)
-        df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
-        self.plot(df, x=["iterations", "losses"],
-                  y=['accuracy', 'duration'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
-                  show=False)
-        self.plot(df, x=["iterations", "losses"],
-                  y=['n_estimators', 'max_depth', 'max_features'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
-                  show=False)
+        if status:
+            df = pd.DataFrame.from_dict(results)
+            df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
+            self.plot(df, x=["iterations", "losses"],
+                      y=['accuracy', 'duration'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
+                      show=False)
+            self.plot(df, x=["iterations", "losses"],
+                      y=['n_estimators', 'max_depth', 'max_features'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
+                      show=False)
 
     def run_adaboost_usecase(self):
         print("\n")
@@ -294,21 +329,23 @@ class PerformanceTest(object):
                 "type": "int"
             },
             "learning_rate": {
-                "domain": "uniform",
-                "data": [0.001, 10],
+                "domain": "loguniform",
+                "data": [-10, 2],
                 "type": "float"
             }
         }
 
         self.set_hyperparameter(hp)
+        self.set_output_dir("adaboost_usecase")
 
         results = {"iterations": [], "n_estimators": [], "learning_rate": [], "accuracy": [], "losses": [], "duration": []}
+        status = True
         for n in self.iter_sequence:
             try:
                 self.set_iterations(n)
                 ProjectManager.set_config(self.config)
                 uc = adaboost_usecase()
-                uc.run(save=False)
+                uc.run(save=True)
                 res, best = uc.get_results()
                 clf = AdaBoostClassifier(n_estimators=best['n_estimators'],
                                          learning_rate=best['learning_rate'])
@@ -336,19 +373,21 @@ class PerformanceTest(object):
                 print("\n")
             except Exception as e:
                 print("Failed at iteration step {}, reason: {}".format(n, e))
+                status = False
 
-        df = pd.DataFrame.from_dict(results)
-        df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
-        self.plot(df, x=["iterations", "losses"],
-                  y=['accuracy', 'duration'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
-                  show=False)
-        self.plot(df, x=["iterations", "losses"],
-                  y=['n_estimators', 'learning_rate'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
-                  show=False)
+        if status:
+            df = pd.DataFrame.from_dict(results)
+            df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
+            self.plot(df, x=["iterations", "losses"],
+                      y=['accuracy', 'duration'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
+                      show=False)
+            self.plot(df, x=["iterations", "losses"],
+                      y=['n_estimators', 'learning_rate'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
+                      show=False)
 
     def run_knc_usecase(self):
         print("\n")
@@ -375,18 +414,20 @@ class PerformanceTest(object):
             }
 
         self.set_hyperparameter(hp)
+        self.set_output_dir("knc_usecase")
 
         results = {"iterations": [], "n_neighbors": [], "weights": [], "algorithm": [], "accuracy": [], "losses": [], "duration": []}
+        status = True
         for n in self.iter_sequence:
             try:
                 self.set_iterations(n)
                 ProjectManager.set_config(self.config)
                 uc = knc_usecase()
-                uc.run(save=False)
+                uc.run(save=True)
                 res, best = uc.get_results()
                 clf = KNeighborsClassifier(n_neighbors=best['n_neighbors'],
-                                           weights=hp["weights"]["data"][best['weights']],
-                                           algorithm=hp["algorithm"]["data"][best['algorithm']])
+                                           weights=best['weights'],
+                                           algorithm=best['algorithm'])
                 clf.fit(self.train[0], self.train[1])
                 train_predictions = clf.predict(self.test[0])
                 acc = accuracy_score(self.test[1], train_predictions)
@@ -412,19 +453,21 @@ class PerformanceTest(object):
                 print("\n")
             except Exception as e:
                 print("Failed at iteration step {}, reason: {}".format(n, e))
+                status = False
 
-        df = pd.DataFrame.from_dict(results)
-        df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
-        self.plot(df, x=["iterations", "losses"],
-                  y=['accuracy', 'duration'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
-                  show=False)
-        self.plot(df, x=["iterations", "losses"],
-                  y=['n_neighbors', 'weights', 'algorithm'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
-                  show=False)
+        if status:
+            df = pd.DataFrame.from_dict(results)
+            df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
+            self.plot(df, x=["iterations", "losses"],
+                      y=['accuracy', 'duration'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
+                      show=False)
+            self.plot(df, x=["iterations", "losses"],
+                      y=['n_neighbors', 'weights', 'algorithm'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
+                      show=False)
 
     def run_gradientboost_usecase(self):
         print("\n")
@@ -439,8 +482,8 @@ class PerformanceTest(object):
                 "type": "int"
             },
             "learning_rate": {
-                "domain": "uniform",
-                "data": [0.001, 10],
+                "domain": "loguniform",
+                "data": [-10, 2],
                 "type": "float"
             },
             "min_samples_split": {
@@ -461,16 +504,18 @@ class PerformanceTest(object):
         }
 
         self.set_hyperparameter(hp)
+        self.set_output_dir("gradientboost_usecase")
 
         results = {"iterations": [], "n_estimators": [], "max_depth": [],
                    "learning_rate": [], "min_samples_split": [], "min_samples_leaf": [],
                    "accuracy": [], "losses": [], "duration": []}
+        status = True
         for n in self.iter_sequence:
             try:
                 self.set_iterations(n)
                 ProjectManager.set_config(self.config)
                 uc = gradientboost_usecase()
-                uc.run(save=False)
+                uc.run(save=True)
                 res, best = uc.get_results()
                 clf = GradientBoostingClassifier(n_estimators=best['n_estimators'],
                                                  max_depth=best['max_depth'],
@@ -504,19 +549,21 @@ class PerformanceTest(object):
                 print("\n")
             except Exception as e:
                 print("Failed at iteration step {}, reason: {}".format(n, e))
+                status = False
 
-        df = pd.DataFrame.from_dict(results)
-        df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
-        self.plot(df, x=["iterations", "losses"],
-                  y=['accuracy', 'duration'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
-                  show=False)
-        self.plot(df, x=["iterations", "losses"],
-                  y=['n_estimators', 'max_depth', 'learning_rate', 'min_samples_split', 'min_samples_leaf'],
-                  name="Classifier: {}".format(clf.__class__.__name__),
-                  save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
-                  show=False)
+        if status:
+            df = pd.DataFrame.from_dict(results)
+            df.to_csv(os.path.join(self.root, "final_{}.csv".format(clf.__class__.__name__)))
+            self.plot(df, x=["iterations", "losses"],
+                      y=['accuracy', 'duration'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final1_{}.png".format(clf.__class__.__name__)),
+                      show=False)
+            self.plot(df, x=["iterations", "losses"],
+                      y=['n_estimators', 'max_depth', 'learning_rate', 'min_samples_split', 'min_samples_leaf'],
+                      name="Classifier: {}".format(clf.__class__.__name__),
+                      save=os.path.join(self.root, "final2_{}.png".format(clf.__class__.__name__)),
+                      show=False)
 
 
     def clean_up(self):
@@ -525,5 +572,12 @@ class PerformanceTest(object):
 
 
 if __name__ == "__main__":
-    performance_test = PerformanceTest(root="C:/Users/s635r/Desktop")
-    performance_test.run()
+    parser = argparse.ArgumentParser(description='Hyppopy performance test.')
+    parser.add_argument('-u', '--usecase', type=str, help='usecase to be executed', default='all')
+    parser.add_argument('-s', '--size', type=str, help='size of the test [small, medium, big]', default='small')
+    parser.add_argument('-p', '--plugin', type=str, help='plugin to be used', default='hyperopt')
+    parser.add_argument('-o', '--output', type=str, default=None, help='output path to store result, default is temp on you system')
+    args = parser.parse_args()
+
+    performance_test = PerformanceTest(root=args.output, size=args.size, plugin=args.plugin)
+    performance_test.run(usecase=args.usecase)

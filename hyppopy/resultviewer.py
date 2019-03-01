@@ -30,6 +30,7 @@ sns.set(style="darkgrid")
 class ResultViewer(object):
 
     def __init__(self, fname=None, save_only=False):
+        self.close_all()
         self.df = None
         self.has_duration = False
         self.hyperparameter = None
