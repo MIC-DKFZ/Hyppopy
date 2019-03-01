@@ -7,7 +7,7 @@
 		</n_estimators>
 		<learning_rate>
 			<domain>loguniform</domain>
-			<data>[-10,3]</data>
+			<data>[0.0001,100]</data>
 			<type>float</type>
 		</learning_rate>
 	</hyperparameter>

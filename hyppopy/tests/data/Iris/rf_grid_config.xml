@@ -2,7 +2,7 @@
 	<hyperparameter>
 		<n_estimators>
 			<domain>uniform</domain>
-			<data>[1,300,10]</data>
+			<data>[1,300,3]</data>
 			<type>int</type>
 		</n_estimators>
 		<criterion>
@@ -12,7 +12,7 @@
 		</criterion>
 		<max_depth>
 			<domain>uniform</domain>
-			<data>[1,50,10]</data>
+			<data>[1,50,3]</data>
 			<type>int</type>
 		</max_depth>
 	</hyperparameter>

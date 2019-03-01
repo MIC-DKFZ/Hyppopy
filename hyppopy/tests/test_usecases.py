@@ -45,9 +45,10 @@ class ProjectManagerTestSuite(unittest.TestCase):
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, random_state=23)
 
         self.root = os.path.join(tempfile.gettempdir(), 'test_data')
-        if os.path.isdir(self.root):
-            shutil.rmtree(self.root)
-        os.makedirs(self.root)
+        #if os.path.isdir(self.root):
+            #shutil.rmtree(self.root)
+        if not os.path.isdir(self.root):
+            os.makedirs(self.root)
 
         x_train_fname = os.path.join(self.root, 'x_train.npy')
         y_train_fname = os.path.join(self.root, 'y_train.npy')
@@ -152,7 +153,7 @@ class ProjectManagerTestSuite(unittest.TestCase):
             },
             "learning_rate": {
                 "domain": "loguniform",
-                "data": [-10, 3],
+                "data": [0.01, 100],
                 "type": "float"
             }
         }

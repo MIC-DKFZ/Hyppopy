@@ -32,8 +32,18 @@ def gaussian_axis_sampling(a, b, N):
 
 
 def log_axis_sampling(a, b, N):
-    delta = (b - a) / N
-    logrange = np.arange(a, b + delta, delta)
+    if a == 0:
+        a += 1e-23
+    assert a > 0, "Precondition Violation, a < 0!"
+    assert a < b, "Precondition Violation, a > b!"
+    assert b > 0, "Precondition Violation, b < 0!"
+    lexp = np.log(a)
+    rexp = np.log(b)
+    assert lexp is not np.nan, "Precondition violation, left bound input error, results in nan!"
+    assert rexp is not np.nan, "Precondition violation, right bound input error, results in nan!"
+
+    delta = (rexp - lexp) / N
+    logrange = np.arange(lexp, rexp + delta, delta)
     for n in range(logrange.shape[0]):
         logrange[n] = np.exp(logrange[n])
     return logrange

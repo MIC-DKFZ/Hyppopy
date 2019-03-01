@@ -14,7 +14,10 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
+import copy
+import random
 import logging
+import numpy as np
 from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -23,8 +26,59 @@ from pprint import pformat
 from yapsy.IPlugin import IPlugin
 
 from hyppopy.helpers import Trials
+from hyppopy.globals import DEFAULTITERATIONS
 from hyppopy.projectmanager import ProjectManager
 from hyppopy.solverpluginbase import SolverPluginBase
+
+
+def drawUniformSample(param):
+    assert param['type'] != 'str', "Cannot sample a string list uniformly!"
+    assert param['data'][0] < param['data'][1], "Precondition violation: data[0] > data[1]!"
+    s = random.random()
+    s *= np.abs(param['data'][1]-param['data'][0])
+    s += param['data'][0]
+    if param['type'] == 'int':
+        s = int(np.round(s))
+        if s < param['data'][0]:
+            s = int(param['data'][0])
+        if s > param['data'][1]:
+            s = int(param['data'][1])
+    return s
+
+
+def drawNormalSample(param):
+    mu = (param['data'][1]-param['data'][0])/2
+    sigma = mu/3
+    s = np.random.normal(loc=mu, scale=sigma)
+    return s
+
+
+def drawLoguniformSample(param):
+    p = copy.deepcopy(param)
+    p['data'][0] = np.log(param['data'][0])
+    p['data'][1] = np.log(param['data'][1])
+    assert p['data'][0] is not np.nan, "Precondition violation, left bound input error, results in nan!"
+    assert p['data'][1] is not np.nan, "Precondition violation, right bound input error, results in nan!"
+    x = drawUniformSample(p)
+    s = np.exp(x)
+    return s
+
+
+def drawCategoricalSample(param):
+    return random.sample(param['data'], 1)[0]
+
+
+def drawSample(param):
+    if param['domain'] == "uniform":
+        return drawUniformSample(param)
+    elif param['domain'] == "normal":
+        return drawNormalSample(param)
+    elif param['domain'] == "loguniform":
+        return drawLoguniformSample(param)
+    elif param['domain'] == "categorical":
+        return drawCategoricalSample(param)
+    else:
+        raise LookupError("Unknown domain {}".format(param['domain']))
 
 
 class randomsearch_Solver(SolverPluginBase, IPlugin):
@@ -55,13 +109,18 @@ class randomsearch_Solver(SolverPluginBase, IPlugin):
     def execute_solver(self, parameter):
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(parameter)))
         self.trials = Trials()
+        if 'max_iterations' not in ProjectManager.__dict__:
+            msg = "Missing max_iteration entry in config, used default {}!".format(DEFAULTITERATIONS)
+            LOG.warning(msg)
+            print("WARNING: {}".format(msg))
+            setattr(ProjectManager, 'max_iterations', DEFAULTITERATIONS)
         N = ProjectManager.max_iterations
         print("")
         try:
             for n in range(N):
                 params = {}
-                for key, value in parameter.items():
-                    params[key] = value[n]
+                for name, p in parameter.items():
+                    params[name] = drawSample(p)
                 self.blackbox_function(params)
                 print("\r{}% done".format(int(round(100.0 / N * n))), end="")
         except Exception as e:

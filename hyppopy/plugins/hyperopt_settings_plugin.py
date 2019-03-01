@@ -74,7 +74,17 @@ class hyperopt_SettingsParticle(SettingsParticle):
                 raise LookupError(msg)
         elif self.domain == "loguniform":
             if self.dtype == "float" or self.dtype == "double":
-                return hp.loguniform(self.name, self.data[0], self.data[1])
+                if self.data[0] == 0:
+                    self.data[0] += 1e-23
+                assert self.data[0] > 0, "Precondition Violation, a < 0!"
+                assert self.data[0] < self.data[1], "Precondition Violation, a > b!"
+                assert self.data[1] > 0, "Precondition Violation, b < 0!"
+                lexp = np.log(self.data[0])
+                rexp = np.log(self.data[1])
+                assert lexp is not np.nan, "Precondition violation, left bound input error, results in nan!"
+                assert rexp is not np.nan, "Precondition violation, right bound input error, results in nan!"
+
+                return hp.loguniform(self.name, lexp, rexp)
             else:
                 msg = "cannot convert the type {} in domain {}".format(self.dtype, self.domain)
                 LOG.error(msg)
