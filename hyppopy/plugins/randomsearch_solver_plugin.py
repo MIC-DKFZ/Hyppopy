@@ -50,6 +50,10 @@ def drawNormalSample(param):
     mu = (param['data'][1]-param['data'][0])/2
     sigma = mu/3
     s = np.random.normal(loc=param['data'][0] + mu, scale=sigma)
+    if s > param['data'][1]:
+        s = param['data'][1]
+    if s < param['data'][0]:
+        s = param['data'][0]
     return s
 
 
@@ -61,6 +65,10 @@ def drawLoguniformSample(param):
     assert p['data'][1] is not np.nan, "Precondition violation, right bound input error, results in nan!"
     x = drawUniformSample(p)
     s = np.exp(x)
+    if s > param['data'][1]:
+        s = param['data'][1]
+    if s < param['data'][0]:
+        s = param['data'][0]
     return s
 
 
@@ -100,9 +108,12 @@ class randomsearch_Solver(SolverPluginBase, IPlugin):
                 self.trials.set_status(False)
                 self.trials.stop_iteration()
         except Exception as e:
-            LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
+            msg = "execution of self.loss(self.data, params) failed due to:\n {}".format(e)
+            LOG.error(msg)
             self.trials.set_status(False)
             self.trials.stop_iteration()
+            print("Exception occured for parameter set: {}".format(params))
+            raise e
         self.trials.set_status(True)
         self.trials.set_loss(loss)
         return
