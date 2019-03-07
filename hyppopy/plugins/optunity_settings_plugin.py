@@ -53,6 +53,8 @@ class optunity_Settings(SettingsPluginBase, IPlugin):
                 if key2 == 'data':
                     uniforms[key] = value2
 
+        if len(cat) == 0:
+            return uniforms
         # build nested categorical structure
         inner_level = uniforms
         for key, value in cat.items():

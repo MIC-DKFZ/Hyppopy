@@ -49,7 +49,7 @@ def drawUniformSample(param):
 def drawNormalSample(param):
     mu = (param['data'][1]-param['data'][0])/2
     sigma = mu/3
-    s = np.random.normal(loc=mu, scale=sigma)
+    s = np.random.normal(loc=param['data'][0] + mu, scale=sigma)
     return s
 
 
@@ -98,6 +98,7 @@ class randomsearch_Solver(SolverPluginBase, IPlugin):
             self.trials.stop_iteration()
             if loss is None:
                 self.trials.set_status(False)
+                self.trials.stop_iteration()
         except Exception as e:
             LOG.error("execution of self.loss(self.data, params) failed due to:\n {}".format(e))
             self.trials.set_status(False)
@@ -115,20 +116,20 @@ class randomsearch_Solver(SolverPluginBase, IPlugin):
             print("WARNING: {}".format(msg))
             setattr(ProjectManager, 'max_iterations', DEFAULTITERATIONS)
         N = ProjectManager.max_iterations
-        print("")
+        #print("")
         try:
             for n in range(N):
                 params = {}
                 for name, p in parameter.items():
                     params[name] = drawSample(p)
                 self.blackbox_function(params)
-                print("\r{}% done".format(int(round(100.0 / N * n))), end="")
+                #print("\r{}% done".format(int(round(100.0 / N * n))), end="")
         except Exception as e:
             msg = "internal error in randomsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
             raise BrokenPipeError(msg)
-        print("\r{}% done".format(100), end="")
-        print("")
+        #print("\r{}% done".format(100), end="")
+        #print("")
 
     def convert_results(self):
         return self.trials.get()
