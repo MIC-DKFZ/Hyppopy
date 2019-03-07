@@ -1,3 +1,18 @@
+# DKFZ
+#
+#
+# Copyright (c) German Cancer Research Center,
+# Division of Medical and Biological Informatics.
+# All rights reserved.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt or http://www.mitk.org for details.
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
+
 import copy
 import time
 import itertools
@@ -61,6 +76,7 @@ def sample_domain(start, stop, count, ftype="uniform"):
         return gaussian_axis_sampling(start, stop, count)
     raise IOError("Precondition Violation, unknown sampling function type!")
 
+
 class Trials(object):
 
     def __init__(self):
@@ -90,10 +106,18 @@ class Trials(object):
         self.loss.append(value)
 
     def get(self):
+        msg = None
         if len(self.loss) <= 0:
-            raise Exception("Empty solver results!")
-        if len(self.loss) != len(self.duration) or len(self.loss) != len(self.parameter) or len(self.loss) != len(self.status):
-            raise Exception("Inconsistent results in gridsearch solver!")
+            msg = "Empty solver results!"
+        if len(self.loss) != len(self.duration):
+            msg = "Inconsistent results! len(self.loss) != len(self.duration) -> {} != {}".format(len(self.loss), len(self.duration))
+        if len(self.loss) != len(self.parameter):
+            msg = "Inconsistent results! len(self.loss) != len(self.parameter) -> {} != {}".format(len(self.loss), len(self.parameter))
+        if len(self.loss) != len(self.status):
+            msg = "Inconsistent results! len(self.loss) != len(self.status) -> {} != {}".format(len(self.loss), len(self.status))
+        if msg is not None:
+            raise Exception(msg)
+
         best_index = argmin(self.loss)
         best = self.parameter[best_index]
         worst_loss = self.loss[argmax(self.loss)]

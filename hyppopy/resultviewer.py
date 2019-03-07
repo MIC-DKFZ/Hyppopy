@@ -155,18 +155,21 @@ class ResultViewer(object):
                 raise IOError(msg)
 
     def plot_duration(self, save=True):
-        if "duration" in self.df.columns:
-            sns_plot = sns.jointplot(y="duration", x="losses", data=self.df, kind="kde")
-            if not self.save_only:
-                plt.show()
-            if save:
-                save_name = os.path.join(self.path, "t_vs_loss_" + self.appendix + ".png")
-                try:
-                    sns_plot.savefig(save_name)
-                except Exception as e:
-                    msg = "failed to save file {}, reason {}".format(save_name, e)
-                    LOG.error(msg)
-                    raise IOError(msg)
+        try:
+            if "duration" in self.df.columns:
+                sns_plot = sns.jointplot(y="duration", x="losses", data=self.df, kind="kde")
+                if not self.save_only:
+                    plt.show()
+                if save:
+                    save_name = os.path.join(self.path, "t_vs_loss_" + self.appendix + ".png")
+                    try:
+                        sns_plot.savefig(save_name)
+                    except Exception as e:
+                        msg = "failed to save file {}, reason {}".format(save_name, e)
+                        LOG.error(msg)
+                        raise IOError(msg)
+        except Exception as e:
+            print(e)
 
     def show(self, save=True):
         self.plot_duration(save)

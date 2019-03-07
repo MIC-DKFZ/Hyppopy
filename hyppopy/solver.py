@@ -15,7 +15,7 @@
 
 
 from hyppopy.projectmanager import ProjectManager
-from hyppopy.resultviewer import ResultViewer
+#from hyppopy.resultviewer import ResultViewer
 
 import os
 import logging
@@ -51,7 +51,7 @@ class Solver(object):
         self._solver_plugin.settings = self.settings_plugin
         self._solver_plugin.run()
 
-    def save_results(self, savedir=None, savename=None, show=False):
+    def save_results(self, savedir=None, savename=None, overwrite=True):#, show=False):
         df, best = self.get_results()
         dir = None
         if savename is None:
@@ -69,22 +69,24 @@ class Solver(object):
             if not os.path.isdir(savedir):
                 os.mkdir(savedir)
 
-        appendix = ProjectManager.identifier(True)
-        name = savename + "_all_" + appendix + ".csv"
+        appendix = ""
+        if not overwrite:
+            appendix = "_" + ProjectManager.identifier(True)
+        name = savename + "_all" + appendix + ".csv"
         fname_all = os.path.join(dir, name)
         df.to_csv(fname_all)
-        name = savename + "_best_" + appendix + ".txt"
+        name = savename + "_best" + appendix + ".txt"
         fname_best = os.path.join(dir, name)
         with open(fname_best, "w") as text_file:
             for item in best.items():
                 text_file.write("{}\t:\t{}\n".format(item[0], item[1]))
 
-        if show:
-            viewer = ResultViewer(fname_all)
-            viewer.show()
-        else:
-            viewer = ResultViewer(fname_all, save_only=True)
-            viewer.show()
+        # if show:
+        #     viewer = ResultViewer(fname_all)
+        #     viewer.show()
+        # else:
+        #     viewer = ResultViewer(fname_all, save_only=True)
+        #     viewer.show()
 
     def get_results(self):
         results, best = self._solver_plugin.get_results()
