@@ -91,7 +91,7 @@ class ProjectManager(metaclass=Singleton):
             raise LookupError(msg)
         else:
             try:
-                self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
             except Exception as e:
                 msg = "transfering custom section as class attributes failed, " \
                       "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH,
@@ -100,7 +100,7 @@ class ProjectManager(metaclass=Singleton):
                 raise LookupError(msg)
         if sections_available[2]:
             try:
-                self._extmembers += self.config.transfer_attrs(self, SETTINGSSOLVERPATH.split("/")[-1])
+                self._extmembers += self.config.transfer_attrs(self, SETTINGSCUSTOMPATH.split("/")[-1])
             except Exception as e:
                 msg = "transfering custom section as class attributes failed, " \
                       "is the config path to your custom section correct? {}. Exception {}".format(SETTINGSCUSTOMPATH,

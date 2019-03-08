@@ -47,7 +47,7 @@ def args_check(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='UNet Hyppopy UseCase Example Optimization.')
+    parser = argparse.ArgumentParser(description='Hyppopy UseCase Examples Executable.')
     parser.add_argument('-w', '--workflow', type=str, help='workflow to be executed')
     parser.add_argument('-o', '--output', type=str, default=None, help='output path to store result')
     parser.add_argument('-c', '--config', type=str, help='config filename, .xml or .json formats are supported.'

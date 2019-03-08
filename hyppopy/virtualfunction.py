@@ -1,3 +1,37 @@
+# DKFZ
+#
+#
+# Copyright (c) German Cancer Research Center,
+# Division of Medical and Biological Informatics.
+# All rights reserved.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt or http://www.mitk.org for details.
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
+
+########################################################################################################################
+# USAGE
+#
+# The class VirtualFunction is meant to be a virtual energy function with an arbitrary dimensionality. The user can
+# simply scribble functions as a binary image using e.g. Gimp, defining their ranges using .cfg file and loading them
+# into the VirtualFunction. An instance of the class can then be used like a normal function returning the sampling of
+# each dimension loaded.
+#
+# 1. create binary images (IMPORTANT same shape for each), background black the function signature white, ensure that
+#    each column has a white pixel. If more than one pixel appears in a column, only the lowest will be used.
+#
+# 2. create a .cfg file, see an example in hyppopy/virtualparameterspace
+#
+# 3. vfunc = VirtualFunction()
+#    vfunc.load_images(path/of/your/binaryfiles/and/the/configfile)
+#
+# 4. use vfunc like a normal function, if you loaded 4 dimension binary images use it like f = vfunc(a,b,c,d)
+########################################################################################################################
+
 import os
 import sys
 import numpy as np
