@@ -17,8 +17,8 @@ import os
 import unittest
 import numpy as np
 
-from hyppopy.virtualfunction import VirtualFunction
-from hyppopy.globals import TESTDATA_DIR
+from ..VirtualFunction import VirtualFunction
+from ..globals import TESTDATA_DIR
 
 
 class VirtualFunctionTestSuite(unittest.TestCase):

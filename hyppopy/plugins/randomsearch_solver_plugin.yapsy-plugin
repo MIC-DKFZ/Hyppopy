@@ -1,9 +1,0 @@
-[Core]
-Name = randomsearch
-Module = randomsearch_solver_plugin
-
-[Documentation]
-Author = Sven Wanner
-Version = 0.1
-Website = https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html
-Description = RandomSearch Solver Plugin

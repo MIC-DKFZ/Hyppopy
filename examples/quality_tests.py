@@ -27,12 +27,12 @@ import pandas as pd
 try:
     import hyppopy as hp
     from hyppopy.globals import ROOT
-    from hyppopy.virtualfunction import VirtualFunction
+    from hyppopy.VirtualFunction import VirtualFunction
 except Exception as e:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     import hyppopy as hp
     from hyppopy.globals import ROOT
-    from hyppopy.virtualfunction import VirtualFunction
+    from hyppopy.VirtualFunction import VirtualFunction
 
 TEMP = tempfile.gettempdir()
 DATADIR = os.path.join(os.path.join(ROOT, os.path.join('hyppopy', 'virtualparameterspace')), "6D")

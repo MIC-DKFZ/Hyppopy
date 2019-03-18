@@ -1,9 +1,0 @@
-[Core]
-Name = hyperopt
-Module = hyperopt_settings_plugin
-
-[Documentation]
-Author = Sven Wanner
-Version = 0.1
-Website = https://github.com/hyperopt/hyperopt
-Description = Hyperopt Settings Plugin
