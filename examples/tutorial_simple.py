@@ -61,9 +61,7 @@ solver = HyperoptSolver(project)
 solver.blackbox = my_loss_function
 # run the solver
 solver.run()
-# get the result via get_result() which returns a pandas dataframe
-# containing the complete history and a dict best containing the
-# best parameter set.
+
 df, best = solver.get_results()
 
 print("\n")

@@ -10,11 +10,10 @@
 # import the HyppopyProject class keeping track of inputs
 from hyppopy.HyppopyProject import HyppopyProject
 
-# import the HyperoptSolver classes
+# import the HyoppopySolver classes
 from hyppopy.solver.HyperoptSolver import HyperoptSolver
 from hyppopy.solver.OptunitySolver import OptunitySolver
 from hyppopy.solver.RandomsearchSolver import RandomsearchSolver
-from hyppopy.solver.GridsearchSolver import GridsearchSolver
 
 # import the Blackboxfunction class wrapping your problem for Hyppopy
 from hyppopy.BlackboxFunction import BlackboxFunction
@@ -72,7 +71,8 @@ config = {
 }}
 
 
-# When creating a HyppopyProject instance we pass the config dictionary to the constructor.
+# When creating a HyppopyProject instance we
+# pass the config dictionary to the constructor.
 project = HyppopyProject(config=config)
 
 # demonstration of the custom parameter access
@@ -169,8 +169,6 @@ elif project.custom_use_solver == "optunity":
     solver = OptunitySolver(project)
 elif project.custom_use_solver == "randomsearch":
     solver = RandomsearchSolver(project)
-elif project.custom_use_solver == "gridsearch":
-    solver = GridsearchSolver(project)
 
 if solver is not None:
     solver.blackbox = blackbox
