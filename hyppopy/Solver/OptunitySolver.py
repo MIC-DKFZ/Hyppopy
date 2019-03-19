@@ -28,6 +28,7 @@ LOG.setLevel(DEBUGLEVEL)
 
 from .HyppopySolver import HyppopySolver
 from ..helpers import split_categorical
+from ..BlackboxFunction import BlackboxFunction
 
 
 class OptunitySolver(HyppopySolver):
@@ -69,7 +70,7 @@ class OptunitySolver(HyppopySolver):
             trial['result']['status'] = 'failed'
         trial['refresh_time'] = datetime.datetime.now()
         self._trials.trials.append(trial)
-        if self.blackbox.callback_func is not None:
+        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
             cbd = copy.deepcopy(params)
             cbd['iterations'] = self._idx
             cbd['loss'] = loss

@@ -22,6 +22,7 @@ TESTDATA_DIR = os.path.join(ROOT, *(LIBNAME, "tests", "data"))
 
 HYPERPARAMETERPATH = "hyperparameter"
 SETTINGSPATH = "settings"
+VFUNCDATAPATH = os.path.join(os.path.join(ROOT, LIBNAME), "virtualparameterspace")
 
 DEFAULTITERATIONS = 500
 

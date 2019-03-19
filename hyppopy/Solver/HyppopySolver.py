@@ -24,6 +24,7 @@ import pandas as pd
 from ..globals import DEBUGLEVEL
 from ..HyppopyProject import HyppopyProject
 from ..BlackboxFunction import BlackboxFunction
+from ..VirtualFunction import VirtualFunction
 
 from hyppopy.globals import DEBUGLEVEL, DEFAULTITERATIONS
 
@@ -40,14 +41,13 @@ class HyppopySolver(object):
         self._max_iterations = None
         self._project = project
         self._total_duration = None
+        self._solver_overhead = None
+        self._time_per_iteration = None
+        self._accumulated_blackbox_time = None
 
     @abc.abstractmethod
     def execute_solver(self, searchspace):
         raise NotImplementedError('users must define execute_solver to use this class')
-
-    # @abc.abstractmethod
-    # def convert_results(self):
-    #     raise NotImplementedError('users must define convert_results to use this class')
 
     @abc.abstractmethod
     def convert_searchspace(self, hyperparameter):
@@ -78,7 +78,7 @@ class HyppopySolver(object):
             self.print_best()
             self.print_timestats()
 
-    def convert_results(self):
+    def get_results(self):
         results = {'duration': [], 'losses': []}
         pset = self.trials.trials[0]['misc']['vals']
         for p in pset.keys():
@@ -103,33 +103,37 @@ class HyppopySolver(object):
         print("#" * 40)
         for name, value in self.best.items():
             print(" - {}\t:\t{}".format(name, value))
+        print("\n - number of iterations\t:\t{}".format(self.trials.trials[-1]['tid']+1))
+        print(" - total time\t:\t{}d:{}h:{}m:{}s:{}ms".format(self._total_duration[0],
+                                                              self._total_duration[1],
+                                                              self._total_duration[2],
+                                                              self._total_duration[3],
+                                                              self._total_duration[4]))
         print("#" * 40)
 
-    def print_timestats(self):
+    def compute_time_statistics(self):
         dts = []
-        tot = self._total_duration[0]*86400 + \
-              self._total_duration[1]*3600 + \
-              self._total_duration[2]*60 + \
-              self._total_duration[3]*1000 + \
-              self._total_duration[4]
-        overhead = tot
         for trial in self._trials.trials:
             if 'book_time' in trial.keys() and 'refresh_time' in trial.keys():
                 dt = trial['refresh_time'] - trial['book_time']
                 dts.append(dt.total_seconds())
-                overhead -= dt.total_seconds()*1000.0
+        self._time_per_iteration = np.mean(dts) * 1e3
+        self._accumulated_blackbox_time = np.sum(dts) * 1e3
+        tmp = self.total_duration - self._accumulated_blackbox_time
+        self._solver_overhead = int(np.round(100.0 / self.total_duration * tmp))
+
+    def print_timestats(self):
         print("\n")
         print("#" * 40)
         print("###        Timing Statistics        ###")
         print("#" * 40)
-        per_iter = int(np.mean(dts)*1e6)/1000.0
-        print(" - per iteration: {}ms".format(per_iter))
+        print(" - per iteration: {}ms".format(int(self.time_per_iteration*1e4)/10000))
         print(" - total time: {}d:{}h:{}m:{}s:{}ms".format(self._total_duration[0],
                                                            self._total_duration[1],
                                                            self._total_duration[2],
                                                            self._total_duration[3],
                                                            self._total_duration[4]))
-        print(" - overhead: {}%".format(int(np.round(100.0/tot*overhead))))
+        print(" - solver overhead: {}%".format(self.solver_overhead))
         print("#" * 40)
 
     @property
@@ -150,7 +154,7 @@ class HyppopySolver(object):
 
     @blackbox.setter
     def blackbox(self, value):
-        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction):
+        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, VirtualFunction):
             self._blackbox = value
         else:
             self._blackbox = None
@@ -193,3 +197,25 @@ class HyppopySolver(object):
             LOG.error(msg)
             raise IOError(msg)
         self._max_iterations = value
+
+    @property
+    def total_duration(self):
+        return (self._total_duration[0] * 86400 + self._total_duration[1] * 3600 + self._total_duration[2] * 60 + self._total_duration[3]) * 1000 + self._total_duration[4]
+
+    @property
+    def solver_overhead(self):
+        if self._solver_overhead is None:
+            self.compute_time_statistics()
+        return self._solver_overhead
+
+    @property
+    def time_per_iteration(self):
+        if self._time_per_iteration is None:
+            self.compute_time_statistics()
+        return self._time_per_iteration
+
+    @property
+    def accumulated_blackbox_time(self):
+        if self._accumulated_blackbox_time is None:
+            self.compute_time_statistics()
+        return self._accumulated_blackbox_time

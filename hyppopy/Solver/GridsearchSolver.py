@@ -23,6 +23,7 @@ from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL
 from .HyppopySolver import HyppopySolver
+from ..BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -108,6 +109,7 @@ def get_logarithmic_axis_sample(a, b, N, dtype):
     :return: [list] axis range
     """
     assert a < b, "condition a < b violated!"
+    assert a > 0, "condition a > 0 violated!"
     assert isinstance(N, int), "condition N of type int violated!"
     assert isinstance(dtype, str), "condition type of type str violated!"
     lexp = np.log(a)
@@ -162,7 +164,7 @@ class GridsearchSolver(HyppopySolver):
             trial['result']['status'] = 'failed'
         trial['refresh_time'] = datetime.datetime.now()
         self._trials.trials.append(trial)
-        if self.blackbox.callback_func is not None:
+        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
             cbd = copy.deepcopy(params)
             cbd['iterations'] = self._tid + 1
             cbd['loss'] = loss

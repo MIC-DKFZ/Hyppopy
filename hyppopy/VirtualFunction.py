@@ -39,6 +39,7 @@ import configparser
 from glob import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from .globals import VFUNCDATAPATH
 
 
 class VirtualFunction(object):
@@ -48,14 +49,19 @@ class VirtualFunction(object):
         self.data = None
         self.axis = []
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) == self.dims():
+            args = [0]*len(kwargs)
+            for key, value in kwargs.items():
+                index = int(key.split("_")[1])
+                args[index] = value
         assert len(args) == self.dims(), "wrong number of arguments!"
         for i in range(len(args)):
             assert self.axis[i][0] <= args[i] <= self.axis[i][1], "out of range access on axis {}!".format(i)
         lpos, rpos, fracs = self.pos_to_indices(args)
         fl = self.data[(list(range(self.dims())), lpos)]
         fr = self.data[(list(range(self.dims())), rpos)]
-        return fl*np.array(fracs) + fr*(1-np.array(fracs))
+        return np.sum(fl*np.array(fracs) + fr*(1-np.array(fracs)))
 
     def clear(self):
         self.axis.clear()
@@ -128,6 +134,13 @@ class VirtualFunction(object):
             tmp = np.append(self.data, data)
             self.data = tmp.reshape((dims+1, size))
         self.axis.append(x_range)
+
+    def load_default(self, dim=3):
+        path = os.path.join(VFUNCDATAPATH, "{}D".format(dim))
+        if os.path.exists(path):
+            self.load_images(path)
+        else:
+            raise FileExistsError("No virtualfunction of dimension {} available".format(dim))
 
     def load_images(self, path):
         self.config = None

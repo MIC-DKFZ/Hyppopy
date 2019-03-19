@@ -22,6 +22,7 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
 
 from hyppopy.globals import DEBUGLEVEL
 from .HyppopySolver import HyppopySolver
+from ..BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -44,7 +45,7 @@ class HyperoptSolver(HyppopySolver):
             LOG.error("execution of self.blackbox(**params) failed due to:\n {}".format(e))
             status = STATUS_FAIL
             loss = 1e9
-        if self.blackbox.callback_func is not None:
+        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
             cbd = copy.deepcopy(params)
             cbd['iterations'] = self._trials.trials[-1]['tid'] + 1
             cbd['loss'] = loss

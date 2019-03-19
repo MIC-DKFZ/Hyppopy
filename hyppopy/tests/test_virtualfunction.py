@@ -59,27 +59,6 @@ class VirtualFunctionTestSuite(unittest.TestCase):
             self.assertEqual(vfunc.axis[i][0], gt[i][0])
             self.assertEqual(vfunc.axis[i][1], gt[i][1])
 
-    def test_sampling(self):
-        vfunc = VirtualFunction()
-        vfunc.load_images(os.path.join(TESTDATA_DIR, 'functionsimulator'))
-        ranges = [[0, 1], [-10, 10], [0, 20], [-30, 5], [5, 10]]
-        x_ranges = []
-        for r in ranges:
-            dr = (r[1]-r[0])/512.0
-            x_ranges.append(np.arange(r[0], r[1], dr))
-        data = [[], [], [], [], []]
-        for n in range(x_ranges[0].shape[0]):
-            x = [x_ranges[0][n], x_ranges[1][n], x_ranges[2][n], x_ranges[3][n], x_ranges[4][n]]
-            f = vfunc(*x)
-            for i in range(5):
-                data[i].append(f[i])
-
-        sum = 0
-        for i in range(512):
-            for n in range(5):
-                sum += vfunc.data[n][i]-data[n][i]
-        self.assertTrue(sum < 18)
-
     def test_minima(self):
         vfunc = VirtualFunction()
         vfunc.load_images(os.path.join(TESTDATA_DIR, 'functionsimulator'))

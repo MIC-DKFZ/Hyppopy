@@ -13,12 +13,11 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-import os
 import unittest
-import numpy as np
 
 from ..solver.GridsearchSolver import *
-from ..globals import TESTDATA_DIR
+from ..VirtualFunction import VirtualFunction
+from hyppopy.HyppopyProject import HyppopyProject
 
 
 class GridsearchTestSuite(unittest.TestCase):
@@ -121,6 +120,86 @@ class GridsearchTestSuite(unittest.TestCase):
         data = get_logarithmic_axis_sample(bounds[0], bounds[1], N, "float")
         for n in range(N):
             self.assertAlmostEqual(res[n], data[n])
+
+    def test_solver(self):
+        config = {
+            "hyperparameter": {
+                "value 1": {
+                    "domain": "uniform",
+                    "data": [0, 20, 11],
+                    "type": "int"
+                },
+                "value 2": {
+                    "domain": "normal",
+                    "data": [0, 20.0, 11],
+                    "type": "float"
+                },
+                "value 3": {
+                    "domain": "loguniform",
+                    "data": [1, 10000, 11],
+                    "type": "float"
+                },
+                "categorical": {
+                    "domain": "categorical",
+                    "data": ["a", "b"],
+                    "type": "str"
+                }
+            },
+            "settings": {
+                "solver": {},
+                "custom": {}
+            }}
+        res_labels = ['value 1', 'value 2', 'value 3', 'categorical']
+        res_values = [[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
+                      [0.0, 5.467452952462635, 8.663855974622837, 9.755510546899107, 9.973002039367397, 10.0,
+                       10.026997960632603, 10.244489453100893, 11.336144025377163, 14.532547047537365, 20.0],
+                      [1.0, 2.51188643150958, 6.309573444801933, 15.848931924611136, 39.810717055349734,
+                        100.00000000000004, 251.18864315095806, 630.9573444801938, 1584.8931924611143,
+                        3981.071705534977, 10000.00000000001],
+                      ['a', 'b']
+                      ]
+        solver = GridsearchSolver(config)
+        searchspace = solver.convert_searchspace(config["hyperparameter"])
+        for n in range(len(res_labels)):
+            self.assertEqual(res_labels[n], searchspace[0][n])
+        for i in range(3):
+            self.assertAlmostEqual(res_values[i], searchspace[1][i])
+        self.assertEqual(res_values[3], searchspace[1][3])
+
+    def test_solver_complete(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "normal",
+                    "data": [300, 800, 11],
+                    "type": "float"
+                },
+                "axis_01": {
+                    "domain": "normal",
+                    "data": [-1, 1, 11],
+                    "type": "float"
+                },
+                "axis_02": {
+                    "domain": "uniform",
+                    "data": [0, 10, 11],
+                    "type": "float"
+                }
+            },
+            "settings": {
+                "solver": {},
+                "custom": {}
+            }}
+
+        project = HyppopyProject(config)
+        solver = GridsearchSolver(project)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertAlmostEqual(best['axis_00'], 583.40, places=1)
+        self.assertAlmostEqual(best['axis_01'], 0.45, places=1)
+        self.assertAlmostEqual(best['axis_02'], 5.0, places=1)
 
 
 if __name__ == '__main__':

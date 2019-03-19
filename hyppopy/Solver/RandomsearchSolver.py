@@ -23,6 +23,7 @@ from pprint import pformat
 from hyperopt import Trials
 from hyppopy.globals import DEBUGLEVEL
 from .HyppopySolver import HyppopySolver
+from ..BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -122,7 +123,7 @@ class RandomsearchSolver(HyppopySolver):
             trial['result']['status'] = 'failed'
         trial['refresh_time'] = datetime.datetime.now()
         self._trials.trials.append(trial)
-        if self.blackbox.callback_func is not None:
+        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
             cbd = copy.deepcopy(params)
             cbd['iterations'] = self._tid + 1
             cbd['loss'] = loss

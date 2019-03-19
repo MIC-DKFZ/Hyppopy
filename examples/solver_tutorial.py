@@ -15,7 +15,6 @@
 
 import os
 import sys
-import tempfile
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.solver.HyperoptSolver import HyperoptSolver
 from hyppopy.solver.OptunitySolver import OptunitySolver
@@ -34,12 +33,12 @@ config = {
 "hyperparameter": {
     "C": {
         "domain": "uniform",
-        "data": [0.0001, 20, 20],
+        "data": [0.0001, 20],
         "type": "float"
     },
     "gamma": {
         "domain": "uniform",
-        "data": [0.0001, 20.0, 20],
+        "data": [0.0001, 20.0],
         "type": "float"
     },
     "kernel": {
@@ -55,12 +54,10 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 300,
-        "plugin": "gridsearch",
-        "output_dir": os.path.join(tempfile.gettempdir(), 'results')
+        "max_iterations": 300
     },
     "custom": {
-        "the_answer": 42
+        "use_solver": "hyperopt"
     }
 }}
 
@@ -68,9 +65,7 @@ project = HyppopyProject(config=config)
 
 print("--------------------------------------------------------------")
 print("max_iterations:\t{}".format(project.solver_max_iterations))
-print("plugin:\t{}".format(project.solver_plugin))
-print("output_dir:\t{}".format(project.solver_output_dir))
-print("the_answer:\t{}".format(project.custom_the_answer))
+print("plugin:\t{}".format(project.custom_use_solver))
 
 
 def my_loss_function(data, params):
@@ -91,7 +86,7 @@ def my_preprocess_function(**kwargs):
     # kwargs['data'] allows accessing the input data
     print("data:", kwargs['data'][0].shape, kwargs['data'][1].shape)
     # kwargs['params'] allows accessing additional parameter passed, see below my_preproc_param, my_dataloader_input.
-    print("kwargs['params']['my_preproc_param']={}".format(kwargs['params']['my_preproc_param']))
+    print("kwargs['params']['my_preproc_param']={}".format(kwargs['params']['my_preproc_param']), "\n")
     # if the preprocessing function returns something,
     # the input data will be replaced with the data returned by this function.
     x = kwargs['data'][0]
@@ -114,15 +109,16 @@ blackbox = BlackboxFunction(blackbox_func=my_loss_function,
                             my_dataloader_input='could/be/a/path')
 
 
-if project.solver_plugin == "hyperopt":
+if project.custom_use_solver == "hyperopt":
     solver = HyperoptSolver(project)
-elif project.solver_plugin == "optunity":
+elif project.custom_use_solver == "optunity":
     solver = OptunitySolver(project)
-elif project.solver_plugin == "randomsearch":
+elif project.custom_use_solver == "randomsearch":
     solver = RandomsearchSolver(project)
-elif project.solver_plugin == "gridsearch":
+elif project.custom_use_solver == "gridsearch":
     solver = GridsearchSolver(project)
 
 if solver is not None:
     solver.blackbox = blackbox
 solver.run()
+df, best = solver.get_results()
