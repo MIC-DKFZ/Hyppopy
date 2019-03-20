@@ -96,17 +96,17 @@ class RandomsearchTestSuite(unittest.TestCase):
             "hyperparameter": {
                 "axis_00": {
                     "domain": "normal",
-                    "data": [300, 800, 11],
+                    "data": [300, 800],
                     "type": "float"
                 },
                 "axis_01": {
                     "domain": "normal",
-                    "data": [-1, 1, 11],
+                    "data": [-1, 1],
                     "type": "float"
                 },
                 "axis_02": {
                     "domain": "uniform",
-                    "data": [0, 10, 11],
+                    "data": [0, 10],
                     "type": "float"
                 }
             },
@@ -122,9 +122,6 @@ class RandomsearchTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        print("best['axis_00']={}".format(best['axis_00']))
-        print("best['axis_01']={}".format(best['axis_01']))
-        print("best['axis_02']={}".format(best['axis_02']))
         self.assertTrue(570 < best['axis_00'] < 590)
         self.assertTrue(0.1 < best['axis_01'] < 0.8)
         self.assertTrue(4.5 < best['axis_02'] < 6)

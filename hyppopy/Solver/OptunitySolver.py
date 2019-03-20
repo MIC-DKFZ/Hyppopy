@@ -99,7 +99,12 @@ class OptunitySolver(HyppopySolver):
         for key, value in uni.items():
             for key2, value2 in value.items():
                 if key2 == 'data':
-                    uniforms[key] = value2
+                    if len(value2) == 3:
+                        uniforms[key] = value2[0:2]
+                    elif len(value2) == 2:
+                        uniforms[key] = value2
+                    else:
+                        raise AssertionError("precondition violation, optunity searchspace needs list with left and right range bounds!")
 
         if len(cat) == 0:
             return uniforms
