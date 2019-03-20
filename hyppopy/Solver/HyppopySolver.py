@@ -44,6 +44,7 @@ class HyppopySolver(object):
         self._solver_overhead = None
         self._time_per_iteration = None
         self._accumulated_blackbox_time = None
+        self._has_maxiteration_field = True
 
     @abc.abstractmethod
     def execute_solver(self, searchspace):
@@ -54,12 +55,13 @@ class HyppopySolver(object):
         raise NotImplementedError('users must define convert_searchspace to use this class')
 
     def run(self, print_stats=True):
-        if 'solver_max_iterations' not in self.project.__dict__:
-            msg = "Missing max_iteration entry in project, use default {}!".format(DEFAULTITERATIONS)
-            LOG.warning(msg)
-            print("WARNING: {}".format(msg))
-            setattr(self.project, 'solver_max_iterations', DEFAULTITERATIONS)
-        self._max_iterations = self.project.solver_max_iterations
+        if self._has_maxiteration_field:
+            if 'solver_max_iterations' not in self.project.__dict__:
+                msg = "Missing max_iteration entry in project, use default {}!".format(DEFAULTITERATIONS)
+                LOG.warning(msg)
+                print("WARNING: {}".format(msg))
+                setattr(self.project, 'solver_max_iterations', DEFAULTITERATIONS)
+            self._max_iterations = self.project.solver_max_iterations
 
         start_time = datetime.datetime.now()
         try:

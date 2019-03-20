@@ -18,6 +18,7 @@ import copy
 import logging
 import datetime
 import numpy as np
+from pprint import pformat
 from hyperopt import Trials
 from scipy.stats import norm
 from itertools import product
@@ -139,6 +140,7 @@ class GridsearchSolver(HyppopySolver):
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
         self._tid = None
+        self._has_maxiteration_field = False
 
     def loss_function(self, params):
         loss = None
@@ -203,6 +205,7 @@ class GridsearchSolver(HyppopySolver):
         :param hyperparameter: [dict] hyperparameter space
         :return: [list] name and range for each parameter space axis
         """
+        LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         searchspace = [[], []]
         for name, param in hyperparameter.items():
             if param["domain"] == "categorical":

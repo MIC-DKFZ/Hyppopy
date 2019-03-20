@@ -30,8 +30,13 @@ LOG.setLevel(DEBUGLEVEL)
 
 
 def draw_uniform_sample(param):
-    assert param['type'] != 'str', "Cannot sample a string list uniformly!"
-    assert param['data'][0] < param['data'][1], "Precondition violation: data[0] > data[1]!"
+    """
+    function draws a random sample from a uniform range
+    :param param: [dict] input hyperparameter discription
+    :return: random sample value of type data['type']
+    """
+    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     s = random.random()
     s *= np.abs(param['data'][1] - param['data'][0])
     s += param['data'][0]
@@ -45,6 +50,13 @@ def draw_uniform_sample(param):
 
 
 def draw_normal_sample(param):
+    """
+    function draws a random sample from a normal distributed range
+    :param param: [dict] input hyperparameter discription
+    :return: random sample value of type data['type']
+    """
+    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     mu = (param['data'][1] - param['data'][0]) / 2
     sigma = mu / 3
     s = np.random.normal(loc=param['data'][0] + mu, scale=sigma)
@@ -52,10 +64,20 @@ def draw_normal_sample(param):
         s = param['data'][1]
     if s < param['data'][0]:
         s = param['data'][0]
+    s = float(s)
+    if param["type"] == "int":
+        s = int(np.round(s))
     return s
 
 
 def draw_loguniform_sample(param):
+    """
+    function draws a random sample from a logarithmic distributed range
+    :param param: [dict] input hyperparameter discription
+    :return: random sample value of type data['type']
+    """
+    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     p = copy.deepcopy(param)
     p['data'][0] = np.log(param['data'][0])
     p['data'][1] = np.log(param['data'][1])
@@ -71,10 +93,24 @@ def draw_loguniform_sample(param):
 
 
 def draw_categorical_sample(param):
+    """
+    function draws a random sample from a categorical list
+    :param param: [dict] input hyperparameter discription
+    :return: random sample value of type data['type']
+    """
     return random.sample(param['data'], 1)[0]
 
 
 def draw_sample(param):
+    """
+    function draws a sample from the input hyperparameter descriptor depending on it's domain
+    :param param: [dict] input hyperparameter discription
+    :return: random sample value of type data['type']
+    """
+    assert isinstance(param, dict), "input error, hyperparam descriptors of type {} not allowed!".format(type(param))
+    assert 'domain' in param.keys(), "input error, hyperparam descriptors need a domain key!"
+    assert 'data' in param.keys(), "input error, hyperparam descriptors need a data key!"
+    assert 'type' in param.keys(), "input error, hyperparam descriptors need a type key!"
     if param['domain'] == "uniform":
         return draw_uniform_sample(param)
     elif param['domain'] == "normal":
@@ -88,7 +124,10 @@ def draw_sample(param):
 
 
 class RandomsearchSolver(HyppopySolver):
-
+    """
+    The RandomsearchSolver class implements a randomsearch optimization. The randomsearch supports
+    categorical, uniform, normal and loguniform sampling. The solver draws an independent sample
+    from the parameter space each iteration."""
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
         self._tid = None
@@ -149,5 +188,11 @@ class RandomsearchSolver(HyppopySolver):
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
+        """
+        this function simply pipes the input parameter through, the sample
+        drawing functions are responsible for interpreting the parameter.
+        :param hyperparameter: [dict] hyperparameter space
+        :return: [dict] hyperparameter space
+        """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         return hyperparameter
