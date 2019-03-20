@@ -71,3 +71,27 @@ class VirtualFunctionTestSuite(unittest.TestCase):
 
         self.assertTrue(project.get_typeof("C") is float)
         self.assertTrue(project.get_typeof("kernel") is str)
+
+        project.clear()
+        self.assertTrue(len(project.hyperparameter) == 0)
+        self.assertTrue(len(project.settings) == 0)
+        self.assertTrue("solver_max_iterations" not in project.__dict__.keys())
+        self.assertTrue("custom_param1" not in project.__dict__.keys())
+        self.assertTrue("custom_param2" not in project.__dict__.keys())
+        self.assertTrue("custom_function" not in project.__dict__.keys())
+
+        project.add_hyperparameter(name="C", domain="uniform", data=[0.0001, 20], dtype="float")
+        project.add_hyperparameter(name="kernel", domain="categorical", data=["linear", "sigmoid", "poly", "rbf"], dtype="str")
+
+        self.assertEqual(project.hyperparameter["C"]["domain"], "uniform")
+        self.assertEqual(project.hyperparameter["C"]["data"], [0.0001, 20])
+        self.assertEqual(project.hyperparameter["C"]["type"], "float")
+        self.assertEqual(project.hyperparameter["kernel"]["domain"], "categorical")
+        self.assertEqual(project.hyperparameter["kernel"]["data"], ["linear", "sigmoid", "poly", "rbf"])
+        self.assertEqual(project.hyperparameter["kernel"]["type"], "str")
+
+        project.add_settings("solver", "max_iterations", 500)
+        self.assertEqual(project.solver_max_iterations, 500)
+        project.add_settings("solver", "max_iterations", 200)
+        self.assertEqual(project.solver_max_iterations, 200)
+

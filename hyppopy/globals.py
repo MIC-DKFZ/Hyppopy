@@ -24,6 +24,9 @@ HYPERPARAMETERPATH = "hyperparameter"
 SETTINGSPATH = "settings"
 VFUNCDATAPATH = os.path.join(os.path.join(ROOT, LIBNAME), "virtualparameterspace")
 
+SUPPORTED_DOMAINS = ["uniform", "normal", "loguniform", "categorical"]
+SUPPORTED_DTYPES = ["int", "float", "str"]
+
 DEFAULTITERATIONS = 500
 
 LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))
