@@ -17,8 +17,8 @@ from .Singleton import *
 
 import os
 import logging
-from .HyppopyProject import HyppopyProject
-from .globals import DEBUGLEVEL
+from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)

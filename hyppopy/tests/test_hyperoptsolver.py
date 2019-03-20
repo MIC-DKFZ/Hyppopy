@@ -16,8 +16,8 @@
 import unittest
 import matplotlib.pylab as plt
 
-from ..solver.HyperoptSolver import *
-from ..VirtualFunction import VirtualFunction
+from hyppopy.solver.HyperoptSolver import *
+from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 
 

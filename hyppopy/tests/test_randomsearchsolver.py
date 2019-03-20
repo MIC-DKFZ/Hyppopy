@@ -16,8 +16,8 @@
 import unittest
 import matplotlib.pylab as plt
 
-from ..solver.RandomsearchSolver import *
-from ..VirtualFunction import VirtualFunction
+from hyppopy.solver.RandomsearchSolver import *
+from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 
 
@@ -76,8 +76,9 @@ class RandomsearchTestSuite(unittest.TestCase):
             self.assertTrue(1 <= values[-1] <= 1000)
             self.assertTrue(isinstance(values[-1], float))
         hist = plt.hist(values, bins=11, normed=True)
-        for i in range(10):
+        for i in range(4):
             self.assertTrue(hist[0][i] > hist[0][i+1])
+            self.assertTrue((hist[0][i] - hist[0][i+1]) > 0)
 
     def test_draw_categorical_sample(self):
         param = {"data": [1, 2, 3],
@@ -100,7 +101,7 @@ class RandomsearchTestSuite(unittest.TestCase):
                     "type": "float"
                 },
                 "axis_01": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [-1, 1],
                     "type": "float"
                 },

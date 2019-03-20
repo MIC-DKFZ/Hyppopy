@@ -23,8 +23,8 @@ from hyperopt import Trials
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL
-from .HyppopySolver import HyppopySolver
-from ..BlackboxFunction import BlackboxFunction
+from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)

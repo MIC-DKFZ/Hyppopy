@@ -39,7 +39,7 @@ import configparser
 from glob import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from .globals import VFUNCDATAPATH
+from hyppopy.globals import VFUNCDATAPATH
 
 
 class VirtualFunction(object):

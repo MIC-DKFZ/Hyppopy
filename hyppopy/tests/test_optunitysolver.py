@@ -16,8 +16,8 @@
 import unittest
 import matplotlib.pylab as plt
 
-from ..solver.OptunitySolver import *
-from ..VirtualFunction import VirtualFunction
+from hyppopy.solver.OptunitySolver import *
+from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 
 

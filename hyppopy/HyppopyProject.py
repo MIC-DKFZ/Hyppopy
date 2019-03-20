@@ -13,7 +13,7 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
-from .globals import *
+from hyppopy.globals import *
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)

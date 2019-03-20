@@ -15,8 +15,8 @@
 
 import unittest
 
-from ..solver.GridsearchSolver import *
-from ..VirtualFunction import VirtualFunction
+from hyppopy.solver.GridsearchSolver import *
+from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 
 

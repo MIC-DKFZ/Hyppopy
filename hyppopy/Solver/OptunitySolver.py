@@ -26,9 +26,8 @@ from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
-from .HyppopySolver import HyppopySolver
-from ..helpers import split_categorical
-from ..BlackboxFunction import BlackboxFunction
+from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.BlackboxFunction import BlackboxFunction
 
 
 class OptunitySolver(HyppopySolver):
@@ -90,10 +89,21 @@ class OptunitySolver(HyppopySolver):
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
 
+    def split_categorical(self, pdict):
+        categorical = {}
+        uniform = {}
+        for name, pset in pdict.items():
+            for key, value in pset.items():
+                if key == 'domain' and value == 'categorical':
+                    categorical[name] = pset
+                elif key == 'domain':
+                    uniform[name] = pset
+        return categorical, uniform
+
     def convert_searchspace(self, hyperparameter):
         solution_space = {}
         # split input in categorical and non-categorical data
-        cat, uni = split_categorical(hyperparameter)
+        cat, uni = self.split_categorical(hyperparameter)
         # build up dictionary keeping all non-categorical data
         uniforms = {}
         for key, value in uni.items():

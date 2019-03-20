@@ -22,8 +22,8 @@ import numpy as np
 from pprint import pformat
 from hyperopt import Trials
 from hyppopy.globals import DEBUGLEVEL
-from .HyppopySolver import HyppopySolver
-from ..BlackboxFunction import BlackboxFunction
+from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
