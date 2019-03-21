@@ -159,15 +159,16 @@ blackbox = BlackboxFunction(blackbox_func=my_loss_function,
 # Last step, is we use our SolverPool which automatically returns the correct solver.
 # There are multiple ways to get the desired solver from the solver pool.
 # 1. solver = SolverPool.get('hyperopt')
-# 2. solver.project = project
-# 3. solver = SolverPool.get('hyperopt', project)
-# 4. The SolverPool will look for the field 'use_solver' in the project instance, if
-# set it will be used to specify the solver and it is enough to pass the project.
+#    solver.project = project
+# 2. solver = SolverPool.get('hyperopt', project)
+# 3. The SolverPool will look for the field 'use_solver' in the project instance, if
+# it is present it will be used to specify the solver so that in this case it is enough
+# to pass the project instance.
 solver = SolverPool.get(project=project)
 
 # Give the solver your blackbox and run it. After execution we can get the result
-# via get_result() which returns a pandas dataframe containing the complete history and
-# a dict best containing the best parameter set.
+# via get_result() which returns a pandas dataframe containing the complete history
+# The dict best contains the best parameter set.
 solver.blackbox = blackbox
 solver.run()
 df, best = solver.get_results()
