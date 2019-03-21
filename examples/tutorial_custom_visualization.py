@@ -1,11 +1,9 @@
 import matplotlib.pylab as plt
 
+from hyppopy.SolverPool import SolverPool
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.BlackboxFunction import BlackboxFunction
-from hyppopy.solver.HyperoptSolver import HyperoptSolver
-from hyppopy.solver.OptunitySolver import OptunitySolver
-from hyppopy.solver.RandomsearchSolver import RandomsearchSolver
 
 project = HyppopyProject()
 project.add_hyperparameter(name="axis_00", domain="uniform", data=[0, 1], dtype="float")
@@ -79,15 +77,8 @@ blackbox = BlackboxFunction(data=[],
                             blackbox_func=my_loss_function,
                             callback_func=my_visualization_function)
 
-if project.custom_use_solver == "hyperopt":
-    solver = HyperoptSolver(project)
-elif project.custom_use_solver == "optunity":
-    solver = OptunitySolver(project)
-elif project.custom_use_solver == "randomsearch":
-    solver = RandomsearchSolver(project)
-
-if solver is not None:
-    solver.blackbox = blackbox
+solver = SolverPool.get(project=project)
+solver.blackbox = blackbox
 solver.run()
 df, best = solver.get_results()
 

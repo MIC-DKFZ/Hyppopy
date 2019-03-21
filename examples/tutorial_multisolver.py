@@ -10,10 +10,8 @@
 # import the HyppopyProject class keeping track of inputs
 from hyppopy.HyppopyProject import HyppopyProject
 
-# import the HyoppopySolver classes
-from hyppopy.solver.HyperoptSolver import HyperoptSolver
-from hyppopy.solver.OptunitySolver import OptunitySolver
-from hyppopy.solver.RandomsearchSolver import RandomsearchSolver
+# import the SolverPool singleton class
+from hyppopy.SolverPool import SolverPool
 
 # import the Blackboxfunction class wrapping your problem for Hyppopy
 from hyppopy.BlackboxFunction import BlackboxFunction
@@ -158,20 +156,19 @@ blackbox = BlackboxFunction(blackbox_func=my_loss_function,
                             my_dataloader_input='could/be/a/path')
 
 
-# Last step, is we use our use_solver config parameter defined in the custom section to decide which solver
-# should be used, create the solver instance respectively, give it the blackbox and run it. After execution
-# we can get the result via get_result() which returns a pandas dataframe containing the complete history and
+# Last step, is we use our SolverPool which automatically returns the correct solver.
+# There are multiple ways to get the desired solver from the solver pool.
+# 1. solver = SolverPool.get('hyperopt')
+# 2. solver.project = project
+# 3. solver = SolverPool.get('hyperopt', project)
+# 4. The SolverPool will look for the field 'use_solver' in the project instance, if
+# set it will be used to specify the solver and it is enough to pass the project.
+solver = SolverPool.get(project=project)
+
+# Give the solver your blackbox and run it. After execution we can get the result
+# via get_result() which returns a pandas dataframe containing the complete history and
 # a dict best containing the best parameter set.
-
-if project.custom_use_solver == "hyperopt":
-    solver = HyperoptSolver(project)
-elif project.custom_use_solver == "optunity":
-    solver = OptunitySolver(project)
-elif project.custom_use_solver == "randomsearch":
-    solver = RandomsearchSolver(project)
-
-if solver is not None:
-    solver.blackbox = blackbox
+solver.blackbox = blackbox
 solver.run()
 df, best = solver.get_results()
 
