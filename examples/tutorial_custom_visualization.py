@@ -18,7 +18,7 @@ project.add_settings(section="solver", name="max_iterations", value=500)
 project.add_settings(section="custom", name="use_solver", value="hyperopt")
 
 plt.ion()
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8), sharex=True)
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
 plot_data = {"iterations": [],
              "loss": [],
              "axis_00": [],
@@ -39,31 +39,37 @@ def my_visualization_function(**kwargs):
     plot_data["axis_04"].append(kwargs['axis_04'])
 
     axes[0, 0].clear()
-    axes[0, 0].plot(plot_data["loss"], plot_data["axis_00"], ".r")
-    axes[0, 0].set_ylabel("axis_00")
+    #axes[0, 0].plot(plot_data["loss"], plot_data["axis_00"], ".r")
+    axes[0, 0].scatter(plot_data["axis_00"], plot_data["loss"], c=plot_data["loss"], cmap="jet", marker='.')
+    axes[0, 0].set_xlabel("axis_00")
 
     axes[0, 1].clear()
-    axes[0, 1].plot(plot_data["loss"], plot_data["axis_01"], ".r")
-    axes[0, 1].set_ylabel("axis_01")
+    #axes[0, 1].plot(plot_data["loss"], plot_data["axis_01"], ".r")
+    axes[0, 1].scatter(plot_data["axis_01"], plot_data["loss"], c=plot_data["loss"], cmap="jet", marker='.')
+    axes[0, 1].set_xlabel("axis_01")
 
     axes[0, 2].clear()
-    axes[0, 2].plot(plot_data["loss"], plot_data["axis_02"], ".r")
-    axes[0, 2].set_ylabel("axis_02")
+    #axes[0, 2].plot(plot_data["loss"], plot_data["axis_02"], ".r")
+    axes[0, 2].scatter(plot_data["axis_02"], plot_data["loss"], c=plot_data["loss"], cmap="jet", marker='.')
+    axes[0, 2].set_xlabel("axis_02")
 
     axes[1, 0].clear()
-    axes[1, 0].plot(plot_data["loss"], plot_data["axis_03"], ".r")
-    axes[1, 0].set_xlabel("loss")
-    axes[1, 0].set_ylabel("axis_03")
+    #axes[1, 0].plot(plot_data["loss"], plot_data["axis_03"], ".r")
+    axes[1, 0].scatter(plot_data["axis_03"], plot_data["loss"], c=plot_data["loss"], cmap="jet", marker='.')
+    #axes[1, 0].set_xlabel("loss")
+    axes[1, 0].set_xlabel("axis_03")
 
     axes[1, 1].clear()
-    axes[1, 1].plot(plot_data["loss"], plot_data["axis_04"], ".r")
-    axes[1, 1].set_xlabel("loss")
-    axes[1, 1].set_ylabel("axis_04")
+    #axes[1, 1].plot(plot_data["loss"], plot_data["axis_04"], ".r")
+    axes[1, 1].scatter(plot_data["axis_04"], plot_data["loss"], c=plot_data["loss"], cmap="jet", marker='.')
+    #axes[1, 1].set_xlabel("loss")
+    axes[1, 1].set_xlabel("axis_04")
 
     axes[1, 2].clear()
-    axes[1, 2].plot(plot_data["loss"], plot_data["iterations"], ".r")
-    axes[1, 2].set_xlabel("loss")
-    axes[1, 2].set_ylabel("iterations")
+    axes[1, 2].scatter(plot_data["iterations"], plot_data["loss"], marker='.', c=(0.2, 0.2, 0.2))
+    axes[1, 2].plot(plot_data["iterations"], plot_data["loss"], "-", c=(0.8, 0.8, 0.8, 0.5))
+    axes[1, 2].set_ylabel("loss")
+    axes[1, 2].set_xlabel("iterations")
 
     plt.draw()
     plt.tight_layout()
