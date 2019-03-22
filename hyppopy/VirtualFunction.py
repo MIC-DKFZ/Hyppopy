@@ -74,6 +74,9 @@ class VirtualFunction(object):
     def size(self):
         return self.data.shape[1]
 
+    def range(self, dim):
+        return np.abs(self.axis[dim][1] - self.axis[dim][0])
+
     def minima(self):
         glob_mins = []
         for dim in range(self.dims()):
@@ -135,12 +138,12 @@ class VirtualFunction(object):
             self.data = tmp.reshape((dims+1, size))
         self.axis.append(x_range)
 
-    def load_default(self, dim=3):
-        path = os.path.join(VFUNCDATAPATH, "{}D".format(dim))
+    def load_default(self, name="3D"):
+        path = os.path.join(VFUNCDATAPATH, "{}".format(name))
         if os.path.exists(path):
             self.load_images(path)
         else:
-            raise FileExistsError("No virtualfunction of dimension {} available".format(dim))
+            raise FileExistsError("No virtualfunction of dimension {} available".format(name))
 
     def load_images(self, path):
         self.config = None

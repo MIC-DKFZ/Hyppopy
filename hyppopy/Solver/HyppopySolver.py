@@ -122,7 +122,7 @@ class HyppopySolver(object):
         self._time_per_iteration = np.mean(dts) * 1e3
         self._accumulated_blackbox_time = np.sum(dts) * 1e3
         tmp = self.total_duration - self._accumulated_blackbox_time
-        self._solver_overhead = int(np.round(100.0 / self.total_duration * tmp))
+        self._solver_overhead = int(np.round(100.0 / (self.total_duration+1e-12) * tmp))
 
     def print_timestats(self):
         print("\n")
