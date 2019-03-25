@@ -18,6 +18,7 @@ from .Singleton import *
 import os
 import logging
 from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.solver.BayesOptSolver import BayesOptSolver
 from hyppopy.solver.HyperoptSolver import HyperoptSolver
 from hyppopy.solver.OptunitySolver import OptunitySolver
 from hyppopy.solver.GridsearchSolver import GridsearchSolver
@@ -32,7 +33,14 @@ LOG.setLevel(DEBUGLEVEL)
 class SolverPool(metaclass=Singleton):
 
     def __init__(self):
-        pass
+        self._solver_list = ["hyperopt",
+                             "optunity",
+                             "bayesopt",
+                             "randomsearch",
+                             "gridsearch"]
+
+    def get_solver_names(self):
+        return self._solver_list
 
     def get(self, solver_name=None, project=None):
         if solver_name is not None:
@@ -41,6 +49,8 @@ class SolverPool(metaclass=Singleton):
             assert isinstance(project, HyppopyProject), "precondition violation, project type HyppopyProject expected, got {} instead!".format(type(project))
             if "custom_use_solver" in project.__dict__:
                 solver_name = project.custom_use_solver
+        if solver_name not in self._solver_list:
+            raise AssertionError("Solver named [{}] not implemented!".format(solver_name))
 
         if solver_name == "hyperopt":
             if project is not None:
@@ -50,6 +60,10 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return OptunitySolver(project)
             return OptunitySolver()
+        elif solver_name == "bayesopt":
+            if project is not None:
+                return BayesOptSolver(project)
+            return BayesOptSolver()
         elif solver_name == "gridsearch":
             if project is not None:
                 return GridsearchSolver(project)
@@ -58,5 +72,4 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return RandomsearchSolver(project)
             return RandomsearchSolver()
-        else:
-            raise AssertionError("Solver named [{}] not implemented!".format(solver_name))
+

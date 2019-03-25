@@ -61,10 +61,10 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 300
+        "max_iterations": 10
     },
     "custom": {
-        "use_solver": "hyperopt"
+        "use_solver": "optunity"
     }
 }}
 

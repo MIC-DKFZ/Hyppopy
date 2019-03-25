@@ -53,9 +53,9 @@ def make_spider(results, row, title, groundtruth):
 
 for vfunc_id in ["5D3"]:
     OUTPUTDIR = "C:\\Users\\s635r\\Desktop\\solver_comparison"
-    EXPERIMENT = {"iterations": [100, 200, 300],
+    EXPERIMENT = {"iterations": [500, 1500, 3000],
                   "solver": ["randomsearch", "hyperopt", "optunity"],
-                  "repeat": 1,
+                  "repeat": 10,
                   "output_dir": os.path.join(OUTPUTDIR, vfunc_id)}
 
     if not os.path.isdir(EXPERIMENT["output_dir"]):
@@ -77,8 +77,8 @@ for vfunc_id in ["5D3"]:
     else:
         vfunc = VirtualFunction()
         vfunc.load_default(vfunc_id)
-        for i in range(5):
-            vfunc.plot(i)
+        # for i in range(5):
+        #     vfunc.plot(i)
 
 
         def my_loss_function(data, params):

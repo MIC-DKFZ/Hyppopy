@@ -101,6 +101,7 @@ class OptunitySolver(HyppopySolver):
         return categorical, uniform
 
     def convert_searchspace(self, hyperparameter):
+        LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         solution_space = {}
         # split input in categorical and non-categorical data
         cat, uni = self.split_categorical(hyperparameter)
