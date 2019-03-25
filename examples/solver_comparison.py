@@ -53,9 +53,9 @@ def make_spider(results, row, title, groundtruth):
 
 for vfunc_id in ["5D3"]:
     OUTPUTDIR = "C:\\Users\\s635r\\Desktop\\solver_comparison"
-    EXPERIMENT = {"iterations": [500, 1500, 3000],
-                  "solver": ["randomsearch", "hyperopt", "optunity"],
-                  "repeat": 10,
+    EXPERIMENT = {"iterations": [50, 150, 300],
+                  "solver": ["randomsearch", "hyperopt", "optunity", "bayesopt"],
+                  "repeat": 1,
                   "output_dir": os.path.join(OUTPUTDIR, vfunc_id)}
 
     if not os.path.isdir(EXPERIMENT["output_dir"]):
@@ -131,6 +131,6 @@ for vfunc_id in ["5D3"]:
     plt.figure(figsize=(1100/my_dpi, 1100/my_dpi), dpi=my_dpi)
     for row in range(3):
         make_spider(results, row=row, title=results['group'][row], groundtruth=results["groundtruth"])
-    #plt.show()
+    plt.show()
     plt.savefig(os.path.join(EXPERIMENT["output_dir"], "radar_plots.svg"))
     plt.savefig(os.path.join(EXPERIMENT["output_dir"], "radar_plots.png"))

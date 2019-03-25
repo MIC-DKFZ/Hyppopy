@@ -61,10 +61,10 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 10
+        "max_iterations": 500
     },
     "custom": {
-        "use_solver": "optunity"
+        "use_solver": "optuna"
     }
 }}
 

@@ -18,6 +18,7 @@ from .Singleton import *
 import os
 import logging
 from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.solver.OptunaSolver import OptunaSolver
 from hyppopy.solver.BayesOptSolver import BayesOptSolver
 from hyppopy.solver.HyperoptSolver import HyperoptSolver
 from hyppopy.solver.OptunitySolver import OptunitySolver
@@ -36,6 +37,7 @@ class SolverPool(metaclass=Singleton):
         self._solver_list = ["hyperopt",
                              "optunity",
                              "bayesopt",
+                             "optuna",
                              "randomsearch",
                              "gridsearch"]
 
@@ -64,6 +66,10 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return BayesOptSolver(project)
             return BayesOptSolver()
+        elif solver_name == "optuna":
+            if project is not None:
+                return OptunaSolver(project)
+            return OptunaSolver()
         elif solver_name == "gridsearch":
             if project is not None:
                 return GridsearchSolver(project)
