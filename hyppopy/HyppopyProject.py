@@ -13,6 +13,8 @@
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
+import warnings
+
 from hyppopy.globals import *
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -40,7 +42,12 @@ class HyppopyProject(object):
         self.clear()
         assert isinstance(config, dict), "Input Error, config of type {} not supported!".format(type(config))
         assert HYPERPARAMETERPATH in config.keys(), "Missing hyperparameter section in config dict"
-        assert SETTINGSPATH in config.keys(), "Missing settings section in config dict"
+        #assert SETTINGSPATH in config.keys(), "Missing settings section in config dict"
+        if not SETTINGSPATH in config.keys():
+            config[SETTINGSPATH] = {"solver": {"max_iterations": DEFAULTITERATIONS}}
+            msg = "config dict had no section {0}/solver/max_iterations, set default value: {1}".format(SETTINGSPATH, DEFAULTITERATIONS)
+            warnings.warn(msg)
+            LOG.warning(msg)
         self._hyperparameter = config[HYPERPARAMETERPATH]
         self._settings = config[SETTINGSPATH]
         self.parse_members()
