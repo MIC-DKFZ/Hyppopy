@@ -69,7 +69,6 @@ class HyperoptSolver(HyppopySolver):
             raise BrokenPipeError(msg)
 
     def convert_searchspace(self, hyperparameter):
-
         solution_space = {}
         for name, content in hyperparameter.items():
             param_settings = {'name': name}
@@ -89,6 +88,11 @@ class HyperoptSolver(HyppopySolver):
         dtype = param_settings["dtype"]
         data = param_settings["data"]
 
+        assert isinstance(data, list), "precondition violation. data of type {} not allowed!".format(type(data))
+        assert len(data) >= 2, "precondition violation, data must be of length 2, [left_bound, right_bound]"
+        assert isinstance(domain, str), "precondition violation. domain of type {} not allowed!".format(type(domain))
+        assert isinstance(dtype, str), "precondition violation. dtype of type {} not allowed!".format(type(dtype))
+
         if domain == "uniform":
             if dtype == "float" or dtype == "double":
                 return hp.uniform(name, data[0], data[1])
@@ -103,13 +107,13 @@ class HyperoptSolver(HyppopySolver):
             if dtype == "float" or dtype == "double":
                 if data[0] == 0:
                     data[0] += 1e-23
-                assert data[0] > 0, "Precondition Violation, a < 0!"
-                assert data[0] < data[1], "Precondition Violation, a > b!"
-                assert data[1] > 0, "Precondition Violation, b < 0!"
+                assert data[0] > 0, "precondition Violation, a < 0!"
+                assert data[0] < data[1], "precondition Violation, a > b!"
+                assert data[1] > 0, "precondition Violation, b < 0!"
                 lexp = np.log(data[0])
                 rexp = np.log(data[1])
-                assert lexp is not np.nan, "Precondition violation, left bound input error, results in nan!"
-                assert rexp is not np.nan, "Precondition violation, right bound input error, results in nan!"
+                assert lexp is not np.nan, "precondition violation, left bound input error, results in nan!"
+                assert rexp is not np.nan, "precondition violation, right bound input error, results in nan!"
 
                 return hp.loguniform(name, lexp, rexp)
             else:
@@ -140,3 +144,7 @@ class HyperoptSolver(HyppopySolver):
                         LOG.error(msg)
                         raise LookupError(msg)
                 return hp.choice(name, data)
+        else:
+            msg = "Precondition violation, domain named {} not available!".format(domain)
+            LOG.error(msg)
+            raise IOError(msg)

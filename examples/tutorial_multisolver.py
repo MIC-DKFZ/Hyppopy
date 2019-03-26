@@ -44,7 +44,7 @@ config = {
         "type": "float"
     },
     "gamma": {
-        "domain": "uniform",
+        "domain": "normal",
         "data": [0.0001, 20.0],
         "type": "float"
     },
@@ -64,7 +64,7 @@ config = {
         "max_iterations": 500
     },
     "custom": {
-        "use_solver": "optuna"
+        "use_solver": "hyperopt"
     }
 }}
 

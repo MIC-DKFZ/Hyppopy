@@ -17,6 +17,7 @@ import os
 import copy
 import logging
 import datetime
+import warnings
 import numpy as np
 from pprint import pformat
 from hyperopt import Trials
@@ -105,6 +106,11 @@ class BayesOptSolver(HyppopySolver):
         pbounds = {}
         for name, param in hyperparameter.items():
             if param["domain"] != "categorical":
+                if param["domain"] != "uniform":
+                    msg = "Warning: BayesOpt cannot handle {} domain. Only uniform and categorical domains are supported!".format(
+                        param["domain"])
+                    warnings.warn(msg)
+                    LOG.warning(msg)
                 pbounds[name] = (param["data"][0], param["data"][1])
             else:
                 pbounds[name] = (0, len(param["data"])-1)

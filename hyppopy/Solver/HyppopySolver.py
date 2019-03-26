@@ -21,10 +21,10 @@ import logging
 import datetime
 import numpy as np
 import pandas as pd
-from ..globals import DEBUGLEVEL
-from ..HyppopyProject import HyppopyProject
-from ..BlackboxFunction import BlackboxFunction
-from ..VirtualFunction import VirtualFunction
+from hyppopy.globals import DEBUGLEVEL
+from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.BlackboxFunction import BlackboxFunction
+from hyppopy.VirtualFunction import VirtualFunction
 
 from hyppopy.globals import DEBUGLEVEL, DEFAULTITERATIONS
 
@@ -65,9 +65,17 @@ class HyppopySolver(object):
 
         start_time = datetime.datetime.now()
         try:
-            self.execute_solver(self.convert_searchspace(self.project.hyperparameter))
+            search_space = self.convert_searchspace(self.project.hyperparameter)
         except Exception as e:
-            raise e
+            msg = "Failed to convert searchspace, error: {}".format(e)
+            LOG.error(msg)
+            raise AssertionError(msg)
+        try:
+            self.execute_solver(search_space)
+        except Exception as e:
+            msg = "Failed to execute solver, error: {}".format(e)
+            LOG.error(msg)
+            raise AssertionError(msg)
         end_time = datetime.datetime.now()
         dt = end_time - start_time
         days = divmod(dt.total_seconds(), 86400)
@@ -135,8 +143,8 @@ class HyppopySolver(object):
                                                            self._total_duration[2],
                                                            self._total_duration[3],
                                                            self._total_duration[4]))
-        print(" - solver overhead: {}%".format(self.solver_overhead))
         print("#" * 40)
+        print(" - solver overhead: {}%".format(self.solver_overhead))
 
     @property
     def project(self):
@@ -202,7 +210,7 @@ class HyppopySolver(object):
 
     @property
     def total_duration(self):
-        return (self._total_duration[0] * 86400 + self._total_duration[1] * 3600 + self._total_duration[2] * 60 + self._total_duration[3]) * 1000 + self._total_duration[4]
+        return (self._total_duration[0]*86400 + self._total_duration[1] * 3600 + self._total_duration[2] * 60 + self._total_duration[3]) * 1000 + self._total_duration[4]
 
     @property
     def solver_overhead(self):

@@ -18,6 +18,7 @@ import copy
 import logging
 import optunity
 import datetime
+import warnings
 import numpy as np
 from pprint import pformat
 from hyperopt import Trials
@@ -97,6 +98,10 @@ class OptunitySolver(HyppopySolver):
                 if key == 'domain' and value == 'categorical':
                     categorical[name] = pset
                 elif key == 'domain':
+                    if value != 'uniform':
+                        msg = "Warning: Optunity cannot handle {} domain. Only uniform and categorical domains are supported!".format(value)
+                        warnings.warn(msg)
+                        LOG.warning(msg)
                     uniform[name] = pset
         return categorical, uniform
 

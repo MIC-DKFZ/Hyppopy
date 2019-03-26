@@ -18,6 +18,7 @@ import copy
 import optuna
 import logging
 import datetime
+import warnings
 import numpy as np
 from pprint import pformat
 from hyperopt import Trials
@@ -111,4 +112,9 @@ class OptunaSolver(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
+        for name, param in hyperparameter.items():
+            if param["domain"] != "categorical" and param["domain"] != "uniform":
+                msg = "Warning: Optuna cannot handle {} domain. Only uniform and categorical domains are supported!".format(param["domain"])
+                warnings.warn(msg)
+                LOG.warning(msg)
         return hyperparameter

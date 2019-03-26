@@ -112,7 +112,7 @@ class RandomsearchTestSuite(unittest.TestCase):
                 }
             },
             "settings": {
-                "solver": {"max_iterations": 5000},
+                "solver": {"max_iterations": 8000},
                 "custom": {}
             }}
 
