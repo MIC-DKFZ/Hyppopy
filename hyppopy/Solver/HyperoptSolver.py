@@ -32,8 +32,15 @@ class HyperoptSolver(HyppopySolver):
 
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
+        self._searchspace = None
 
     def loss_function(self, params):
+        for name, p in self._searchspace.items():
+            if p["domain"] != "categorical":
+                if params[name] < p["data"][0]:
+                    params[name] = p["data"][0]
+                if params[name] > p["data"][1]:
+                    params[name] = p["data"][1]
         status = STATUS_FAIL
         try:
             loss = self.blackbox(**params)
@@ -69,6 +76,7 @@ class HyperoptSolver(HyppopySolver):
             raise BrokenPipeError(msg)
 
     def convert_searchspace(self, hyperparameter):
+        self._searchspace = hyperparameter
         solution_space = {}
         for name, content in hyperparameter.items():
             param_settings = {'name': name}
