@@ -203,7 +203,7 @@ print("*"*100)
 ```
 
 #### The BlackboxFunction classes
-To extend the possibilities beyond using parameter only loss function as in the examples above, the BlackboxFunction class can be used. This class is a wrapper class around the actual loss_function providing a more advanced access to data handling and a callback_function for accessing the solvers iteration loop. 
+To extend the possibilities beyond using parameter only loss function as in the examples above, the BlackboxFunction class can be used. This class is a wrapper class around the actual loss_function providing a more advanced access to data handling and a callback_function for accessing the solvers iteration loop.
 ```python
 # import the HyppopyProject class keeping track of inputs
 from hyppopy.HyppopyProject import HyppopyProject
@@ -320,3 +320,34 @@ Each hyperparameter needs a range and a domain specifier. The range, specified v
 * categorical (in this case data is not interpreted as interval but as actual list of objects)
 
 One exception is the GridsearchSolver, here we need to specifiy an interval and a number of samples like so: 'data': [a,b,N]. The max_iterations parameter is obsolet in this case because each axis specifies an individual number of samples.
+
+```python
+# import the SolverPool class
+from hyppopy.solver.GridsearchSolver import GridsearchSolver
+
+# Import the HyppopyProject class
+from hyppopy.HyppopyProject import HyppopyProject
+
+# Our function to optimize
+def my_loss_func(x, y):
+    return x**2+y**2
+
+# Creating a HyppopyProject instance
+project = HyppopyProject()
+project.add_hyperparameter(name="x", domain="uniform", data=[-1.1, 1, 10], dtype="float")
+project.add_hyperparameter(name="y", domain="uniform", data=[-1.1, 1, 12], dtype="float")
+
+solver = GridsearchSolver(project=project)
+
+# pass the loss function to the solver
+solver.blackbox = my_loss_func
+# run the solver
+solver.run()
+
+df, best = solver.get_results()
+
+print("\n")
+print("*"*100)
+print("Best Parameter Set:\n{}".format(best))
+print("*"*100)
+```
