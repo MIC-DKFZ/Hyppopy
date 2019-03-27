@@ -4,7 +4,7 @@
 
 ## What is Hyppopy?
 
-Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer a unified and easy to use interface to a collection of solver libraries. Solver Hyppopy is providing are:
+Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer a unified and easy to use interface to a collection of solver libraries. Currently provided solvers are:
 
 * [Hyperopt](http://hyperopt.github.io/hyperopt/)
 * [Optunity](https://optunity.readthedocs.io/en/latest/user/index.html)
