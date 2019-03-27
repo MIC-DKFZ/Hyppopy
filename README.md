@@ -202,7 +202,8 @@ print("Best Parameter Set:\n{}".format(best))
 print("*"*100)
 ```
 
-#### The BlackBox Function classes
+#### The BlackboxFunction classes
+To extend the possibilities beyond using parameter only loss function as in the examples above, the BlackboxFunction class can be used. This class is a wrapper class around the actual loss_function providing a more advanced access to data handling and a callback_function for accessing the solvers iteration loop. 
 ```python
 # import the HyppopyProject class keeping track of inputs
 from hyppopy.HyppopyProject import HyppopyProject
