@@ -2,14 +2,14 @@
 #
 #
 # Copyright (c) German Cancer Research Center,
-# Division of Medical and Biological Informatics.
+# Division of Medical Image Computing.
 # All rights reserved.
 #
 # This software is distributed WITHOUT ANY WARRANTY; without
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.
 #
-# See LICENSE.txt or http://www.mitk.org for details.
+# See LICENSE
 #
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
@@ -35,7 +35,16 @@ LOG.setLevel(DEBUGLEVEL)
 
 
 class HyppopySolver(object):
-
+    """
+    The HyppopySolver class is the base class for all solver addons. It defines virtual functions a child class has
+    to implement to deal with the front-end communication, orchestrating the optimization process and ensuring a proper
+    process information storing.
+    The key idea is that the HyppopySolver class defines an interface to configure and run an object instance of itself
+    independently from the concrete solver lib used to optimize in the background. To achieve this goal an addon
+    developer needs to implement the abstract methods 'convert_searchspace', 'execute_solver' and 'loss_function_call'.
+    These methods abstract the peculiarities of the solver libs to offer, on the user side, a simple and consistent
+    parameter space configuration and optimization procedure. The method 'convert_searchspace'
+    """
     def __init__(self, project=None):
         self._idx = None
         self._best = None

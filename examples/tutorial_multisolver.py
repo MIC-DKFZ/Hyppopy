@@ -1,3 +1,18 @@
+# DKFZ
+#
+#
+# Copyright (c) German Cancer Research Center,
+# Division of Medical Image Computing.
+# All rights reserved.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.
+#
+# See LICENSE
+#
+# Author: Sven Wanner (s.wanner@dkfz.de)
+
 # In this tutorial we solve an optimization problem using the Hyperopt Solver (http://hyperopt.github.io/hyperopt/).
 # Hyperopt uses a Baysian - Tree Parzen Estimator - Optimization approach, which means that each iteration computes a
 # new function value of the blackbox, interpolates a guess for the whole energy function and predicts a point to

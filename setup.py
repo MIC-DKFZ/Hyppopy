@@ -35,21 +35,20 @@ setup(
     url='',
     license=license,
     packages=find_packages(exclude=('tests', 'doc')),
-	package_data={
-    },
+	package_data={},
     # the requirements to install this project.
     # Since this one is so simple this is empty.
     install_requires=[
-	'bayesian-optimization>=1.0.1',
-	'hyperopt>=0.1.2',
-	'matplotlib>=3.0.3',
-	'numpy>=1.16.2',
-	'optuna>=0.9.0',
-	'Optunity>=1.1.1',
-	'pandas>=0.24.2',
-	'pytest>=4.3.1',
-	'scikit-learn>=0.20.3',
-	'scipy>=1.2.1'
+		'bayesian-optimization>=1.0.1',
+		'hyperopt>=0.1.2',
+		'matplotlib>=3.0.3',
+		'numpy>=1.16.2',
+		'optuna>=0.9.0',
+		'Optunity>=1.1.1',
+		'pandas>=0.24.2',
+		'pytest>=4.3.1',
+		'scikit-learn>=0.20.3',
+		'scipy>=1.2.1'
 	],
 )
 
