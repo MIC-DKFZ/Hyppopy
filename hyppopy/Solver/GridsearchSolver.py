@@ -14,17 +14,13 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
-import copy
 import logging
-import datetime
 import numpy as np
 from pprint import pformat
-from hyperopt import Trials
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.solver.HyppopySolver import HyppopySolver
-from hyppopy.BlackboxFunction import BlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -139,58 +135,21 @@ class GridsearchSolver(HyppopySolver):
     """
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
-        self._tid = None
         self._has_maxiteration_field = False
 
-    def loss_function(self, params):
-        loss = None
-        vals = {}
-        idx = {}
-        for key, value in params.items():
-            vals[key] = [value]
-            idx[key] = [self._tid]
-        trial = {'tid': self._tid,
-                 'result': {'loss': None, 'status': 'ok'},
-                 'misc': {
-                     'tid': self._tid,
-                     'idxs': idx,
-                     'vals': vals
-                 },
-                 'book_time': datetime.datetime.now(),
-                 'refresh_time': None
-                 }
-        try:
-            loss = self.blackbox(**params)
-            if loss is None:
-                trial['result']['loss'] = np.nan
-                trial['result']['status'] = 'failed'
-            else:
-                trial['result']['loss'] = loss
-        except Exception as e:
-            LOG.error("execution of self.blackbox(**params) failed due to:\n {}".format(e))
-            trial['result']['loss'] = np.nan
-            trial['result']['status'] = 'failed'
-        trial['refresh_time'] = datetime.datetime.now()
-        self._trials.trials.append(trial)
-        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
-            cbd = copy.deepcopy(params)
-            cbd['iterations'] = self._tid + 1
-            cbd['loss'] = loss
-            cbd['status'] = trial['result']['status']
-            self.blackbox.callback_func(**cbd)
-        return
+    def loss_function_call(self, trial, params):
+        loss = self.blackbox(**params)
+        if loss is None:
+            return np.nan
+        return loss
 
     def execute_solver(self, searchspace):
-        self._tid = 0
-        self._trials = Trials()
-
         for x in product(*searchspace[1]):
             params = {}
             for name, value in zip(searchspace[0], x):
                 params[name] = value
             try:
-                self.loss_function(params)
-                self._tid += 1
+                self.loss_function(**params)
             except Exception as e:
                 msg = "internal error in randomsearch execute_solver occured. {}".format(e)
                 LOG.error(msg)

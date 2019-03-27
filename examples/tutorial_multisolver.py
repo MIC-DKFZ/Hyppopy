@@ -44,7 +44,7 @@ config = {
         "type": "float"
     },
     "gamma": {
-        "domain": "normal",
+        "domain": "uniform",
         "data": [0.0001, 20.0],
         "type": "float"
     },
@@ -61,7 +61,7 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 500
+        "max_iterations": 200
     },
     "custom": {
         "use_solver": "hyperopt"
@@ -80,34 +80,28 @@ print("solver chosen -> {}".format(project.custom_use_solver))
 print("-"*30)
 
 
-# Hyppopy offers a class called BlackboxFunction to wrap your problem for Hyppopy.
-# The function signature is as follows:
+# The BlackboxFunction signature is as follows:
 # BlackboxFunction(blackbox_func=None,
 #                  dataloader_func=None,
 #                  preprocess_func=None,
 #                  callback_func=None,
 #                  data=None,
 #                  **kwargs)
-# 
-# Means we can set a couple of function pointers, a data object and an arbitrary number of custom parameter via kwargs.
-# 
-# - blackbox_func: a function pointer to the actual, user defined, blackbox function that is computing our loss
-# - dataloader_func: a function pointer to a function handling the dataloading
-# - preprocess_func: a function pointer to a function automatically executed before starting the optimization process
-# - callback_func: a function pointer to a function that is called after each iteration with the trail object as input
-# - data: setting data can be done via dataloader_func or directly
-# - kwargs are passed to all functions above and thus can be used for parameter sharing between the functions
-# 
-# (more details see in the documentation)
-# 
-# Below we demonstrate the usage of all the above by defining a my_dataloader_function which in fact only grabs the
-# iris dataset from sklearn and returns it. A my_preprocess_function which also does nothing useful here but
-# demonstrating that a custom parameter can be set via kwargs and used in all of our functions when called within
-# Hyppopy. The my_callback_function gets as input the dictionary containing the state of the iteration and thus can be
-# used to access the current state of each solver iteration. Finally we define the actual loss_function
-# my_loss_function, which gets as input a data object and params. Both parameter are fixed, the first is defined by
-# the user depending on what is dataloader returns or the data object set in the constructor, the second is a dictionary
-# with a sample of your hyperparameter space which content is in the choice of the solver.
+#
+# - blackbox_func: a function pointer to the users loss function
+# - dataloader_func: a function pointer for handling dataloading. The function is called once before
+#                    optimizing. What it returns is passed as first argument to your loss functions
+#                    data argument.
+# - preprocess_func: a function pointer for data preprocessing. The function is called once before
+#                    optimizing and gets via kwargs['data'] the raw data object set directly or returned
+#                    from dataloader_func. What this function returns is then what is passed as first
+#                    argument to your loss function.
+# - callback_func: a function pointer called after each iteration. The input kwargs is a dictionary
+#                  keeping the parameters used in this iteration, the 'iteration' index, the 'loss'
+#                  and the 'status'. The function in this example is used for realtime printing it's
+#                  input but can also be used for realtime visualization.
+# - data: if not done via dataloader_func one can set a raw_data object directly
+# - kwargs: dict that whose content is passed to all functions above.
 
 from sklearn.svm import SVC
 from sklearn.datasets import load_iris

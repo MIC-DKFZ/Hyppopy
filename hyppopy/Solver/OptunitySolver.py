@@ -14,21 +14,16 @@
 # Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
-import copy
 import logging
 import optunity
-import datetime
 import warnings
-import numpy as np
 from pprint import pformat
-from hyperopt import Trials
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 from hyppopy.solver.HyppopySolver import HyppopySolver
-from hyppopy.BlackboxFunction import BlackboxFunction
 
 
 class OptunitySolver(HyppopySolver):
@@ -37,55 +32,19 @@ class OptunitySolver(HyppopySolver):
         HyppopySolver.__init__(self, project)
         self._solver_info = None
         self.opt_trials = None
-        self._idx = None
 
-    def loss_function(self, **params):
-        self._idx += 1
-        vals = {}
-        idx = {}
-        for key, value in params.items():
-            vals[key] = [value]
-            idx[key] = [self._idx]
-        trial = {'tid': self._idx,
-                 'result': {'loss': None, 'status': 'ok'},
-                 'misc': {
-                     'tid': self._idx,
-                     'idxs': idx,
-                     'vals': vals
-                 },
-                 'book_time': datetime.datetime.now(),
-                 'refresh_time': None
-                 }
-        try:
-            for key in params.keys():
-                if self.project.get_typeof(key) is int:
-                    params[key] = int(round(params[key]))
-            loss = self.blackbox(**params)
-            trial['result']['loss'] = loss
-            trial['result']['status'] = 'ok'
-        except Exception as e:
-            LOG.error("computing loss failed due to:\n {}".format(e))
-            loss = np.nan
-            trial['result']['loss'] = np.nan
-            trial['result']['status'] = 'failed'
-        trial['refresh_time'] = datetime.datetime.now()
-        self._trials.trials.append(trial)
-        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
-            cbd = copy.deepcopy(params)
-            cbd['iterations'] = self._idx
-            cbd['loss'] = loss
-            cbd['status'] = trial['result']['status']
-            self.blackbox.callback_func(**cbd)
-        return loss
+    def loss_function_call(self, trial, params):
+        for key in params.keys():
+            if self.project.get_typeof(key) is int:
+                params[key] = int(round(params[key]))
+        return self.blackbox(**params)
 
     def execute_solver(self, searchspace):
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(searchspace)))
-        self.trials = Trials()
-        self._idx = 0
         try:
-            self.best, self.opt_trials, self._solver_info = optunity.minimize_structured(f=self.loss_function,
-                                                                                         num_evals=self.max_iterations,
-                                                                                         search_space=searchspace)
+            self.best, _, _ = optunity.minimize_structured(f=self.loss_function,
+                                                           num_evals=self.max_iterations,
+                                                           search_space=searchspace)
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))

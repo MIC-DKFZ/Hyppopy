@@ -16,11 +16,13 @@
 import abc
 
 import os
+import copy
 import types
 import logging
 import datetime
 import numpy as np
 import pandas as pd
+from hyperopt import Trials
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
@@ -35,6 +37,7 @@ LOG.setLevel(DEBUGLEVEL)
 class HyppopySolver(object):
 
     def __init__(self, project=None):
+        self._idx = None
         self._best = None
         self._trials = None
         self._blackbox = None
@@ -54,7 +57,51 @@ class HyppopySolver(object):
     def convert_searchspace(self, hyperparameter):
         raise NotImplementedError('users must define convert_searchspace to use this class')
 
+    @abc.abstractmethod
+    def loss_function_call(self):
+        raise NotImplementedError('users must define convert_searchspace to use this class')
+
+    def loss_function(self, **params):
+        self._idx += 1
+        vals = {}
+        idx = {}
+        for key, value in params.items():
+            vals[key] = [value]
+            idx[key] = [self._idx]
+        trial = {'tid': self._idx,
+                 'result': {'loss': None, 'status': 'ok'},
+                 'misc': {
+                     'tid': self._idx,
+                     'idxs': idx,
+                     'vals': vals
+                 },
+                 'book_time': datetime.datetime.now(),
+                 'refresh_time': None
+                 }
+        try:
+            loss = self.loss_function_call(trial, params)
+            trial['result']['loss'] = loss
+            trial['result']['status'] = 'ok'
+            if loss == np.nan:
+                trial['result']['status'] = 'failed'
+        except Exception as e:
+            LOG.error("computing loss failed due to:\n {}".format(e))
+            loss = np.nan
+            trial['result']['loss'] = np.nan
+            trial['result']['status'] = 'failed'
+        trial['refresh_time'] = datetime.datetime.now()
+        self._trials.trials.append(trial)
+        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
+            cbd = copy.deepcopy(params)
+            cbd['iterations'] = self._idx
+            cbd['loss'] = loss
+            cbd['status'] = trial['result']['status']
+            self.blackbox.callback_func(**cbd)
+        return loss
+
     def run(self, print_stats=True):
+        self._idx = 0
+        self.trials = Trials()
         if self._has_maxiteration_field:
             if 'solver_max_iterations' not in self.project.__dict__:
                 msg = "Missing max_iteration entry in project, use default {}!".format(DEFAULTITERATIONS)
