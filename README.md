@@ -309,3 +309,14 @@ print("*"*100)
 print("Best Parameter Set:\n{}".format(best))
 print("*"*100)
 ```
+
+#### The Parameter Space Domains
+
+Each hyperparameter needs a range and a domain specifier. The range, specified via 'data', is the left and right bound of an interval (!!!exception is the domain 'categorical', here 'data' is the actual list of data elements!!!) and the domain specifier the way this interval is sampled. Currently supported domains are:
+
+* uniform (samples the interval [a,b] evenly)
+* normal (a gaussian sampling of the interval [a,b] such that mu=a+(b-a)/2 and sigma=(b-a)/6)
+* loguniform (a logaritmic sampling of the iterval [a,b], such that the exponent e^x is sampled evenly x=[log(a),log(b)])
+* categorical (in this case data is not interpreted as interval but as actual list of objects)
+
+One exception is the GridsearchSolver, here we need to specifiy an interval and a number of samples like so: 'data': [a,b,N]. The max_iterations parameter is obsolet in this case because each axis specifies an individual number of samples.
