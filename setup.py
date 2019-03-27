@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
-
 import os
 from setuptools import setup, find_packages
 
-with open('README.rst') as f:
+with open('README.md') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.3.4.1"
+VERSION = "0.4.0.0"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -36,28 +34,24 @@ setup(
     author_email='s.wanner@dkfz.de',
     url='',
     license=license,
-    packages=find_packages(exclude=('*test*', 'doc')),
+    packages=find_packages(exclude=('tests', 'doc')),
 	package_data={
-	   'hyppopy.plugins': ['*.yapsy-plugin']
     },
     # the requirements to install this project.
     # Since this one is so simple this is empty.
     install_requires=[
-	'dicttoxml>=1.7.4',
-	'xmltodict>=0.11.0',
-	'hyperopt>=0.1.1',
-	'Optunity>=1.1.1',
-	'numpy>=1.16.0',
-	'matplotlib>=3.0.2',
-	'scikit-learn>=0.20.2',
-	'scipy>=1.2.0',
-	'Sphinx>=1.8.3',
-	'xmlrunner>=1.7.7',
-	'Yapsy>=1.11.223',
-	'pandas>=0.24.1',
-	'seaborn>=0.9.0',
+	'bayesian-optimization>=1.0.1',
 	'deap>=1.2.2',
-	'bayesian-optimization>=1.0.1'
+	'hyperopt>=0.1.2',
+	'hyppopy>=0.4.0.0',
+	'matplotlib>=3.0.3',
+	'numpy>=1.16.2',
+	'optuna>=0.9.0',
+	'Optunity>=1.1.1',
+	'pandas>=0.24.2',
+	'pytest>=4.3.1',
+	'scikit-learn>=0.20.3',
+	'scipy>=1.2.1'
 	],
 )
 

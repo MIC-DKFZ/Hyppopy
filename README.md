@@ -1,4 +1,4 @@
-&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ![docs_title_logo](docs_title_logo.png)
+&emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; ![docs_title_logo](./resources/docs_title_logo.png)
 # A Hyper-Parameter Optimization Toolbox
 <br>
 
