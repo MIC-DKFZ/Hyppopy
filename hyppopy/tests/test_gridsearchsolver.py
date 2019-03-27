@@ -201,6 +201,11 @@ class GridsearchTestSuite(unittest.TestCase):
         self.assertAlmostEqual(best['axis_01'], 0.45, places=1)
         self.assertAlmostEqual(best['axis_02'], 5.0, places=1)
 
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
 
 if __name__ == '__main__':
     unittest.main()

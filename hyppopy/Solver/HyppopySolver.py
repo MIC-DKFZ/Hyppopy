@@ -43,7 +43,10 @@ class HyppopySolver(object):
     independently from the concrete solver lib used to optimize in the background. To achieve this goal an addon
     developer needs to implement the abstract methods 'convert_searchspace', 'execute_solver' and 'loss_function_call'.
     These methods abstract the peculiarities of the solver libs to offer, on the user side, a simple and consistent
-    parameter space configuration and optimization procedure. The method 'convert_searchspace'
+    parameter space configuration and optimization procedure. The method 'convert_searchspace' transforms the hyppopy
+    parameter space description into the solver lib specific description. The method loss_function_call is used to
+    handle solver lib specifics of calling the actual blackbox function and execute_solver is executed when the run
+    method is invoked und takes care of calling the solver lib solving routine.
     """
     def __init__(self, project=None):
         self._idx = None
@@ -59,18 +62,47 @@ class HyppopySolver(object):
         self._has_maxiteration_field = True
 
     @abc.abstractmethod
+    def convert_searchspace(self, hyperparameter):
+        """
+        This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
+        convert it into a solver lib specific format. The function is invoked when run is called and what it returns
+        is passed as searchspace argument to the function execute_solver.
+        :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+        :return: [object] converted hyperparameter space
+        """
+        raise NotImplementedError('users must define convert_searchspace to use this class')
+
+    @abc.abstractmethod
     def execute_solver(self, searchspace):
+        """
+        This function is called immediatly after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+        :param searchspace: converted hyperparameter space
+        """
         raise NotImplementedError('users must define execute_solver to use this class')
 
     @abc.abstractmethod
-    def convert_searchspace(self, hyperparameter):
-        raise NotImplementedError('users must define convert_searchspace to use this class')
-
-    @abc.abstractmethod
-    def loss_function_call(self):
+    def loss_function_call(self, params):
+        """
+        This function is called within the function loss_function and encapsulates the actual blackbox function call
+        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
+        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
+        function, e.g. parameter converting.
+        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+        :return: [float] loss
+        """
         raise NotImplementedError('users must define convert_searchspace to use this class')
 
     def loss_function(self, **params):
+        """
+        This function is called each iteration with a selected parameter set. The parameter set selection is driven by
+        the solver lib itself. The purpose of this function is to take care of the iteration reporting and the calling
+        of the callback_func is available. As a developer you might want to overwrite this function completely (e.g.
+        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
+        implement loss_function_call (e.g. OptunitySolver).
+        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+        :return: [float] loss
+        """
         self._idx += 1
         vals = {}
         idx = {}
@@ -88,7 +120,7 @@ class HyppopySolver(object):
                  'refresh_time': None
                  }
         try:
-            loss = self.loss_function_call(trial, params)
+            loss = self.loss_function_call(params)
             trial['result']['loss'] = loss
             trial['result']['status'] = 'ok'
             if loss == np.nan:
@@ -109,6 +141,10 @@ class HyppopySolver(object):
         return loss
 
     def run(self, print_stats=True):
+        """
+        This function starts the optimization process.
+        :param print_stats: [bool] en- or disable console output
+        """
         self._idx = 0
         self.trials = Trials()
         if self._has_maxiteration_field:
@@ -145,7 +181,12 @@ class HyppopySolver(object):
             self.print_timestats()
 
     def get_results(self):
-        results = {'duration': [], 'losses': []}
+        """
+        This function returns a complete optimization history as pandas DataFrame and a dict with the optimal parameter set.
+        :return: [DataFrame], [dict] history and optimal parameter set
+        """
+        assert isinstance(self.trials, Trials), "precondition violation, wrong trials type! Maybe solver was not yet executed?"
+        results = {'duration': [], 'losses': [], 'status': []}
         pset = self.trials.trials[0]['misc']['vals']
         for p in pset.keys():
             results[p] = []
@@ -155,6 +196,7 @@ class HyppopySolver(object):
             t2 = trial['refresh_time']
             results['duration'].append((t2 - t1).microseconds / 1000.0)
             results['losses'].append(trial['result']['loss'])
+            results['status'].append(trial['result']['status'] == 'ok')
             losses = np.array(results['losses'])
             results['losses'] = list(losses)
             pset = trial['misc']['vals']

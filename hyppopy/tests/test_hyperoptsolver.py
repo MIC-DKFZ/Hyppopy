@@ -46,7 +46,7 @@ class HyperoptSolverTestSuite(unittest.TestCase):
                 }
             },
             "settings": {
-                "solver": {"max_iterations": 800},
+                "solver": {"max_iterations": 100},
                 "custom": {}
             }}
 
@@ -57,9 +57,14 @@ class HyperoptSolverTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(570 < best['axis_00'] < 590)
-        self.assertTrue(0.1 < best['axis_01'] < 0.8)
-        self.assertTrue(4.5 < best['axis_02'] < 6)
+        self.assertTrue(300 <= best['axis_00'] <= 800)
+        self.assertTrue(-1 <= best['axis_01'] <= 1)
+        self.assertTrue(0 <= best['axis_02'] <= 10)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
 
 
 if __name__ == '__main__':

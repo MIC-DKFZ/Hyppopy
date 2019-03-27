@@ -33,7 +33,7 @@ class OptunitySolver(HyppopySolver):
         self._solver_info = None
         self.opt_trials = None
 
-    def loss_function_call(self, trial, params):
+    def loss_function_call(self, params):
         for key in params.keys():
             if self.project.get_typeof(key) is int:
                 params[key] = int(round(params[key]))

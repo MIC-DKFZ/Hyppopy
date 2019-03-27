@@ -47,7 +47,7 @@ class BayesOptSolver(HyppopySolver):
                     out_params[name] = value
         return out_params
 
-    def loss_function_call(self, trial, params):
+    def loss_function_call(self, params):
         params = self.reformat_parameter(params)
         for key in params.keys():
             if self.project.get_typeof(key) is int:

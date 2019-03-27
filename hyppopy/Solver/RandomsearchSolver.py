@@ -128,7 +128,7 @@ class RandomsearchSolver(HyppopySolver):
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
 
-    def loss_function_call(self, trial, params):
+    def loss_function_call(self, params):
         loss = self.blackbox(**params)
         if loss is None:
             return np.nan

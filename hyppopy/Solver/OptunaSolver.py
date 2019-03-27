@@ -54,7 +54,7 @@ class OptunaSolver(HyppopySolver):
                 params[name] = trial.suggest_uniform(name, param["data"][0], param["data"][1])
         return self.loss_function(**params)
 
-    def loss_function_call(self, trial, params):
+    def loss_function_call(self, params):
         for key in params.keys():
             if self.project.get_typeof(key) is int:
                 params[key] = int(round(params[key]))

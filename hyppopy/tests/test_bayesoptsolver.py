@@ -35,7 +35,7 @@ class BayesOptSolverTestSuite(unittest.TestCase):
                     "type": "float"
                 },
                 "axis_01": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [-1, 1],
                     "type": "float"
                 },
@@ -46,7 +46,7 @@ class BayesOptSolverTestSuite(unittest.TestCase):
                 }
             },
             "settings": {
-                "solver": {"max_iterations": 80},
+                "solver": {"max_iterations": 10},
                 "custom": {}
             }}
 
@@ -55,11 +55,16 @@ class BayesOptSolverTestSuite(unittest.TestCase):
         vfunc = VirtualFunction()
         vfunc.load_default()
         solver.blackbox = vfunc
-        solver.run(print_stats=True)
+        solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(570 < best['axis_00'] < 590)
-        self.assertTrue(0.1 < best['axis_01'] < 0.8)
-        self.assertTrue(4.5 < best['axis_02'] < 6)
+        self.assertTrue(300 <= best['axis_00'] <= 800)
+        self.assertTrue(-1 <= best['axis_01'] <= 1)
+        self.assertTrue(0 <= best['axis_02'] <= 10)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
 
 
 if __name__ == '__main__':
