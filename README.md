@@ -18,7 +18,8 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 
 1. clone the [Hyppopy](http:\\github.com) project from Github
 2. (create a virtual environment), open a console (with your activated virtual env) and go to the hyppopy root folder
-3. type: ```$ python setup.py install```
+3. ```$ pip install -r requirements.txt```
+4. ```$ python setup.py install```
 
 
 ## How to use Hyppopy?
@@ -46,7 +47,6 @@ config = {
         "data": ["a", "b", "c"],
         "type": "str"
     }
-}
 }}
 
 # Create a HyppopyProject instance and pass the config dict to
@@ -62,6 +62,8 @@ project.add_hyperparameter(name="myOption", domain="categorical", data=["a", "b"
 ```
 
 ```python
+from hyppopy.HyppopyProject import HyppopyProject
+
 # We might have seen a warning: 'UserWarning: config dict had no
 # section settings/solver/max_iterations, set default value: 500'
 # when executing the example above. This is due to the fact that
