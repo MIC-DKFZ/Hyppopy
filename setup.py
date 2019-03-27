@@ -41,7 +41,6 @@ setup(
     # Since this one is so simple this is empty.
     install_requires=[
 	'bayesian-optimization>=1.0.1',
-	'deap>=1.2.2',
 	'hyperopt>=0.1.2',
 	'hyppopy>=0.4.0.0',
 	'matplotlib>=3.0.3',
