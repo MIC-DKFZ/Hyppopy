@@ -201,3 +201,110 @@ print("*"*100)
 print("Best Parameter Set:\n{}".format(best))
 print("*"*100)
 ```
+
+#### The BlackBox Function classes
+```python
+# import the HyppopyProject class keeping track of inputs
+from hyppopy.HyppopyProject import HyppopyProject
+
+# import the SolverPool singleton class
+from hyppopy.SolverPool import SolverPool
+
+# import the Blackboxfunction class wrapping your problem for Hyppopy
+from hyppopy.BlackboxFunction import BlackboxFunction
+
+# Create the HyppopyProject class instance
+project = HyppopyProject()
+project.add_hyperparameter(name="C", domain="uniform", data=[0.0001, 20], dtype="float")
+project.add_hyperparameter(name="gamma", domain="uniform", data=[0.0001, 20], dtype="float")
+project.add_hyperparameter(name="kernel", domain="categorical", data=["linear", "sigmoid", "poly", "rbf"], dtype="str")
+project.add_settings(section="solver", name="max_iterations", value=500)
+project.add_settings(section="custom", name="use_solver", value="optunity")
+
+
+# The BlackboxFunction signature is as follows:
+# BlackboxFunction(blackbox_func=None,
+#                  dataloader_func=None,
+#                  preprocess_func=None,
+#                  callback_func=None,
+#                  data=None,
+#                  **kwargs)
+#
+# - blackbox_func: a function pointer to the users loss function
+# - dataloader_func: a function pointer for handling dataloading. The function is called once before
+#                    optimizing. What it returns is passed as first argument to your loss functions
+#                    data argument.
+# - preprocess_func: a function pointer for data preprocessing. The function is called once before
+#                    optimizing and gets via kwargs['data'] the raw data object set directly or returned
+#                    from dataloader_func. What this function returns is then what is passed as first
+#                    argument to your loss function.
+# - callback_func: a function pointer called after each iteration. The input kwargs is a dictionary
+#                  keeping the parameters used in this iteration, the 'iteration' index, the 'loss'
+#                  and the 'status'. The function in this example is used for realtime printing it's
+#                  input but can also be used for realtime visualization.
+# - data: if not done via dataloader_func one can set a raw_data object directly
+# - kwargs: dict that whose content is passed to all functions above.
+
+from sklearn.svm import SVC
+from sklearn.datasets import load_iris
+from sklearn.model_selection import cross_val_score
+
+
+def my_dataloader_function(**kwargs):
+    print("Dataloading...")
+    # kwargs['params'] allows accessing additional parameter passed, 
+    # see below my_preproc_param, my_dataloader_input.
+    print("my loading argument: {}".format(kwargs['params']['my_dataloader_input']))
+    iris_data = load_iris()
+    return [iris_data.data, iris_data.target]
+
+
+def my_preprocess_function(**kwargs):
+    print("Preprocessing...")
+    # kwargs['data'] allows accessing the input data
+    print("data:", kwargs['data'][0].shape, kwargs['data'][1].shape)
+    # kwargs['params'] allows accessing additional parameter passed,
+    # see below my_preproc_param, my_dataloader_input.
+    print("kwargs['params']['my_preproc_param']={}".format(kwargs['params']['my_preproc_param']), "\n")
+    # if the preprocessing function returns something,
+    # the input data will be replaced with the data returned by this function.
+    x = kwargs['data'][0]
+    y = kwargs['data'][1]
+    for i in range(x.shape[0]):
+        x[i, :] += kwargs['params']['my_preproc_param']
+    return [x, y]
+
+
+def my_callback_function(**kwargs):
+    print("\r{}".format(kwargs), end="")
+
+
+def my_loss_function(data, params):
+    clf = SVC(**params)
+    return -cross_val_score(estimator=clf, X=data[0], y=data[1], cv=3).mean()
+
+
+# We now create the BlackboxFunction object and pass all function pointers defined above,
+# as well as 2 dummy parameter (my_preproc_param, my_dataloader_input) for demonstration purposes.
+blackbox = BlackboxFunction(blackbox_func=my_loss_function,
+                            dataloader_func=my_dataloader_function,
+                            preprocess_func=my_preprocess_function,
+                            callback_func=my_callback_function,
+                            my_preproc_param=1,
+                            my_dataloader_input='could/be/a/path')
+
+
+# Get the solver
+solver = SolverPool.get(project=project)
+# Give the solver your blackbox
+solver.blackbox = blackbox
+# Run the solver
+solver.run()
+# Get your results
+df, best = solver.get_results()
+
+print("\n")
+print("*"*100)
+print("Best Parameter Set:\n{}".format(best))
+print("*"*100)
+```
