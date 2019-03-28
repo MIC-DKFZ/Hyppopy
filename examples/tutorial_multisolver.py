@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 # In this tutorial we solve an optimization problem using the Hyperopt Solver (http://hyperopt.github.io/hyperopt/).
 # Hyperopt uses a Baysian - Tree Parzen Estimator - Optimization approach, which means that each iteration computes a
@@ -76,7 +74,7 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 200
+        "max_iterations": 500
     },
     "custom": {
         "use_solver": "hyperopt"
@@ -179,6 +177,7 @@ solver = SolverPool.get(project=project)
 # via get_result() which returns a pandas dataframe containing the complete history
 # The dict best contains the best parameter set.
 solver.blackbox = blackbox
+#solver.start_viewer()
 solver.run()
 df, best = solver.get_results()
 

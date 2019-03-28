@@ -351,3 +351,24 @@ print("*"*100)
 print("Best Parameter Set:\n{}".format(best))
 print("*"*100)
 ```
+
+#### Using a Visdom Server to Visualize the Optimization Process
+
+We can simply create a realtime visualization using a visdom server. If installed, start your visdom server via console command:
+```
+>visdom
+```
+
+Go to your browser and open the site: http://localhost:8097
+
+To enable the visualization call the function 'start_viewer' before running the solver:
+
+```python
+#enable visualization
+solver.start_viewer()
+# Run the solver
+solver.run()
+```
+
+You can also change the port and the server name in start_viewer(port=8097, server="http://localhost")
+

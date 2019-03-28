@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 import os
 import copy
@@ -52,12 +50,20 @@ class HyperoptSolver(HyppopySolver):
             LOG.error("execution of self.blackbox(**params) failed due to:\n {}".format(e))
             status = STATUS_FAIL
             loss = 1e9
+        cbd = copy.deepcopy(params)
+        cbd['iterations'] = self._trials.trials[-1]['tid'] + 1
+        cbd['loss'] = loss
+        cbd['status'] = status
+        cbd['book_time'] = self._trials.trials[-1]['book_time']
+        cbd['refresh_time'] = self._trials.trials[-1]['refresh_time']
         if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
-            cbd = copy.deepcopy(params)
-            cbd['iterations'] = self._trials.trials[-1]['tid'] + 1
-            cbd['loss'] = loss
-            cbd['status'] = status
+            # cbd = copy.deepcopy(params)
+            # cbd['iterations'] = self._trials.trials[-1]['tid'] + 1
+            # cbd['loss'] = loss
+            # cbd['status'] = status
             self.blackbox.callback_func(**cbd)
+        if self._visdom_viewer is not None:
+            self._visdom_viewer.update(cbd)
         return {'loss': loss, 'status': status}
 
     def execute_solver(self, searchspace):

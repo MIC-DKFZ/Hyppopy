@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 import abc
 
@@ -24,6 +22,7 @@ import numpy as np
 import pandas as pd
 from hyperopt import Trials
 from hyppopy.globals import DEBUGLEVEL
+from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.VirtualFunction import VirtualFunction
@@ -60,6 +59,7 @@ class HyppopySolver(object):
         self._time_per_iteration = None
         self._accumulated_blackbox_time = None
         self._has_maxiteration_field = True
+        self._visdom_viewer = None
 
     @abc.abstractmethod
     def convert_searchspace(self, hyperparameter):
@@ -132,12 +132,16 @@ class HyppopySolver(object):
             trial['result']['status'] = 'failed'
         trial['refresh_time'] = datetime.datetime.now()
         self._trials.trials.append(trial)
+        cbd = copy.deepcopy(params)
+        cbd['iterations'] = self._idx
+        cbd['loss'] = loss
+        cbd['status'] = trial['result']['status']
+        cbd['book_time'] = trial['book_time']
+        cbd['refresh_time'] = trial['refresh_time']
         if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
-            cbd = copy.deepcopy(params)
-            cbd['iterations'] = self._idx
-            cbd['loss'] = loss
-            cbd['status'] = trial['result']['status']
             self.blackbox.callback_func(**cbd)
+        if self._visdom_viewer is not None:
+            self._visdom_viewer.update(cbd)
         return loss
 
     def run(self, print_stats=True):
@@ -243,6 +247,15 @@ class HyppopySolver(object):
                                                            self._total_duration[4]))
         print("#" * 40)
         print(" - solver overhead: {}%".format(self.solver_overhead))
+
+    def start_viewer(self, port=8097, server="http://localhost"):
+        try:
+            self._visdom_viewer = VisdomViewer(self._project, port, server)
+        except Exception as e:
+            import warnings
+            warnings.warn("Failed starting VisdomViewer. Is the server running? If not start it via $visdom")
+            LOG.error("Failed starting VisdomViewer: {}".format(e))
+            self._visdom_viewer = None
 
     @property
     def project(self):

@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 import unittest
 

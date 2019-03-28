@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 # A hyppopy minimal example optimizing a simple demo function f(x,y) = x**2+y**2
 

@@ -10,8 +10,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-#
-# Author: Sven Wanner (s.wanner@dkfz.de)
 
 # In this tutorial we solve an optimization problem using the GridsearchSolver
 # Gridsearch is very inefficient a Randomsearch might most of the time be the
