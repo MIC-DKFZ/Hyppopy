@@ -14,7 +14,7 @@
 import unittest
 import matplotlib.pylab as plt
 
-from hyppopy.solver.OptunaSolver import *
+from hyppopy.solvers.OptunaSolver import *
 from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 

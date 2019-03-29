@@ -13,7 +13,7 @@
 
 import unittest
 
-from hyppopy.solver.GridsearchSolver import *
+from hyppopy.solvers.GridsearchSolver import *
 from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 

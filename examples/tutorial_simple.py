@@ -17,7 +17,7 @@
 from hyppopy.HyppopyProject import HyppopyProject
 
 # import the HyperoptSolver class
-from hyppopy.solver.HyperoptSolver import HyperoptSolver
+from hyppopy.solvers.HyperoptSolver import HyperoptSolver
 
 # To configure the Hyppopy solver we use a simple nested dictionary with two obligatory main sections,
 # hyperparameter and settings. The hyperparameter section defines your searchspace. Each hyperparameter

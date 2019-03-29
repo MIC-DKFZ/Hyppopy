@@ -77,7 +77,7 @@ config = {
         "max_iterations": 500
     },
     "custom": {
-        "use_solver": "hyperopt"
+        "use_solver": "randomsearch"
     }
 }}
 

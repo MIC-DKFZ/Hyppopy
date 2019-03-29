@@ -18,7 +18,7 @@ import logging
 import numpy as np
 from pprint import pformat
 from hyppopy.globals import DEBUGLEVEL
-from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.solvers.HyppopySolver import HyppopySolver
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)

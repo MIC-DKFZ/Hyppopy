@@ -20,7 +20,7 @@ from hyperopt import Trials
 from bayes_opt import BayesianOptimization
 
 from hyppopy.globals import DEBUGLEVEL
-from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.solvers.HyppopySolver import HyppopySolver
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)

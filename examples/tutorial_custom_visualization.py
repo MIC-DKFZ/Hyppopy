@@ -20,10 +20,10 @@ from hyppopy.BlackboxFunction import BlackboxFunction
 
 project = HyppopyProject()
 project.add_hyperparameter(name="axis_00", domain="uniform", data=[0, 1], dtype="float")
-project.add_hyperparameter(name="axis_01", domain="uniform", data=[0, 800], dtype="float")
-project.add_hyperparameter(name="axis_02", domain="uniform", data=[0, 5], dtype="float")
-project.add_hyperparameter(name="axis_03", domain="uniform", data=[1, 10000], dtype="float")
-project.add_hyperparameter(name="axis_04", domain="uniform", data=[0, 10], dtype="float")
+project.add_hyperparameter(name="axis_01", domain="uniform", data=[0, 1], dtype="float")
+project.add_hyperparameter(name="axis_02", domain="uniform", data=[0, 1], dtype="float")
+project.add_hyperparameter(name="axis_03", domain="uniform", data=[0, 1], dtype="float")
+project.add_hyperparameter(name="axis_04", domain="uniform", data=[0, 1], dtype="float")
 project.add_settings(section="solver", name="max_iterations", value=500)
 project.add_settings(section="custom", name="use_solver", value="randomsearch")
 
@@ -82,7 +82,7 @@ def my_visualization_function(**kwargs):
 
 def my_loss_function(data, params):
     vfunc = VirtualFunction()
-    vfunc.load_default(5)
+    vfunc.load_default("5D")
     return vfunc(**params)
 
 

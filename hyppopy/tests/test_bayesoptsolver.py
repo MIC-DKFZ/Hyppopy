@@ -14,7 +14,7 @@
 import unittest
 import matplotlib.pylab as plt
 
-from hyppopy.solver.BayesOptSolver import *
+from hyppopy.solvers.BayesOptSolver import *
 from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
 

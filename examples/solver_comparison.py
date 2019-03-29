@@ -18,8 +18,6 @@ from math import pi
 from pprint import pprint
 import matplotlib.pyplot as plt
 
-
-
 from hyppopy.SolverPool import SolverPool
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.VirtualFunction import VirtualFunction

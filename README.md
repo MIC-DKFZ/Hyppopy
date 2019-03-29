@@ -135,7 +135,7 @@ There are two options to get a solver, we can import directly from the hyppopy.s
 from hyppopy.HyppopyProject import HyppopyProject
 
 # Import the HyperoptSolver class, in this case wh use Hyperopt
-from hyppopy.solver.HyperoptSolver import HyperoptSolver
+from hyppopy.solvers.HyperoptSolver import HyperoptSolver
 
 # Our function to optimize
 def my_loss_func(x, y):
@@ -323,7 +323,7 @@ One exception is the GridsearchSolver, here we need to specifiy an interval and 
 
 ```python
 # import the SolverPool class
-from hyppopy.solver.GridsearchSolver import GridsearchSolver
+from hyppopy.solvers.GridsearchSolver import GridsearchSolver
 
 # Import the HyppopyProject class
 from hyppopy.HyppopyProject import HyppopyProject

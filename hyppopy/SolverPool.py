@@ -16,12 +16,12 @@ from .Singleton import *
 import os
 import logging
 from hyppopy.HyppopyProject import HyppopyProject
-from hyppopy.solver.OptunaSolver import OptunaSolver
-from hyppopy.solver.BayesOptSolver import BayesOptSolver
-from hyppopy.solver.HyperoptSolver import HyperoptSolver
-from hyppopy.solver.OptunitySolver import OptunitySolver
-from hyppopy.solver.GridsearchSolver import GridsearchSolver
-from hyppopy.solver.RandomsearchSolver import RandomsearchSolver
+from hyppopy.solvers.OptunaSolver import OptunaSolver
+from hyppopy.solvers.BayesOptSolver import BayesOptSolver
+from hyppopy.solvers.HyperoptSolver import HyperoptSolver
+from hyppopy.solvers.OptunitySolver import OptunitySolver
+from hyppopy.solvers.GridsearchSolver import GridsearchSolver
+from hyppopy.solvers.RandomsearchSolver import RandomsearchSolver
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))

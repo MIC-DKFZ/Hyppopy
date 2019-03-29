@@ -21,7 +21,7 @@ from hyppopy.globals import DEBUGLEVEL
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
-from hyppopy.solver.HyppopySolver import HyppopySolver
+from hyppopy.solvers.HyppopySolver import HyppopySolver
 
 
 class OptunitySolver(HyppopySolver):

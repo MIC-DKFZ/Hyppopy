@@ -7,7 +7,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.4.1.1"
+VERSION = "0.4.1.2"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -35,7 +35,6 @@ setup(
     url='',
     license=license,
     packages=find_packages(exclude=('tests', 'doc')),
-	package_data={},
     # the requirements to install this project.
     # Since this one is so simple this is empty.
     install_requires=[
