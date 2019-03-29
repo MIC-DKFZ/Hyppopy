@@ -26,7 +26,6 @@ from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.VirtualFunction import VirtualFunction
-
 from hyppopy.globals import DEBUGLEVEL, DEFAULTITERATIONS
 
 LOG = logging.getLogger(os.path.basename(__file__))

@@ -7,7 +7,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.4.1.0"
+VERSION = "0.4.1.1"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -48,7 +48,8 @@ setup(
 		'pandas>=0.24.2',
 		'pytest>=4.3.1',
 		'scikit-learn>=0.20.3',
-		'scipy>=1.2.1'
+		'scipy>=1.2.1',
+		'visdom>=0.1.8.8'
 	],
 )
 
