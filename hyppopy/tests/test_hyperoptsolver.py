@@ -33,7 +33,7 @@ class HyperoptSolverTestSuite(unittest.TestCase):
                     "type": "float"
                 },
                 "axis_01": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [-1, 1],
                     "type": "float"
                 },

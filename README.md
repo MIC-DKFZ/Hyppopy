@@ -363,7 +363,7 @@ Go to your browser and open the site: http://localhost:8097
 
 To enable the visualization call the function 'start_viewer' before running the solver:
 
-```python
+```
 #enable visualization
 solver.start_viewer()
 # Run the solver

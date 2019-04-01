@@ -1,6 +1,7 @@
 # this small script runs the unittest on our package and creates xml output.
 # The xml output can be parsed by jenkins to create nicely formatted test output
 
+
 if __name__ == '__main__':
     import xmlrunner
     import unittest
