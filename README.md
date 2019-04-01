@@ -372,3 +372,6 @@ solver.run()
 
 You can also change the port and the server name in start_viewer(port=8097, server="http://localhost")
 
+## Acknowledgements: 
+_This work is supported by the [Helmholtz Association Initiative and Networking](https://www.helmholtz.de/en/about_us/the_association/initiating_and_networking/) Fund under project number ZT-I-0003._
+<br>
