@@ -88,3 +88,10 @@ mcml.py
 # C++ stuff
 build*
 *.user
+hyppopy/tests/test_snipped_000.py
+hyppopy/tests/test_snipped_001.py
+hyppopy/tests/test_snipped_002.py
+hyppopy/tests/test_snipped_003.py
+hyppopy/tests/test_snipped_004.py
+hyppopy/tests/test_snipped_005.py
+hyppopy/tests/test_snipped_006.py

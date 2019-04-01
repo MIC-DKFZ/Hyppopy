@@ -20,9 +20,6 @@ def create_readmesnippeds():
                     codes.append(snipped)
                     snipped = None
 
-
-
-
     for n, snipped in enumerate(codes):
         f = open(os.path.join(ROOT, *("hyppopy", "tests", "test_snipped_{}.py".format(str(n).zfill(3)))), "w")
         test_code = "# DKFZ\n"
@@ -42,8 +39,8 @@ def create_readmesnippeds():
         test_code += "class ReadmeSnipped_{}TestSuite(unittest.TestCase):\n\n".format(str(n).zfill(3))
         test_code += "\tdef test_scripts(self):\n\n"
         snipped.insert(0, test_code)
-        snipped.append("\t\tself.assertTrue(True)\n")
         f.writelines(snipped)
         f.close()
+
 
 create_readmesnippeds()
