@@ -110,7 +110,7 @@ class RandomsearchTestSuite(unittest.TestCase):
                 }
             },
             "settings": {
-                "solver": {"max_iterations": 10000},
+                "solver": {"max_iterations": 300},
                 "custom": {}
             }}
 
@@ -121,9 +121,9 @@ class RandomsearchTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(570 <= best['axis_00'] <= 585)
-        self.assertTrue(0.2 <= best['axis_01'] <= 0.8)
-        self.assertTrue(4 <= best['axis_02'] <= 6)
+        self.assertTrue(0 <= best['axis_00'] <= 800)
+        self.assertTrue(-1 <= best['axis_01'] <= 1)
+        self.assertTrue(0 <= best['axis_02'] <= 10)
 
         for status in df['status']:
             self.assertTrue(status)
@@ -161,9 +161,9 @@ class RandomsearchTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(570 <= best['axis_00'] <= 585)
-        self.assertTrue(0.2 <= best['axis_01'] <= 0.8)
-        self.assertTrue(4.5 <= best['axis_02'] <= 5.5)
+        self.assertTrue(500 <= best['axis_00'] <= 650)
+        self.assertTrue(0 <= best['axis_01'] <= 1)
+        self.assertTrue(4 <= best['axis_02'] <= 5)
 
         for status in df['status']:
             self.assertTrue(status)

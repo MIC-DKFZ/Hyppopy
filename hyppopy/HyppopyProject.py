@@ -50,7 +50,15 @@ class HyppopyProject(object):
         self._settings = config[SETTINGSPATH]
         self.parse_members()
 
-    def add_hyperparameter(self, name, domain, data, dtype):
+    def add_hyperparameter(self, **kwargs):
+        assert 'name' in kwargs.keys(), "precondition violation, obligatory parameter name not found!"
+        assert 'domain' in kwargs.keys(), "precondition violation, obligatory parameter domain not found!"
+        assert 'data' in kwargs.keys(), "precondition violation, obligatory parameter data not found!"
+        assert 'dtype' in kwargs.keys(), "precondition violation, obligatory parameter dtype not found!"
+        name = kwargs['name']; del kwargs['name']
+        domain = kwargs['domain']; del kwargs['domain']
+        data = kwargs['data']; del kwargs['data']
+        dtype = kwargs['dtype']; del kwargs['dtype']
         assert isinstance(name, str), "precondition violation, name of type {} not allowed, expect str!".format(type(name))
         assert isinstance(domain, str), "precondition violation, domain of type {} not allowed, expect str!".format(type(domain))
         assert domain in SUPPORTED_DOMAINS, "domain {} not supported, expect {}!".format(domain, SUPPORTED_DOMAINS)
@@ -60,6 +68,8 @@ class HyppopyProject(object):
         assert isinstance(dtype, str), "precondition violation, dtype of type {} not allowed, expect str!".format(type(dtype))
         assert dtype in SUPPORTED_DTYPES, "precondition violation, dtype {} not supported, expect {}!".format(dtype, SUPPORTED_DTYPES)
         self._hyperparameter[name] = {"domain": domain, "data": data, "type": dtype}
+        for key, value in kwargs.items():
+            self._hyperparameter[name][key] = value
 
     def add_settings(self, section, name, value):
         assert isinstance(section, str), "precondition violation, section of type {} not allowed, expect str!".format(type(section))
