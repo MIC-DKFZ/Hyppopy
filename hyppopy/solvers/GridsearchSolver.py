@@ -13,11 +13,12 @@
 
 import os
 import logging
+import warnings
 import numpy as np
 from pprint import pformat
 from scipy.stats import norm
 from itertools import product
-from hyppopy.globals import DEBUGLEVEL
+from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
 from hyppopy.solvers.HyppopySolver import HyppopySolver
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -165,16 +166,29 @@ class GridsearchSolver(HyppopySolver):
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         searchspace = [[], []]
         for name, param in hyperparameter.items():
+            if param["domain"] != "categorical" and "frequency" not in param.keys():
+                param["frequency"] = DEFAULTGRIDFREQUENCY
+                warnings.warn("No frequency field found, used default gridsearch frequency {}".format(DEFAULTGRIDFREQUENCY))
+
             if param["domain"] == "categorical":
                 searchspace[0].append(name)
                 searchspace[1].append(param["data"])
             elif param["domain"] == "uniform":
                 searchspace[0].append(name)
-                searchspace[1].append(get_uniform_axis_sample(param["data"][0], param["data"][1], param["data"][2], param["type"]))
+                searchspace[1].append(get_uniform_axis_sample(param["data"][0],
+                                                              param["data"][1],
+                                                              param["frequency"],
+                                                              param["type"]))
             elif param["domain"] == "normal":
                 searchspace[0].append(name)
-                searchspace[1].append(get_gaussian_axis_sample(param["data"][0], param["data"][1], param["data"][2], param["type"]))
+                searchspace[1].append(get_gaussian_axis_sample(param["data"][0],
+                                                               param["data"][1],
+                                                               param["frequency"],
+                                                               param["type"]))
             elif param["domain"] == "loguniform":
                 searchspace[0].append(name)
-                searchspace[1].append(get_logarithmic_axis_sample(param["data"][0], param["data"][1], param["data"][2], param["type"]))
+                searchspace[1].append(get_logarithmic_axis_sample(param["data"][0],
+                                                                  param["data"][1],
+                                                                  param["frequency"],
+                                                                  param["type"]))
         return searchspace

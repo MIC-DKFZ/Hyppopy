@@ -29,7 +29,7 @@ class BayesOptSolverTestSuite(unittest.TestCase):
             "hyperparameter": {
                 "axis_00": {
                     "domain": "normal",
-                    "data": [300, 800],
+                    "data": [0, 800],
                     "type": "float"
                 },
                 "axis_01": {
@@ -55,7 +55,7 @@ class BayesOptSolverTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(300 <= best['axis_00'] <= 800)
+        self.assertTrue(0 <= best['axis_00'] <= 800)
         self.assertTrue(-1 <= best['axis_01'] <= 1)
         self.assertTrue(0 <= best['axis_02'] <= 10)
 

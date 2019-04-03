@@ -124,18 +124,21 @@ class GridsearchTestSuite(unittest.TestCase):
             "hyperparameter": {
                 "value 1": {
                     "domain": "uniform",
-                    "data": [0, 20, 11],
-                    "type": "int"
+                    "data": [0, 20],
+                    "type": "int",
+                    "frequency": 11
                 },
                 "value 2": {
                     "domain": "normal",
-                    "data": [0, 20.0, 11],
-                    "type": "float"
+                    "data": [0, 20.0],
+                    "type": "float",
+                    "frequency": 11
                 },
                 "value 3": {
                     "domain": "loguniform",
-                    "data": [1, 10000, 11],
-                    "type": "float"
+                    "data": [1, 10000],
+                    "type": "float",
+                    "frequency": 11
                 },
                 "categorical": {
                     "domain": "categorical",
@@ -164,23 +167,26 @@ class GridsearchTestSuite(unittest.TestCase):
             self.assertAlmostEqual(res_values[i], searchspace[1][i])
         self.assertEqual(res_values[3], searchspace[1][3])
 
-    def test_solver_complete(self):
+    def test_solver_uniform(self):
         config = {
             "hyperparameter": {
                 "axis_00": {
-                    "domain": "normal",
-                    "data": [300, 800, 11],
-                    "type": "float"
+                    "domain": "uniform",
+                    "data": [0, 800],
+                    "type": "float",
+                    "frequency": 11
                 },
                 "axis_01": {
-                    "domain": "normal",
-                    "data": [-1, 1, 11],
-                    "type": "float"
+                    "domain": "uniform",
+                    "data": [-1, 1],
+                    "type": "float",
+                    "frequency": 11
                 },
                 "axis_02": {
                     "domain": "uniform",
-                    "data": [0, 10, 11],
-                    "type": "float"
+                    "data": [0, 10],
+                    "type": "float",
+                    "frequency": 11
                 }
             },
             "settings": {
@@ -195,9 +201,95 @@ class GridsearchTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertAlmostEqual(best['axis_00'], 583.40, places=1)
-        self.assertAlmostEqual(best['axis_01'], 0.45, places=1)
+        self.assertAlmostEqual(best['axis_00'], 240, places=1)
+        self.assertAlmostEqual(best['axis_01'], 0.2, places=1)
         self.assertAlmostEqual(best['axis_02'], 5.0, places=1)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
+    def test_solver_normal(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "normal",
+                    "data": [100, 300],
+                    "type": "float",
+                    "frequency": 11
+                },
+                "axis_01": {
+                    "domain": "normal",
+                    "data": [0, 0.8],
+                    "type": "float",
+                    "frequency": 11
+                },
+                "axis_02": {
+                    "domain": "normal",
+                    "data": [4, 6],
+                    "type": "float",
+                    "frequency": 11
+                }
+            },
+            "settings": {
+                "solver": {},
+                "custom": {}
+            }}
+
+        project = HyppopyProject(config)
+        solver = GridsearchSolver(project)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertAlmostEqual(best['axis_00'], 197.555, places=1)
+        self.assertAlmostEqual(best['axis_01'], 0.21869, places=1)
+        self.assertAlmostEqual(best['axis_02'], 5.13361, places=1)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
+    def test_solver_loguniform(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "loguniform",
+                    "data": [0.00001, 300],
+                    "type": "float",
+                    "frequency": 21
+                },
+                "axis_01": {
+                    "domain": "loguniform",
+                    "data": [0.00001, 0.8],
+                    "type": "float",
+                    "frequency": 21
+                },
+                "axis_02": {
+                    "domain": "loguniform",
+                    "data": [4, 6],
+                    "type": "float",
+                    "frequency": 21
+                }
+            },
+            "settings": {
+                "solver": {},
+                "custom": {}
+            }}
+
+        project = HyppopyProject(config)
+        solver = GridsearchSolver(project)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertAlmostEqual(best['axis_00'], 299.999, places=1)
+        self.assertAlmostEqual(best['axis_01'], 0.25869, places=1)
+        self.assertAlmostEqual(best['axis_02'], 5.10169, places=1)
 
         for status in df['status']:
             self.assertTrue(status)

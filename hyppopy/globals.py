@@ -29,6 +29,7 @@ SUPPORTED_DOMAINS = ["uniform", "normal", "loguniform", "categorical"]
 SUPPORTED_DTYPES = ["int", "float", "str"]
 
 DEFAULTITERATIONS = 500
+DEFAULTGRIDFREQUENCY = 10
 
 LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))
 DEBUGLEVEL = logging.DEBUG

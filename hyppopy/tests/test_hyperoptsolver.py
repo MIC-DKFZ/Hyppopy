@@ -28,23 +28,23 @@ class HyperoptSolverTestSuite(unittest.TestCase):
         config = {
             "hyperparameter": {
                 "axis_00": {
-                    "domain": "normal",
-                    "data": [300, 800],
+                    "domain": "uniform",
+                    "data": [300, 700],
                     "type": "float"
                 },
                 "axis_01": {
                     "domain": "uniform",
-                    "data": [-1, 1],
+                    "data": [0, 0.8],
                     "type": "float"
                 },
                 "axis_02": {
                     "domain": "uniform",
-                    "data": [0, 10],
+                    "data": [3.5, 6.5],
                     "type": "float"
                 }
             },
             "settings": {
-                "solver": {"max_iterations": 100},
+                "solver": {"max_iterations": 500},
                 "custom": {}
             }}
 
@@ -55,9 +55,49 @@ class HyperoptSolverTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(300 <= best['axis_00'] <= 800)
-        self.assertTrue(-1 <= best['axis_01'] <= 1)
-        self.assertTrue(0 <= best['axis_02'] <= 10)
+        self.assertTrue(570 <= best['axis_00'] <= 585)
+        self.assertTrue(0.15 <= best['axis_01'] <= 0.8)
+        self.assertTrue(4.5 <= best['axis_02'] <= 5.5)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
+    def test_solver_normal(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "normal",
+                    "data": [500, 650],
+                    "type": "float"
+                },
+                "axis_01": {
+                    "domain": "normal",
+                    "data": [0.1, 0.8],
+                    "type": "float"
+                },
+                "axis_02": {
+                    "domain": "normal",
+                    "data": [4.5, 5.5],
+                    "type": "float"
+                }
+            },
+            "settings": {
+                "solver": {"max_iterations": 500},
+                "custom": {}
+            }}
+
+        project = HyppopyProject(config)
+        solver = HyperoptSolver(project)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertTrue(575 <= best['axis_00'] <= 585)
+        self.assertTrue(0.1 <= best['axis_01'] <= 0.8)
+        self.assertTrue(4.7 <= best['axis_02'] <= 5.3)
 
         for status in df['status']:
             self.assertTrue(status)
