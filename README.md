@@ -319,7 +319,7 @@ Each hyperparameter needs a range and a domain specifier. The range, specified v
 * loguniform (a logaritmic sampling of the iterval [a,b], such that the exponent e^x is sampled evenly x=[log(a),log(b)])
 * categorical (in this case data is not interpreted as interval but as actual list of objects)
 
-One exception is the GridsearchSolver, here we need to specifiy an interval and a number of samples like so: 'data': [a,b,N]. The max_iterations parameter is obsolet in this case because each axis specifies an individual number of samples.
+One exception is the GridsearchSolver, here we need to specifiy an interval and a number of samples using a frequency specifier. The max_iterations parameter is obsolet in this case, because each axis specifies an individual number of samples via frequency.
 
 ```python
 # import the SolverPool class
@@ -334,8 +334,8 @@ def my_loss_func(x, y):
 
 # Creating a HyppopyProject instance
 project = HyppopyProject()
-project.add_hyperparameter(name="x", domain="uniform", data=[-1.1, 1, 10], dtype="float")
-project.add_hyperparameter(name="y", domain="uniform", data=[-1.1, 1, 12], dtype="float")
+project.add_hyperparameter(name="x", domain="uniform", data=[-1.1, 1], frequency=10, dtype="float")
+project.add_hyperparameter(name="y", domain="uniform", data=[-1.1, 1], frequency=12, dtype="float")
 
 solver = GridsearchSolver(project=project)
 
