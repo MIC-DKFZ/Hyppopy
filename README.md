@@ -19,7 +19,7 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 1. clone the [Hyppopy](http:\\github.com) project from Github
 2. (create a virtual environment), open a console (with your activated virtual env) and go to the hyppopy root folder
 3. ```$ pip install -r requirements.txt```
-4. ```$ python setup.py install```
+4. ```$ python setup.py install``` (for normal usage) or ```$ python setup.py develop``` (if you want to join the hyppopy development *hooray*)
 
 
 ## How to use Hyppopy?
