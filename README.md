@@ -24,6 +24,20 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 
 ## How to use Hyppopy?
 
+#### The Hyperparamaterspace
+
+Hyppopy defines a common hyperparameterspace description, whatever solver is used. A hyperparameter description includes the following fields:
+
+* domain: the domain defines how the solver samples the parameter space, options are:
+	* uniform: samples the data range [a,b] evenly, whereas b>a
+	* normal: samples the data range [a,b] using a normal distribution with mu=a+(b-a)/2, sigma=(b-a)/6, whereas b>a
+	* loguniform: samples the data range [a,b] logarithmic using e^x by sampling the exponent range x=[log(a), log(b)] uniformly, whereas a>0 and b>a
+	* categorical: is used to define a data list
+* data: in case of categorical domain data is a list, all other domains expect a range [a, b]
+* type: the parameter data type as string 'int', 'float' or 'str'
+
+An exeption must be kept in mind when using the GridsearchSolver. The gridsearch additionally needs a number of samples per domain, which must be set using the field: frequency.
+
 #### The HyppopyProject class
 
 The HyppopyProject class takes care all settings necessary for the solver and your workflow. To setup a HyppopyProject instance we can use a nested dictionary or the classes memberfunctions respectively.
