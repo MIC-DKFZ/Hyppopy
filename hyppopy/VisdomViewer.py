@@ -95,7 +95,7 @@ class VisdomViewer(object):
             txt += "</ul>"
             self._best_win = self._viz.text(txt)
         else:
-            if input_data["loss"] <= self._best_loss:
+            if input_data["loss"] < self._best_loss:
                 self._best_loss = input_data["loss"]
                 txt = "Best Parameter Set:<hr>Loss: {}<hr><ul>".format(self._best_loss)
                 for axis in self._axis_tags:
