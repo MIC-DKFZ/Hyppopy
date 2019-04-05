@@ -46,6 +46,11 @@ class HyppopyProject(object):
             msg = "config dict had no section {0}/solver/max_iterations, set default value: {1}".format(SETTINGSPATH, DEFAULTITERATIONS)
             warnings.warn(msg)
             LOG.warning(msg)
+        elif not "max_iterations" in config[SETTINGSPATH].keys():
+            config[SETTINGSPATH]["solver"] = {"max_iterations": DEFAULTITERATIONS}
+            msg = "config dict had no section {0}/solver/max_iterations, set default value: {1}".format(SETTINGSPATH, DEFAULTITERATIONS)
+            warnings.warn(msg)
+            LOG.warning(msg)
         self._hyperparameter = config[HYPERPARAMETERPATH]
         self._settings = config[SETTINGSPATH]
         self.parse_members()
