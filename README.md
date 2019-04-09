@@ -10,6 +10,7 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 * [Optunity](https://optunity.readthedocs.io/en/latest/user/index.html)
 * [Optuna](https://optuna.org/)
 * [BayesianOptimization](https://github.com/fmfn/BayesianOptimization)
+* Quasi-Randomsearch Solver 
 * Randomsearch Solver
 * Gridsearch Solver
 
@@ -140,7 +141,9 @@ Each solver is a child of the HyppopySolver class. This is only interesting if y
 * OptunaSolver [optuna]
 * BayesOptSolver [bayesopt]
 * RandomsearchSolver [randomsearch]
+* QuasiRandomsearchSolver [quasirandomsearch]
 * GridsearchSolver [gridsearch]
+
 
 There are two options to get a solver, we can import directly from the hyppopy.solver package or we use the SolverPool class. We look into both options by optimizing a simple function, starting with the direct import case.
 

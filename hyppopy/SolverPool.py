@@ -22,6 +22,7 @@ from hyppopy.solvers.HyperoptSolver import HyperoptSolver
 from hyppopy.solvers.OptunitySolver import OptunitySolver
 from hyppopy.solvers.GridsearchSolver import GridsearchSolver
 from hyppopy.solvers.RandomsearchSolver import RandomsearchSolver
+from hyppopy.solvers.QuasiRandomsearchSolver import QuasiRandomsearchSolver
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -37,6 +38,7 @@ class SolverPool(metaclass=Singleton):
                              "bayesopt",
                              "optuna",
                              "randomsearch",
+                             "quasirandomsearch",
                              "gridsearch"]
 
     def get_solver_names(self):
@@ -76,4 +78,8 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return RandomsearchSolver(project)
             return RandomsearchSolver()
+        elif solver_name == "quasirandomsearch":
+            if project is not None:
+                return QuasiRandomsearchSolver(project)
+            return QuasiRandomsearchSolver()
 

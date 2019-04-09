@@ -74,10 +74,10 @@ config = {
 },
 "settings": {
     "solver": {
-        "max_iterations": 500
+        "max_iterations": 100
     },
     "custom": {
-        "use_solver": "randomsearch"
+        "use_solver": "quasirandomsearch"
     }
 }}
 
