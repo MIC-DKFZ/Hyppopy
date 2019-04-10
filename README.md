@@ -137,12 +137,26 @@ else:
 Each solver is a child of the HyppopySolver class. This is only interesting if you're planning to write a new solver, we will discuss this in the section Solver Development. All solvers we can use to optimize our blackbox function are part of the module 'hyppopy.solver'. Below is a list of all solvers available along with their access key in squared brackets.
 
 * HyperoptSolver [hyperopt]
-* OptunitySolver [optunity]
-* OptunaSolver [optuna]
-* BayesOptSolver [bayesopt]
-* RandomsearchSolver [randomsearch]
-* QuasiRandomsearchSolver [quasirandomsearch]
-* GridsearchSolver [gridsearch]
+
+    _Bayes Optimization use Tree-Parzen Estimator, supports uniform, normal, loguniform and categorical parameter_
+* OptunitySolver [optunity] 
+    
+    _Particle Swarm Optimizer, supports uniform and categorical parameter_
+* OptunaSolver [optuna] 
+
+    _Bayes Optimization, supports uniform, and categorical parameter_
+* BayesOptSolver [bayesopt] 
+    
+    _Bayes Optimization, supports uniform, and categorical parameter_
+* RandomsearchSolver [randomsearch] 
+
+    _Naive randomized parameter search, supports uniform, normal, loguniform and categorical parameter_
+* QuasiRandomsearchSolver [quasirandomsearch] 
+
+    _Randomized grid ensuring random sample drawing and a good space coverage, supports uniform, normal, loguniform and categorical parameter_
+* GridsearchSolver [gridsearch] 
+
+    _Standard gridsearch, supports uniform, normal, loguniform and categorical parameter_
 
 
 There are two options to get a solver, we can import directly from the hyppopy.solver package or we use the SolverPool class. We look into both options by optimizing a simple function, starting with the direct import case.
