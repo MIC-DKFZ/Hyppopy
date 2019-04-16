@@ -52,7 +52,8 @@ class HyppopyProject(object):
         #     warnings.warn(msg)
         #     LOG.warning(msg)
         self._hyperparameter = config[HYPERPARAMETERPATH]
-        self._settings = config[SETTINGSPATH]
+        if SETTINGSPATH in config.keys():
+            self._settings = config[SETTINGSPATH]
         self.parse_members()
 
     def add_hyperparameter(self, **kwargs):

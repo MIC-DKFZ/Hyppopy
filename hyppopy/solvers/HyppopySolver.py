@@ -26,7 +26,7 @@ from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.VirtualFunction import VirtualFunction
-from hyppopy.globals import DEBUGLEVEL, DEFAULTITERATIONS
+from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -47,18 +47,18 @@ class HyppopySolver(object):
     method is invoked und takes care of calling the solver lib solving routine.
     """
     def __init__(self, project=None):
-        self._idx = None
-        self._best = None
-        self._trials = None
-        self._blackbox = None
-        self._max_iterations = None
-        self._project = project
-        self._total_duration = None
-        self._solver_overhead = None
-        self._time_per_iteration = None
-        self._accumulated_blackbox_time = None
-        self._has_maxiteration_field = True
-        self._visdom_viewer = None
+        self._idx = None                        # current iteration counter
+        self._best = None                       # best parameter set
+        self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
+        self._blackbox = None                   # blackbox function, eiter a  function or a BlackboxFunction instance
+        self._max_iterations = None             # number of iteration the solver is doing at max
+        self._project = project                 # HyppopyProject instance
+        self._total_duration = None             # keeps track of the solvers running time
+        self._solver_overhead = None            # stores the time overhead of the solver, means total time minus time in blackbox
+        self._time_per_iteration = None         # mean time per iterration
+        self._accumulated_blackbox_time = None  # summed time the solver was in the blackbox function
+        self._has_maxiteration_field = True     # this variable has to be set to False if the solver doesn't make use of max_iterations
+        self._visdom_viewer = None              # visdom viewer instance
 
     @abc.abstractmethod
     def convert_searchspace(self, hyperparameter):
@@ -152,10 +152,7 @@ class HyppopySolver(object):
         self.trials = Trials()
         if self._has_maxiteration_field:
             if 'solver_max_iterations' not in self.project.__dict__:
-                msg = "Missing max_iteration entry in project, use default {}!".format(DEFAULTITERATIONS)
-                LOG.warning(msg)
-                print("WARNING: {}".format(msg))
-                setattr(self.project, 'solver_max_iterations', DEFAULTITERATIONS)
+                raise Exception("Missing max_iterations parameter which is essential for this type of solver!")
             self._max_iterations = self.project.solver_max_iterations
 
         start_time = datetime.datetime.now()

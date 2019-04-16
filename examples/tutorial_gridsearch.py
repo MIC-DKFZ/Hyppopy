@@ -19,7 +19,7 @@
 from hyppopy.HyppopyProject import HyppopyProject
 
 # import the GridsearchSolver classes
-from hyppopy.solver.GridsearchSolver import GridsearchSolver
+from hyppopy.solvers.GridsearchSolver import GridsearchSolver
 
 # import the Blackboxfunction class wrapping your problem for Hyppopy
 from hyppopy.BlackboxFunction import BlackboxFunction
