@@ -30,23 +30,21 @@ class HyperoptSolverTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "uniform",
                     "data": [300, 700],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
                     "domain": "uniform",
                     "data": [0, 0.8],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "uniform",
                     "data": [3.5, 6.5],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 500},
-                "custom": {}
-            }}
+            "max_iterations": 500
+            }
 
         project = HyppopyProject(config)
         solver = HyperoptSolver(project)
@@ -55,9 +53,9 @@ class HyperoptSolverTestSuite(unittest.TestCase):
         solver.blackbox = vfunc
         solver.run(print_stats=False)
         df, best = solver.get_results()
-        self.assertTrue(570 <= best['axis_00'] <= 585)
-        self.assertTrue(0.15 <= best['axis_01'] <= 0.8)
-        self.assertTrue(4.5 <= best['axis_02'] <= 5.5)
+        self.assertTrue(575 <= best['axis_00'] <= 585)
+        self.assertTrue(0.1 <= best['axis_01'] <= 0.8)
+        self.assertTrue(4.7 <= best['axis_02'] <= 5.3)
 
         for status in df['status']:
             self.assertTrue(status)
@@ -70,23 +68,21 @@ class HyperoptSolverTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "normal",
                     "data": [500, 650],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
                     "domain": "normal",
                     "data": [0.1, 0.8],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "normal",
                     "data": [4.5, 5.5],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 500},
-                "custom": {}
-            }}
+            "max_iterations": 500,
+            }
 
         project = HyppopyProject(config)
         solver = HyperoptSolver(project)

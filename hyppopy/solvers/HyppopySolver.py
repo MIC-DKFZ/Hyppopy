@@ -12,16 +12,13 @@
 # See LICENSE
 
 import abc
-
-import os
 import copy
 import types
-import logging
 import datetime
 import numpy as np
 import pandas as pd
 from hyperopt import Trials
-from hyppopy.globals import DEBUGLEVEL
+from hyppopy.globals import *
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
@@ -51,14 +48,18 @@ class HyppopySolver(object):
         self._best = None                       # best parameter set
         self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
         self._blackbox = None                   # blackbox function, eiter a  function or a BlackboxFunction instance
-        self._max_iterations = None             # number of iteration the solver is doing at max
-        self._project = project                 # HyppopyProject instance
         self._total_duration = None             # keeps track of the solvers running time
         self._solver_overhead = None            # stores the time overhead of the solver, means total time minus time in blackbox
         self._time_per_iteration = None         # mean time per iterration
         self._accumulated_blackbox_time = None  # summed time the solver was in the blackbox function
-        self._has_maxiteration_field = True     # this variable has to be set to False if the solver doesn't make use of max_iterations
         self._visdom_viewer = None              # visdom viewer instance
+
+        self._child_members = {}                # this dict keeps track of the settings the child solver defines
+        self._hopt_signatures = {}              # this dict keeps track of the hyperparameter signatures the child solver defines
+        self.define_interface()                 # the child define interface function is called which defines settings and hyperparameter signatures
+
+        if project is not None:
+            self.project = project
 
     @abc.abstractmethod
     def convert_searchspace(self, hyperparameter):
@@ -90,7 +91,31 @@ class HyppopySolver(object):
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
         :return: [float] loss
         """
-        raise NotImplementedError('users must define convert_searchspace to use this class')
+        raise NotImplementedError('users must define loss_function_call to use this class')
+
+    @abc.abstractmethod
+    def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the add_member function for each class member variable need to be defined.
+        Using add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
+        raise NotImplementedError('users must define define_interface to use this class')
+
+    def add_member(self, name, dtype, value=None, default=None):
+        assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
+        if value is not None:
+            assert isinstance(value, dtype), "precondition violation, value does not match dtype condition!"
+        if default is not None:
+            assert isinstance(default, dtype), "precondition violation, default does not match dtype condition!"
+        setattr(self, name, value)
+        self._child_members[name] = {"type": dtype, "value": value, "default": default}
+
+    def add_hyperparameter_signature(self, name, dtype, options=None):
+        assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
+        self._hopt_signatures[name] = {"type": dtype, "options": options}
 
     def loss_function(self, **params):
         """
@@ -150,10 +175,6 @@ class HyppopySolver(object):
         """
         self._idx = 0
         self.trials = Trials()
-        if self._has_maxiteration_field:
-            if 'solver_max_iterations' not in self.project.__dict__:
-                raise Exception("Missing max_iterations parameter which is essential for this type of solver!")
-            self._max_iterations = self.project.solver_max_iterations
 
         start_time = datetime.datetime.now()
         try:
@@ -253,17 +274,48 @@ class HyppopySolver(object):
             LOG.error("Failed starting VisdomViewer: {}".format(e))
             self._visdom_viewer = None
 
+    def check_project(self):
+        # check hyperparameter signatures
+        for name, param in self.project.hyperparameter.items():
+            for sig, settings in self._hopt_signatures.items():
+                if sig not in param.keys():
+                    msg = "Missing hyperparameter signature {}!".format(sig)
+                    LOG.error(msg)
+                    raise LookupError(msg)
+                else:
+                    if not isinstance(param[sig], settings["type"]):
+                        msg = "Hyperparameter signature type mismatch, expected type {} got {}!".format(settings["type"], param[sig])
+                        LOG.error(msg)
+                        raise TypeError(msg)
+                    if settings["options"] is not None:
+                        if param[sig] not in settings["options"]:
+                            msg = "Wrong signature value, {} not found in signature options!".format(param[sig])
+                            LOG.error(msg)
+                            raise LookupError(msg)
+
+        # check child members
+        for name in self._child_members.keys():
+            if name not in self.project.__dict__.keys():
+                msg = "missing settings field {}!".format(name)
+                LOG.error(msg)
+                raise LookupError(msg)
+            self.__dict__[name] = self.project.settings[name]
+
     @property
     def project(self):
         return self._project
 
     @project.setter
     def project(self, value):
-        if not isinstance(value, HyppopyProject):
+        if isinstance(value, dict):
+            self._project = HyppopyProject(value)
+        elif isinstance(value, HyppopyProject):
+            self._project = value
+        else:
             msg = "Input error, project_manager of type: {} not allowed!".format(type(value))
             LOG.error(msg)
-            raise IOError(msg)
-        self._project = value
+            raise TypeError(msg)
+        self.check_project()
 
     @property
     def blackbox(self):
@@ -277,7 +329,7 @@ class HyppopySolver(object):
             self._blackbox = None
             msg = "Input error, blackbox of type: {} not allowed!".format(type(value))
             LOG.error(msg)
-            raise IOError(msg)
+            raise TypeError(msg)
 
     @property
     def best(self):
@@ -288,7 +340,7 @@ class HyppopySolver(object):
         if not isinstance(value, dict):
             msg = "Input error, best of type: {} not allowed!".format(type(value))
             LOG.error(msg)
-            raise IOError(msg)
+            raise TypeError(msg)
         self._best = value
 
     @property
@@ -298,22 +350,6 @@ class HyppopySolver(object):
     @trials.setter
     def trials(self, value):
         self._trials = value
-
-    @property
-    def max_iterations(self):
-        return self._max_iterations
-
-    @max_iterations.setter
-    def max_iterations(self, value):
-        if not isinstance(value, int):
-            msg = "Input error, max_iterations of type: {} not allowed!".format(type(value))
-            LOG.error(msg)
-            raise IOError(msg)
-        if value < 1:
-            msg = "Precondition violation, max_iterations < 1!"
-            LOG.error(msg)
-            raise IOError(msg)
-        self._max_iterations = value
 
     @property
     def total_duration(self):

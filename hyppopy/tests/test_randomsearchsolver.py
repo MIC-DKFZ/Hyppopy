@@ -26,7 +26,7 @@ class RandomsearchTestSuite(unittest.TestCase):
 
     def test_draw_uniform_sample(self):
         param = {"data": [0, 1, 10],
-                 "type": "float"}
+                 "type": float}
         values = []
         for i in range(10000):
             values.append(draw_uniform_sample(param))
@@ -39,7 +39,7 @@ class RandomsearchTestSuite(unittest.TestCase):
         self.assertTrue(0.9 < mean < 1.1)
 
         param = {"data": [0, 10, 11],
-                 "type": "int"}
+                 "type": int}
         values = []
         for i in range(10000):
             values.append(draw_uniform_sample(param))
@@ -53,7 +53,7 @@ class RandomsearchTestSuite(unittest.TestCase):
 
     def test_draw_normal_sample(self):
         param = {"data": [0, 10, 11],
-                 "type": "int"}
+                 "type": int}
         values = []
         for i in range(10000):
             values.append(draw_normal_sample(param))
@@ -67,7 +67,7 @@ class RandomsearchTestSuite(unittest.TestCase):
 
     def test_draw_loguniform_sample(self):
         param = {"data": [1, 1000, 11],
-                 "type": "float"}
+                 "type": float}
         values = []
         for i in range(10000):
             values.append(draw_loguniform_sample(param))
@@ -96,23 +96,21 @@ class RandomsearchTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "uniform",
                     "data": [0, 800],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
                     "domain": "uniform",
                     "data": [-1, 1],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "uniform",
                     "data": [0, 10],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 300},
-                "custom": {}
-            }}
+            "max_iterations": 300
+        }
 
         project = HyppopyProject(config)
         solver = RandomsearchSolver(project)
@@ -136,26 +134,23 @@ class RandomsearchTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "normal",
                     "data": [500, 650],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
                     "domain": "normal",
                     "data": [0, 1],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "normal",
                     "data": [4, 5],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 500},
-                "custom": {}
-            }}
+            "max_iterations": 500,
+            }
 
-        project = HyppopyProject(config)
-        solver = RandomsearchSolver(project)
+        solver = RandomsearchSolver(config)
         vfunc = VirtualFunction()
         vfunc.load_default()
         solver.blackbox = vfunc

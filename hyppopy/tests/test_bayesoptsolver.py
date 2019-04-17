@@ -12,7 +12,6 @@
 # See LICENSE
 
 import unittest
-import matplotlib.pylab as plt
 
 from hyppopy.solvers.BayesOptSolver import *
 from hyppopy.VirtualFunction import VirtualFunction
@@ -28,25 +27,23 @@ class BayesOptSolverTestSuite(unittest.TestCase):
         config = {
             "hyperparameter": {
                 "axis_00": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [0, 800],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
                     "domain": "uniform",
                     "data": [-1, 1],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "uniform",
                     "data": [0, 10],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 10},
-                "custom": {}
-            }}
+            "max_iterations": 10,
+            }
 
         project = HyppopyProject(config)
         solver = BayesOptSolver(project)

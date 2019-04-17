@@ -12,8 +12,6 @@
 # See LICENSE
 
 import os
-import copy
-import random
 import logging
 import warnings
 import itertools
@@ -78,11 +76,11 @@ class QuasiRandomSampleGenerator(object):
 
     def set_axis(self, name, data, domain, dtype):
         if domain == "categorical":
-            if dtype == "int":
+            if dtype is int:
                 data = [int(i) for i in data]
-            elif dtype == "str":
+            elif dtype is str:
                 data = [str(i) for i in data]
-            elif dtype == "float" or dtype == "double":
+            elif dtype is float:
                 data = [float(i) for i in data]
             self._categorical.append({"name": name, "data": data, "type": dtype})
         else:
@@ -161,7 +159,7 @@ class QuasiRandomSampleGenerator(object):
             name = self._numerical[n]["name"]
             rnd = np.random.random()
             param = rng[0] + rnd*abs(rng[1]-rng[0])
-            if self._numerical[n]["type"] == "int":
+            if self._numerical[n]["type"] is int:
                 param = int(np.floor(param))
             pset[name] = param
         for cat in self._categorical:
@@ -178,6 +176,13 @@ class QuasiRandomsearchSolver(HyppopySolver):
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
         self._sampler = None
+
+    def define_interface(self):
+        self.add_member("max_iterations", int)
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "normal", "loguniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)

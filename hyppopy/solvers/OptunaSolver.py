@@ -31,13 +31,20 @@ class OptunaSolver(HyppopySolver):
         HyppopySolver.__init__(self, project)
         self._searchspace = None
 
+    def define_interface(self):
+        self.add_member("max_iterations", int)
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="type", dtype=type)
+
     def reformat_parameter(self, params):
         out_params = {}
         for name, value in params.items():
             if self._searchspace[name]["domain"] == "categorical":
                 out_params[name] = self._searchspace[name]["data"][int(np.round(value))]
             else:
-                if self._searchspace[name]["type"] == "int":
+                if self._searchspace[name]["type"] is int:
                     out_params[name] = int(np.round(value))
                 else:
                     out_params[name] = value

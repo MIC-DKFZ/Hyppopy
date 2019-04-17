@@ -31,6 +31,13 @@ class OptunitySolver(HyppopySolver):
         self._solver_info = None
         self.opt_trials = None
 
+    def define_interface(self):
+        self.add_member("max_iterations", int)
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="type", dtype=type)
+
     def loss_function_call(self, params):
         for key in params.keys():
             if self.project.get_typeof(key) is int:
@@ -55,10 +62,6 @@ class OptunitySolver(HyppopySolver):
                 if key == 'domain' and value == 'categorical':
                     categorical[name] = pset
                 elif key == 'domain':
-                    if value != 'uniform':
-                        msg = "Warning: Optunity cannot handle {} domain. Only uniform and categorical domains are supported!".format(value)
-                        warnings.warn(msg)
-                        LOG.warning(msg)
                     uniform[name] = pset
         return categorical, uniform
 

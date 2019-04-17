@@ -11,7 +11,7 @@
 #
 # See LICENSE
 
-import warnings
+import copy
 
 from hyppopy.globals import *
 
@@ -22,96 +22,56 @@ LOG.setLevel(DEBUGLEVEL)
 class HyppopyProject(object):
 
     def __init__(self, config=None):
-        self._hyperparameter = {}
-        self._settings = {}
-        self._extmembers = []
+        self._data = {HYPERPARAMETERPATH: {}, SETTINGSPATH: {}}
         if config is not None:
             self.set_config(config)
 
-    def clear(self):
-        self._hyperparameter = {}
-        self._settings = {}
-        for added in self._extmembers:
-            if added in self.__dict__.keys():
-                del self.__dict__[added]
-        self._extmembers = []
-
     def set_config(self, config):
-        self.clear()
-        assert isinstance(config, dict), "Input Error, config of type {} not supported!".format(type(config))
-        assert HYPERPARAMETERPATH in config.keys(), "Missing hyperparameter section in config dict"
-        #assert SETTINGSPATH in config.keys(), "Missing settings section in config dict"
-        # if not SETTINGSPATH in config.keys():
-        #     config[SETTINGSPATH] = {"solver": {"max_iterations": DEFAULTITERATIONS}}
-        #     msg = "config dict had no section {0}/solver/max_iterations, set default value: {1}".format(SETTINGSPATH, DEFAULTITERATIONS)
-        #     warnings.warn(msg)
-        #     LOG.warning(msg)
-        # elif not "max_iterations" in config[SETTINGSPATH].keys():
-        #     config[SETTINGSPATH]["solver"] = {"max_iterations": DEFAULTITERATIONS}
-        #     msg = "config dict had no section {0}/solver/max_iterations, set default value: {1}".format(SETTINGSPATH, DEFAULTITERATIONS)
-        #     warnings.warn(msg)
-        #     LOG.warning(msg)
-        self._hyperparameter = config[HYPERPARAMETERPATH]
-        if SETTINGSPATH in config.keys():
-            self._settings = config[SETTINGSPATH]
+        assert isinstance(config, dict), "precondition violation, config needs to be of type dict, got {}".format(type(config))
+        confic_cp = copy.deepcopy(config)
+        if HYPERPARAMETERPATH in confic_cp.keys():
+            self._data[HYPERPARAMETERPATH] = confic_cp[HYPERPARAMETERPATH]
+            del confic_cp[HYPERPARAMETERPATH]
+        self._data[SETTINGSPATH] = confic_cp
         self.parse_members()
 
-    def add_hyperparameter(self, **kwargs):
-        assert 'name' in kwargs.keys(), "precondition violation, obligatory parameter name not found!"
-        assert 'domain' in kwargs.keys(), "precondition violation, obligatory parameter domain not found!"
-        assert 'data' in kwargs.keys(), "precondition violation, obligatory parameter data not found!"
-        assert 'dtype' in kwargs.keys(), "precondition violation, obligatory parameter dtype not found!"
-        name = kwargs['name']; del kwargs['name']
-        domain = kwargs['domain']; del kwargs['domain']
-        data = kwargs['data']; del kwargs['data']
-        dtype = kwargs['dtype']; del kwargs['dtype']
-        assert isinstance(name, str), "precondition violation, name of type {} not allowed, expect str!".format(type(name))
-        assert isinstance(domain, str), "precondition violation, domain of type {} not allowed, expect str!".format(type(domain))
-        assert domain in SUPPORTED_DOMAINS, "domain {} not supported, expect {}!".format(domain, SUPPORTED_DOMAINS)
-        assert isinstance(data, list) or isinstance(data, tuple), "precondition violation, data of type {} not allowed, expect list or tuple!".format(type(data))
-        if domain != "categorical":
-            assert len(data) == 3 or len(data) == 2, "precondition violation, data must be a list of len 2 or 3"
-        assert isinstance(dtype, str), "precondition violation, dtype of type {} not allowed, expect str!".format(type(dtype))
-        assert dtype in SUPPORTED_DTYPES, "precondition violation, dtype {} not supported, expect {}!".format(dtype, SUPPORTED_DTYPES)
-        self._hyperparameter[name] = {"domain": domain, "data": data, "type": dtype}
-        for key, value in kwargs.items():
-            self._hyperparameter[name][key] = value
+    def set_hyperparameter(self, params):
+        assert isinstance(params, dict), "precondition violation, params needs to be of type dict, got {}".format(type(params))
+        self._data[HYPERPARAMETERPATH] = params
 
-    def add_settings(self, section, name, value):
-        assert isinstance(section, str), "precondition violation, section of type {} not allowed, expect str!".format(type(section))
-        assert isinstance(name, str), "precondition violation, name of type {} not allowed, expect str!".format(type(name))
-        if section not in self._settings.keys():
-            self._settings[section] = {}
-        self._settings[section][name] = value
+    def set_settings(self, **kwargs):
+        self._data[SETTINGSPATH] = kwargs
+        self.parse_members()
+
+    def add_hyperparameter(self, name, **kwargs):
+        assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
+        self._data[HYPERPARAMETERPATH][name] = kwargs
+
+    def add_setting(self, name, value):
+        assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
+        self._data[SETTINGSPATH][name] = value
         self.parse_members()
 
     def parse_members(self):
-        for section_name, content in self.settings.items():
-            for name, value in content.items():
-                member_name = section_name + "_" + name
-                if member_name not in self._extmembers:
-                    setattr(self, member_name, value)
-                    self._extmembers.append(member_name)
-                else:
-                    self.__dict__[member_name] = value
+        for name, value in self.settings.items():
+            if name not in self.__dict__.keys():
+                setattr(self, name, value)
+            else:
+                self.__dict__[name] = value
 
-    def get_typeof(self, hyperparametername):
-        if not hyperparametername in self.hyperparameter.keys():
-            return None
-        dtype = self.hyperparameter[hyperparametername]["type"]
-        if dtype == 'str':
-            return str
-        if dtype == 'int':
-            return int
-        if dtype == 'float':
-            return float
+    def get_typeof(self, name):
+        if not name in self.hyperparameter.keys():
+            raise LookupError("Typechecking failed, couldn't find hyperparameter {}!".format(name))
+        if not "type" in self.hyperparameter[name].keys():
+            raise LookupError("Typechecking failed, couldn't find hyperparameter signature type!")
+        dtype = self.hyperparameter[name]["type"]
+        return dtype
 
     @property
     def hyperparameter(self):
-        return self._hyperparameter
+        return self._data[HYPERPARAMETERPATH]
 
     @property
     def settings(self):
-        return self._settings
-
+        return self._data[SETTINGSPATH]
 

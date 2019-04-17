@@ -26,13 +26,13 @@ class GridsearchTestSuite(unittest.TestCase):
     def test_get_uniform_axis_sample(self):
         drange = [0, 10]
         N = 11
-        data = get_uniform_axis_sample(drange[0], drange[1], N, "float")
+        data = get_uniform_axis_sample(drange[0], drange[1], N, float)
         for i in range(11):
             self.assertEqual(float(i), data[i])
 
         drange = [-10, 10]
         N = 21
-        data = get_uniform_axis_sample(drange[0], drange[1], N, "int")
+        data = get_uniform_axis_sample(drange[0], drange[1], N, int)
         self.assertEqual(data[0], -10)
         self.assertEqual(data[20], 10)
         self.assertEqual(data[10], 0)
@@ -63,7 +63,7 @@ class GridsearchTestSuite(unittest.TestCase):
 
         bounds = (-5, 5)
         N = 10
-        data = get_gaussian_axis_sample(bounds[0], bounds[1], N, "float")
+        data = get_gaussian_axis_sample(bounds[0], bounds[1], N, float)
         for n in range(N):
             self.assertAlmostEqual(res[n], data[n])
 
@@ -81,7 +81,7 @@ class GridsearchTestSuite(unittest.TestCase):
 
         bounds = (-5, 5)
         N = 11
-        data = get_gaussian_axis_sample(bounds[0], bounds[1], N, "float")
+        data = get_gaussian_axis_sample(bounds[0], bounds[1], N, float)
         for n in range(N):
             self.assertAlmostEqual(res[n], data[n])
 
@@ -98,7 +98,7 @@ class GridsearchTestSuite(unittest.TestCase):
                100.00000000000004]
         bounds = (0.001, 1e2)
         N = 10
-        data = get_logarithmic_axis_sample(bounds[0], bounds[1], N, "float")
+        data = get_logarithmic_axis_sample(bounds[0], bounds[1], N, float)
         for n in range(N):
             self.assertAlmostEqual(res[n], data[n])
 
@@ -115,7 +115,7 @@ class GridsearchTestSuite(unittest.TestCase):
                100.00000000000004]
         bounds = (0.001, 1e2)
         N = 11
-        data = get_logarithmic_axis_sample(bounds[0], bounds[1], N, "float")
+        data = get_logarithmic_axis_sample(bounds[0], bounds[1], N, float)
         for n in range(N):
             self.assertAlmostEqual(res[n], data[n])
 
@@ -125,30 +125,27 @@ class GridsearchTestSuite(unittest.TestCase):
                 "value 1": {
                     "domain": "uniform",
                     "data": [0, 20],
-                    "type": "int",
+                    "type": int,
                     "frequency": 11
                 },
                 "value 2": {
                     "domain": "normal",
                     "data": [0, 20.0],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "value 3": {
                     "domain": "loguniform",
                     "data": [1, 10000],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "categorical": {
                     "domain": "categorical",
                     "data": ["a", "b"],
-                    "type": "str"
+                    "type": str,
+                    "frequency": 1
                 }
-            },
-            "settings": {
-                "solver": {},
-                "custom": {}
             }}
         res_labels = ['value 1', 'value 2', 'value 3', 'categorical']
         res_values = [[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
@@ -157,8 +154,7 @@ class GridsearchTestSuite(unittest.TestCase):
                       [1.0, 2.51188643150958, 6.309573444801933, 15.848931924611136, 39.810717055349734,
                         100.00000000000004, 251.18864315095806, 630.9573444801938, 1584.8931924611143,
                         3981.071705534977, 10000.00000000001],
-                      ['a', 'b']
-                      ]
+                      ['a', 'b']]
         solver = GridsearchSolver(config)
         searchspace = solver.convert_searchspace(config["hyperparameter"])
         for n in range(len(res_labels)):
@@ -173,25 +169,21 @@ class GridsearchTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "uniform",
                     "data": [0, 800],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "axis_01": {
                     "domain": "uniform",
                     "data": [-1, 1],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "axis_02": {
                     "domain": "uniform",
                     "data": [0, 10],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 }
-            },
-            "settings": {
-                "solver": {},
-                "custom": {}
             }}
 
         project = HyppopyProject(config)
@@ -216,25 +208,21 @@ class GridsearchTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "normal",
                     "data": [100, 300],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "axis_01": {
                     "domain": "normal",
                     "data": [0, 0.8],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 },
                 "axis_02": {
                     "domain": "normal",
                     "data": [4, 6],
-                    "type": "float",
+                    "type": float,
                     "frequency": 11
                 }
-            },
-            "settings": {
-                "solver": {},
-                "custom": {}
             }}
 
         project = HyppopyProject(config)
@@ -259,25 +247,21 @@ class GridsearchTestSuite(unittest.TestCase):
                 "axis_00": {
                     "domain": "loguniform",
                     "data": [0.00001, 300],
-                    "type": "float",
+                    "type": float,
                     "frequency": 21
                 },
                 "axis_01": {
                     "domain": "loguniform",
                     "data": [0.00001, 0.8],
-                    "type": "float",
+                    "type": float,
                     "frequency": 21
                 },
                 "axis_02": {
                     "domain": "loguniform",
                     "data": [4, 6],
-                    "type": "float",
+                    "type": float,
                     "frequency": 21
                 }
-            },
-            "settings": {
-                "solver": {},
-                "custom": {}
             }}
 
         project = HyppopyProject(config)

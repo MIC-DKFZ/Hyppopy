@@ -136,10 +136,10 @@ class QuasiRandomsearchTestSuite(unittest.TestCase):
 
     def test_QuasiRandomSampleGenerator(self):
         N_samples = 10*10*10
-        axis_data = {"p1": {"domain": "loguniform", "data": [1, 10000], "type": "float"},
-                     "p2": {"domain": "normal", "data": [-5, 5], "type": "float"},
-                     "p3": {"domain": "uniform", "data": [0, 10], "type": "float"},
-                     "p4": {"domain": "categorical", "data": [False, True], "type": "bool"}}
+        axis_data = {"p1": {"domain": "loguniform", "data": [1, 10000], "type": float},
+                     "p2": {"domain": "normal", "data": [-5, 5], "type": float},
+                     "p3": {"domain": "uniform", "data": [0, 10], "type": float},
+                     "p4": {"domain": "categorical", "data": [False, True], "type": bool}}
         sampler = QuasiRandomSampleGenerator(N_samples, 0.1)
         for name, axis in axis_data.items():
             sampler.set_axis(name, axis["data"], axis["domain"], axis["type"])
@@ -154,6 +154,81 @@ class QuasiRandomsearchTestSuite(unittest.TestCase):
             self.assertTrue(0 <= sample["p3"] <= 10)
             self.assertTrue(isinstance(sample["p4"], bool))
         self.assertTrue(sampler.next() is None)
+
+    def test_solver_uniform(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "uniform",
+                    "data": [0, 800],
+                    "type": float
+                },
+                "axis_01": {
+                    "domain": "uniform",
+                    "data": [-1, 1],
+                    "type": float
+                },
+                "axis_02": {
+                    "domain": "uniform",
+                    "data": [0, 10],
+                    "type": float
+                }
+            },
+            "max_iterations": 300
+        }
+
+        project = HyppopyProject(config)
+        solver = QuasiRandomsearchSolver(project)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertTrue(0 <= best['axis_00'] <= 800)
+        self.assertTrue(-1 <= best['axis_01'] <= 1)
+        self.assertTrue(0 <= best['axis_02'] <= 10)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
+    def test_solver_normal(self):
+        config = {
+            "hyperparameter": {
+                "axis_00": {
+                    "domain": "normal",
+                    "data": [500, 650],
+                    "type": float
+                },
+                "axis_01": {
+                    "domain": "normal",
+                    "data": [0, 1],
+                    "type": float
+                },
+                "axis_02": {
+                    "domain": "normal",
+                    "data": [4, 5],
+                    "type": float
+                }
+            },
+            "max_iterations": 500,
+            }
+
+        solver = QuasiRandomsearchSolver(config)
+        vfunc = VirtualFunction()
+        vfunc.load_default()
+        solver.blackbox = vfunc
+        solver.run(print_stats=False)
+        df, best = solver.get_results()
+        self.assertTrue(500 <= best['axis_00'] <= 650)
+        self.assertTrue(0 <= best['axis_01'] <= 1)
+        self.assertTrue(4 <= best['axis_02'] <= 5)
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
 
 
 if __name__ == '__main__':

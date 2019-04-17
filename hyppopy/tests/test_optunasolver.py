@@ -28,25 +28,23 @@ class OptunaSolverTestSuite(unittest.TestCase):
         config = {
             "hyperparameter": {
                 "axis_00": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [300, 800],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_01": {
-                    "domain": "normal",
+                    "domain": "uniform",
                     "data": [-1, 1],
-                    "type": "float"
+                    "type": float
                 },
                 "axis_02": {
                     "domain": "uniform",
                     "data": [0, 10],
-                    "type": "float"
+                    "type": float
                 }
             },
-            "settings": {
-                "solver": {"max_iterations": 100},
-                "custom": {}
-            }}
+            "max_iterations": 100
+        }
 
         project = HyppopyProject(config)
         solver = OptunaSolver(project)

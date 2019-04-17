@@ -36,10 +36,9 @@ def get_uniform_axis_sample(a, b, N, dtype):
     """
     assert a < b, "condition a < b violated!"
     assert isinstance(N, int), "condition N of type int violated!"
-    assert isinstance(dtype, str), "condition type of type str violated!"
-    if dtype == "int":
+    if dtype is int:
         return list(np.linspace(a, b, N).astype(int))
-    elif dtype == "float" or dtype == "double":
+    elif dtype is float:
         return list(np.linspace(a, b, N))
     else:
         raise AssertionError("dtype {} not supported for uniform sampling!".format(dtype))
@@ -79,14 +78,13 @@ def get_gaussian_axis_sample(a, b, N, dtype):
     """
     assert a < b, "condition a < b violated!"
     assert isinstance(N, int), "condition N of type int violated!"
-    assert isinstance(dtype, str), "condition type of type str violated!"
 
     data = []
     for n in range(N):
         x = a + get_norm_cdf(N)[n]*(b-a)
-        if dtype == "int":
+        if dtype is int:
             data.append(int(x))
-        elif dtype == "float" or dtype == "double":
+        elif dtype is float:
             data.append(x)
         else:
             raise AssertionError("dtype {} not supported for uniform sampling!".format(dtype))
@@ -107,7 +105,6 @@ def get_logarithmic_axis_sample(a, b, N, dtype):
     assert a < b, "condition a < b violated!"
     assert a > 0, "condition a > 0 violated!"
     assert isinstance(N, int), "condition N of type int violated!"
-    assert isinstance(dtype, str), "condition type of type str violated!"
 
     # convert input range into exponent range
     lexp = np.log(a)
@@ -117,9 +114,9 @@ def get_logarithmic_axis_sample(a, b, N, dtype):
     data = []
     for n in range(exp_range.shape[0]):
         x = np.exp(exp_range[n])
-        if dtype == "int":
+        if dtype is int:
             data.append(int(x))
-        elif dtype == "float" or dtype == "double":
+        elif dtype is float:
             data.append(x)
         else:
             raise AssertionError("dtype {} not supported for uniform sampling!".format(dtype))
@@ -134,7 +131,13 @@ class GridsearchSolver(HyppopySolver):
     """
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
-        self._has_maxiteration_field = False
+
+    def define_interface(self):
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "normal", "loguniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="frequency", dtype=int)
+        self.add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)

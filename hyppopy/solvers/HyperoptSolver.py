@@ -32,6 +32,13 @@ class HyperoptSolver(HyppopySolver):
         HyppopySolver.__init__(self, project)
         self._searchspace = None
 
+    def define_interface(self):
+        self.add_member("max_iterations", int)
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "normal", "loguniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="type", dtype=type)
+
     def loss_function(self, params):
         for name, p in self._searchspace.items():
             if p["domain"] != "categorical":
@@ -98,15 +105,10 @@ class HyperoptSolver(HyppopySolver):
         dtype = param_settings["dtype"]
         data = param_settings["data"]
 
-        assert isinstance(data, list), "precondition violation. data of type {} not allowed!".format(type(data))
-        assert len(data) >= 2, "precondition violation, data must be of length 2, [left_bound, right_bound]"
-        assert isinstance(domain, str), "precondition violation. domain of type {} not allowed!".format(type(domain))
-        assert isinstance(dtype, str), "precondition violation. dtype of type {} not allowed!".format(type(dtype))
-
         if domain == "uniform":
-            if dtype == "float" or dtype == "double":
+            if dtype is float:
                 return hp.uniform(name, data[0], data[1])
-            elif dtype == "int":
+            elif dtype is int:
                 data = list(np.arange(int(data[0]), int(data[1] + 1)))
                 return hp.choice(name, data)
             else:
@@ -114,7 +116,7 @@ class HyperoptSolver(HyppopySolver):
                 LOG.error(msg)
                 raise LookupError(msg)
         elif domain == "loguniform":
-            if dtype == "float" or dtype == "double":
+            if dtype is float:
                 if data[0] == 0:
                     data[0] += 1e-23
                 assert data[0] > 0, "precondition Violation, a < 0!"
@@ -131,7 +133,7 @@ class HyperoptSolver(HyppopySolver):
                 LOG.error(msg)
                 raise LookupError(msg)
         elif domain == "normal":
-            if dtype == "float" or dtype == "double":
+            if dtype is float:
                 mu = (data[1] - data[0]) / 2.0
                 sigma = mu / 3
                 return hp.normal(name, data[0] + mu, sigma)
@@ -140,9 +142,9 @@ class HyperoptSolver(HyppopySolver):
                 LOG.error(msg)
                 raise LookupError(msg)
         elif domain == "categorical":
-            if dtype == 'str':
+            if dtype is str:
                 return hp.choice(name, data)
-            elif dtype == 'bool':
+            elif dtype is bool:
                 data = []
                 for elem in data:
                     if elem == "true" or elem == "True" or elem == 1 or elem == "1":

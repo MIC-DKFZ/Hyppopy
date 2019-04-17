@@ -30,12 +30,12 @@ def draw_uniform_sample(param):
     :param param: [dict] input hyperparameter discription
     :return: random sample value of type data['type']
     """
-    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['type'] is not str, "cannot sample a string list!"
     assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     s = random.random()
     s *= np.abs(param['data'][1] - param['data'][0])
     s += param['data'][0]
-    if param['type'] == 'int':
+    if param['type'] is int:
         s = int(np.round(s))
         if s < param['data'][0]:
             s = int(param['data'][0])
@@ -50,7 +50,7 @@ def draw_normal_sample(param):
     :param param: [dict] input hyperparameter discription
     :return: random sample value of type data['type']
     """
-    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['type'] is not str, "cannot sample a string list!"
     assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     mu = (param['data'][1] - param['data'][0]) / 2
     sigma = mu / 3
@@ -60,7 +60,7 @@ def draw_normal_sample(param):
     if s < param['data'][0]:
         s = param['data'][0]
     s = float(s)
-    if param["type"] == "int":
+    if param["type"] is int:
         s = int(np.round(s))
     return s
 
@@ -71,7 +71,7 @@ def draw_loguniform_sample(param):
     :param param: [dict] input hyperparameter discription
     :return: random sample value of type data['type']
     """
-    assert param['type'] != 'str', "cannot sample a string list!"
+    assert param['type'] is not str, "cannot sample a string list!"
     assert param['data'][0] < param['data'][1], "precondition violation: data[0] > data[1]!"
     p = copy.deepcopy(param)
     p['data'][0] = np.log(param['data'][0])
@@ -103,9 +103,6 @@ def draw_sample(param):
     :return: random sample value of type data['type']
     """
     assert isinstance(param, dict), "input error, hyperparam descriptors of type {} not allowed!".format(type(param))
-    assert 'domain' in param.keys(), "input error, hyperparam descriptors need a domain key!"
-    assert 'data' in param.keys(), "input error, hyperparam descriptors need a data key!"
-    assert 'type' in param.keys(), "input error, hyperparam descriptors need a type key!"
     if param['domain'] == "uniform":
         return draw_uniform_sample(param)
     elif param['domain'] == "normal":
@@ -125,6 +122,13 @@ class RandomsearchSolver(HyppopySolver):
     from the parameter space each iteration."""
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
+
+    def define_interface(self):
+        self.add_member("max_iterations", int)
+        self.add_hyperparameter_signature(name="domain", dtype=str,
+                                          options=["uniform", "normal", "loguniform", "categorical"])
+        self.add_hyperparameter_signature(name="data", dtype=list)
+        self.add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)
