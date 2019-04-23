@@ -43,20 +43,16 @@ config = {
     "x": {
         "domain": "normal",
         "data": [-10.0, 10.0],
-        "type": "float"
+        "type": float
     },
     "y": {
         "domain": "uniform",
         "data": [-10.0, 10.0],
-        "type": "float"
+        "type": float
     }
 },
-"settings": {
-    "solver": {
-        "max_iterations": 500
-    },
-    "custom": {}
-}}
+"max_iterations": 500
+}
 
 
 # When creating a HyppopyProject instance we

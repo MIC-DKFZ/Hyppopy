@@ -30,25 +30,20 @@ config = {
     "C": {
         "domain": "uniform",
         "data": [0.0001, 20],
-        "type": "float"
+        "type": float
     },
     "gamma": {
         "domain": "uniform",
         "data": [0.0001, 20.0],
-        "type": "float"
+        "type": float
     },
     "kernel": {
         "domain": "categorical",
         "data": ["linear", "sigmoid", "poly", "rbf"],
-        "type": "str"
-    }
-},
-"settings": {
-    "solver": {
-        "max_iterations": 500
-    },
-    "custom": {}
-}}
+        "type": str
+    }},
+    "max_iterations": 500
+}
 
 # When creating a HyppopyProject instance we
 # pass the config dictionary to the constructor.
@@ -56,14 +51,14 @@ project = HyppopyProject(config=config)
 
 # When building the project programmatically we can also use the methods
 # add_hyperparameter and add_settings
-project.clear()
+project = HyppopyProject()
 project.add_hyperparameter(name="C", domain="uniform", data=[0.0001, 20], dtype="float")
 project.add_hyperparameter(name="kernel", domain="categorical", data=["linear", "sigmoid"], dtype="str")
-project.add_settings(section="solver", name="max_iterations", value=500)
+project.set_settings(max_iterations=500)
 
 # The custom section can be used freely
-project.add_settings(section="custom", name="my_var", value=10)
+project.add_setting("my_var", 10)
 
 # Settings are automatically transformed to member variables of the project class with the section as prefix
-if project.solver_max_iterations < 1000 and project.custom_my_var == 10:
+if project.max_iterations < 1000 and project.my_var == 10:
     print("Project configured!")

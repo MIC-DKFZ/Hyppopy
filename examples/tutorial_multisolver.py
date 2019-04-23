@@ -54,32 +54,27 @@ config = {
     "C": {
         "domain": "uniform",
         "data": [0.0001, 20],
-        "type": "float"
+        "type": float
     },
     "gamma": {
         "domain": "uniform",
         "data": [0.0001, 20.0],
-        "type": "float"
+        "type": float
     },
     "kernel": {
         "domain": "categorical",
         "data": ["linear", "sigmoid", "poly", "rbf"],
-        "type": "str"
+        "type": str
     },
     "decision_function_shape": {
         "domain": "categorical",
         "data": ["ovo", "ovr"],
-        "type": "str"
+        "type": str
     }
 },
-"settings": {
-    "solver": {
-        "max_iterations": 100
-    },
-    "custom": {
-        "use_solver": "quasirandomsearch"
-    }
-}}
+"max_iterations": 100,
+"solver": "quasirandomsearch"
+}
 
 
 # When creating a HyppopyProject instance we
@@ -88,8 +83,8 @@ project = HyppopyProject(config=config)
 
 # demonstration of the custom parameter access
 print("-"*30)
-print("max_iterations:\t{}".format(project.solver_max_iterations))
-print("solver chosen -> {}".format(project.custom_use_solver))
+print("max_iterations:\t{}".format(project.max_iterations))
+print("solver chosen -> {}".format(project.solver))
 print("-"*30)
 
 

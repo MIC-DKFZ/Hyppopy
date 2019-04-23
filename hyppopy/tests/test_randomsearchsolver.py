@@ -25,8 +25,7 @@ class RandomsearchTestSuite(unittest.TestCase):
         pass
 
     def test_draw_uniform_sample(self):
-        param = {"data": [0, 1, 10],
-                 "type": float}
+        param = {"data": [0, 1, 10], "type": float}
         values = []
         for i in range(10000):
             values.append(draw_uniform_sample(param))
@@ -38,8 +37,7 @@ class RandomsearchTestSuite(unittest.TestCase):
         self.assertTrue(std < 0.05)
         self.assertTrue(0.9 < mean < 1.1)
 
-        param = {"data": [0, 10, 11],
-                 "type": int}
+        param = {"data": [0, 10, 11], "type": int}
         values = []
         for i in range(10000):
             values.append(draw_uniform_sample(param))
@@ -52,8 +50,7 @@ class RandomsearchTestSuite(unittest.TestCase):
         self.assertTrue(0.09 < mean < 0.11)
 
     def test_draw_normal_sample(self):
-        param = {"data": [0, 10, 11],
-                 "type": int}
+        param = {"data": [0, 10, 11], "type": int}
         values = []
         for i in range(10000):
             values.append(draw_normal_sample(param))
@@ -66,8 +63,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             self.assertTrue(hist[0][i] - hist[0][i+1] > 0)
 
     def test_draw_loguniform_sample(self):
-        param = {"data": [1, 1000, 11],
-                 "type": float}
+        param = {"data": [1, 1000, 11], "type": float}
         values = []
         for i in range(10000):
             values.append(draw_loguniform_sample(param))
@@ -79,8 +75,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             self.assertTrue((hist[0][i] - hist[0][i+1]) > 0)
 
     def test_draw_categorical_sample(self):
-        param = {"data": [1, 2, 3],
-                 "type": int}
+        param = {"data": [1, 2, 3], "type": int}
         values = []
         for i in range(10000):
             values.append(draw_categorical_sample(param))

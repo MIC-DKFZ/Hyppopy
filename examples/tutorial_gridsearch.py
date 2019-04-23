@@ -32,23 +32,22 @@ config = {
 "hyperparameter": {
     "C": {
         "domain": "uniform",
-        "data": [0.0001, 20, 20],
-        "type": "float"
+        "data": [0.0001, 20],
+        "type": float,
+        "frequency": 20
     },
     "gamma": {
         "domain": "uniform",
-        "data": [0.0001, 20.0, 20],
-        "type": "float"
+        "data": [0.0001, 20.0],
+        "type": float,
+        "frequency": 20
     },
     "kernel": {
         "domain": "categorical",
         "data": ["linear", "sigmoid", "poly", "rbf"],
-        "type": "str"
+        "type": str,
+        "frequency": 1
     }
-},
-"settings": {
-    "solver": {},
-    "custom": {}
 }}
 
 # When creating a HyppopyProject instance we

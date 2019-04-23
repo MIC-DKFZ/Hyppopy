@@ -9,8 +9,7 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 * [Hyperopt](http://hyperopt.github.io/hyperopt/)
 * [Optunity](https://optunity.readthedocs.io/en/latest/user/index.html)
 * [Optuna](https://optuna.org/)
-* [BayesianOptimization](https://github.com/fmfn/BayesianOptimization)
-* Quasi-Randomsearch Solver 
+* Quasi-Randomsearch Solver
 * Randomsearch Solver
 * Gridsearch Solver
 
@@ -55,12 +54,12 @@ config = {
     "myNumber": {
         "domain": "uniform",
         "data": [0, 100],
-        "type": "float"
+        "type": float
     },
     "myOption": {
         "domain": "categorical",
         "data": ["a", "b", "c"],
-        "type": "str"
+        "type": str
     }
 }}
 
@@ -68,98 +67,69 @@ config = {
 # the constructor. Alternatively one can use set_config method.
 project = HyppopyProject(config=config)
 
-# To demonstrate the second option we clear the project
-project.clear()
 
-# and add the parameter again using the member function add_hyperparameter
-project.add_hyperparameter(name="myNumber", domain="uniform", data=[0, 100], dtype="float")
-project.add_hyperparameter(name="myOption", domain="categorical", data=["a", "b", "c"], dtype="str")
+# We can also add hyperparameter using the add_hyperparameter method
+project = HyppopyProject()
+project.add_hyperparameter(name="myNumber", domain="uniform", data=[0, 100], dtype=float)
+project.add_hyperparameter(name="myOption", domain="categorical", data=["a", "b", "c"], dtype=str)
 ```
 
+Additional settings for the solver or custom parameters can be set either as additional entries in the config dict, or via the methods set_settings or add_setting:
 ```python
 from hyppopy.HyppopyProject import HyppopyProject
 
-# We might have seen a warning: 'UserWarning: config dict had no
-# section settings/solver/max_iterations, set default value: 500'
-# when executing the example above. This is due to the fact that
-# most solvers need a value for a maximum number of iterations.
-# To take care of solver settings (there might be more in the future)
-# one can set a second section called settings. The settings section
-# again is splitted into a subsection 'solver' and a subsection 'custom'.
-# When adding max_iterations to the section settings/solver we can change
-# the number of iterations the solver is doing. All solver except of the
-# GridsearchSolver make use of the value max_iterations.
-# The usage of the custom section is demonstrated later.
 config = {
 "hyperparameter": {
     "myNumber": {
         "domain": "uniform",
         "data": [0, 100],
-        "type": "float"
+        "type": float
     },
     "myOption": {
         "domain": "categorical",
         "data": ["a", "b", "c"],
-        "type": "str"
+        "type": str
     }
 },
-"settings": {
-    "solver": {
-        "max_iterations": 500
-    },
-    "custom": {}
-}}
+"max_iterations": 500,
+"anything_you_want": 42
+}
 project = HyppopyProject(config=config)
-```
+print("max_iterations:", project.max_iterations)
+print("anything_you_want:", project.anything_you_want)
 
-The settings added are automatically converted to a class member with a prefix_ where prefix is the name of the subsection. One can make use of this feature to build custom workflows by adding params to the custom section. More interesting is this feature when developing your own solver.
-
-```python
-from hyppopy.HyppopyProject import HyppopyProject
-
-# Creating a HyppopyProject instance
+#alternatively
 project = HyppopyProject()
-project.add_hyperparameter(name="x", domain="uniform", data=[-10, 10], dtype="float")
-project.add_hyperparameter(name="y", domain="uniform", data=[-10, 10], dtype="float")
-project.add_settings(section="solver", name="max_iterations", value=300)
-project.add_settings(section="custom", name="my_param1", value=True)
-project.add_settings(section="custom", name="my_param2", value=42)
+project.set_settings(max_iterations=500, anything_you_want=42)
+print("anything_you_want:", project.anything_you_want)
 
-print("What is max_iterations value? {}".format(project.solver_max_iterations))
-if project.custom_my_param1:
-	print("What is the answer? {}".format(project.custom_my_param2))
-else:
-	print("What is the answer? x")
+#alternatively
+project = HyppopyProject()
+project.add_setting(name="max_iterations", value=500)
+project.add_setting(name="anything_you_want", value=42)
+print("anything_you_want:", project.anything_you_want)
 ```
+
 
 #### The HyppopySolver classes
 
 Each solver is a child of the HyppopySolver class. This is only interesting if you're planning to write a new solver, we will discuss this in the section Solver Development. All solvers we can use to optimize our blackbox function are part of the module 'hyppopy.solver'. Below is a list of all solvers available along with their access key in squared brackets.
 
 * HyperoptSolver [hyperopt]
-
     _Bayes Optimization use Tree-Parzen Estimator, supports uniform, normal, loguniform and categorical parameter_
-* OptunitySolver [optunity] 
-    
+* OptunitySolver [optunity]
     _Particle Swarm Optimizer, supports uniform and categorical parameter_
-* OptunaSolver [optuna] 
-
+* OptunaSolver [optuna]
     _Bayes Optimization, supports uniform, and categorical parameter_
-* BayesOptSolver [bayesopt] 
-    
-    _Bayes Optimization, supports uniform, and categorical parameter_
-* RandomsearchSolver [randomsearch] 
-
+* RandomsearchSolver [randomsearch]
     _Naive randomized parameter search, supports uniform, normal, loguniform and categorical parameter_
-* QuasiRandomsearchSolver [quasirandomsearch] 
-
+* QuasiRandomsearchSolver [quasirandomsearch]
     _Randomized grid ensuring random sample drawing and a good space coverage, supports uniform, normal, loguniform and categorical parameter_
-* GridsearchSolver [gridsearch] 
-
+* GridsearchSolver [gridsearch]
     _Standard gridsearch, supports uniform, normal, loguniform and categorical parameter_
 
 
-There are two options to get a solver, we can import directly from the hyppopy.solver package or we use the SolverPool class. We look into both options by optimizing a simple function, starting with the direct import case.
+There are two options to get a solver, we can import directly from the hyppopy.solvers package or we use the SolverPool class. We look into both options by optimizing a simple function, starting with the direct import case.
 
 ```python
 # Import the HyppopyProject class
@@ -174,9 +144,9 @@ def my_loss_func(x, y):
 
 # Creating a HyppopyProject instance
 project = HyppopyProject()
-project.add_hyperparameter(name="x", domain="uniform", data=[-10, 10], dtype="float")
-project.add_hyperparameter(name="y", domain="uniform", data=[-10, 10], dtype="float")
-project.add_settings(section="solver", name="max_iterations", value=300)
+project.add_hyperparameter(name="x", domain="uniform", data=[-10, 10], type=float)
+project.add_hyperparameter(name="y", domain="uniform", data=[-10, 10], type=float)
+project.add_setting(name="max_iterations", value=300)
 
 # create a solver instance
 solver = HyperoptSolver(project)
@@ -193,7 +163,7 @@ print("Best Parameter Set:\n{}".format(best))
 print("*"*100)
 ```
 
-The SolverPool is a class keeping track of all solver classes. We have several options to ask the SolverPool for the desired solver. We can add an option called use_solver to our settings/custom section or to the project instance respectively, or we can use the solver access key (see solver listing above) to ask for the solver directly.
+The SolverPool is a class keeping track of all solver classes. We have several options to ask the SolverPool for the desired solver. We can add a setting called solver to our config or to the project instance respectively, or we can use the solver access key (see solver listing above) to ask for the solver directly.
 
 ```python
 # import the SolverPool class
@@ -208,16 +178,15 @@ def my_loss_func(x, y):
 
 # Creating a HyppopyProject instance
 project = HyppopyProject()
-project.add_hyperparameter(name="x", domain="uniform", data=[-10, 10], dtype="float")
-project.add_hyperparameter(name="y", domain="uniform", data=[-10, 10], dtype="float")
-project.add_settings(section="solver", name="max_iterations", value=300)
-project.add_settings(section="custom", name="use_solver", value="hyperopt")
+project.add_hyperparameter(name="x", domain="uniform", data=[-10, 10], type=float)
+project.add_hyperparameter(name="y", domain="uniform", data=[-10, 10], type=float)
+project.set_settings(max_iterations=300, solver="hyperopt")
 
 # create a solver instance. The SolverPool class is a singleton
 # and can be used without instanciating. It looks in the project
 # instance for the use_solver option and returns the correct solver.
 solver = SolverPool.get(project=project)
-# Another option without the usage of the use_solver field would be:
+# Another option without the usage of the solver field would be:
 # solver = SolverPool.get(solver_name='hyperopt', project=project)
 
 # pass the loss function to the solver
@@ -234,7 +203,7 @@ print("*"*100)
 ```
 
 #### The BlackboxFunction class
-To extend the possibilities beyond using parameter only loss function as in the examples above, the BlackboxFunction class can be used. This class is a wrapper class around the actual loss_function providing a more advanced access to data handling and a callback_function for accessing the solvers iteration loop.
+To extend the possibilities beyond using parameter only loss functions as in the examples above, we can use the BlackboxFunction class. This class is a wrapper class around the actual loss_function providing a more advanced access interface to data handling and a callback_function for accessing the solvers iteration loop.
 ```python
 # import the HyppopyProject class keeping track of inputs
 from hyppopy.HyppopyProject import HyppopyProject
@@ -247,11 +216,11 @@ from hyppopy.BlackboxFunction import BlackboxFunction
 
 # Create the HyppopyProject class instance
 project = HyppopyProject()
-project.add_hyperparameter(name="C", domain="uniform", data=[0.0001, 20], dtype="float")
-project.add_hyperparameter(name="gamma", domain="uniform", data=[0.0001, 20], dtype="float")
-project.add_hyperparameter(name="kernel", domain="categorical", data=["linear", "sigmoid", "poly", "rbf"], dtype="str")
-project.add_settings(section="solver", name="max_iterations", value=500)
-project.add_settings(section="custom", name="use_solver", value="optunity")
+project.add_hyperparameter(name="C", domain="uniform", data=[0.0001, 20], type=float)
+project.add_hyperparameter(name="gamma", domain="uniform", data=[0.0001, 20], type=float)
+project.add_hyperparameter(name="kernel", domain="categorical", data=["linear", "sigmoid", "poly", "rbf"], type=str)
+project.add_setting(name="max_iterations", value=500)
+project.add_setting(name="solver", value="optunity")
 
 
 # The BlackboxFunction signature is as follows:
@@ -284,7 +253,7 @@ from sklearn.model_selection import cross_val_score
 
 def my_dataloader_function(**kwargs):
     print("Dataloading...")
-    # kwargs['params'] allows accessing additional parameter passed, 
+    # kwargs['params'] allows accessing additional parameter passed,
     # see below my_preproc_param, my_dataloader_input.
     print("my loading argument: {}".format(kwargs['params']['my_dataloader_input']))
     iris_data = load_iris()
@@ -343,14 +312,16 @@ print("*"*100)
 
 #### The Parameter Space Domains
 
-Each hyperparameter needs a range and a domain specifier. The range, specified via 'data', is the left and right bound of an interval (!!!exception is the domain 'categorical', here 'data' is the actual list of data elements!!!) and the domain specifier the way this interval is sampled. Currently supported domains are:
+Each hyperparameter needs a range and a domain specifier. The range, specified via 'data', is the left and right bound of an interval (<span style="color:red">exception is the domain 'categorical', here 'data' is the actual list of data elements</span>) and the domain specifier the way this interval is sampled. Currently supported domains are:
 
 * uniform (samples the interval [a,b] evenly)
-* normal (a gaussian sampling of the interval [a,b] such that mu=a+(b-a)/2 and sigma=(b-a)/6)
-* loguniform (a logaritmic sampling of the iterval [a,b], such that the exponent e^x is sampled evenly x=[log(a),log(b)])
+* normal* (a gaussian sampling of the interval [a,b] such that mu=a+(b-a)/2 and sigma=(b-a)/6)
+* loguniform* (a logaritmic sampling of the iterval [a,b], such that the exponent e^x is sampled evenly x=[log(a),log(b)])
 * categorical (in this case data is not interpreted as interval but as actual list of objects)
 
-One exception is the GridsearchSolver, here we need to specifiy an interval and a number of samples using a frequency specifier. The max_iterations parameter is obsolet in this case, because each axis specifies an individual number of samples via frequency.
+*<span style="color:red">Not all domains are supported by all solvers, this might be fixed in the future, but until, the solver throws an error telling you that the domain is unknown.</span>
+
+When using the GridsearchSolver we need to specifiy an interval and a number of samples using a frequency specifier. The max_iterations parameter is obsolet in this case, because each axis specifies an individual number of samples via frequency.
 
 ```python
 # import the SolverPool class
@@ -365,8 +336,8 @@ def my_loss_func(x, y):
 
 # Creating a HyppopyProject instance
 project = HyppopyProject()
-project.add_hyperparameter(name="x", domain="uniform", data=[-1.1, 1], frequency=10, dtype="float")
-project.add_hyperparameter(name="y", domain="uniform", data=[-1.1, 1], frequency=12, dtype="float")
+project.add_hyperparameter(name="x", domain="uniform", data=[-1.1, 1], frequency=10, type=float)
+project.add_hyperparameter(name="y", domain="uniform", data=[-1.1, 1], frequency=12, type=float)
 
 solver = GridsearchSolver(project=project)
 

@@ -17,7 +17,6 @@ import os
 import logging
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.solvers.OptunaSolver import OptunaSolver
-from hyppopy.solvers.BayesOptSolver import BayesOptSolver
 from hyppopy.solvers.HyperoptSolver import HyperoptSolver
 from hyppopy.solvers.OptunitySolver import OptunitySolver
 from hyppopy.solvers.GridsearchSolver import GridsearchSolver
@@ -35,7 +34,6 @@ class SolverPool(metaclass=Singleton):
     def __init__(self):
         self._solver_list = ["hyperopt",
                              "optunity",
-                             "bayesopt",
                              "optuna",
                              "randomsearch",
                              "quasirandomsearch",
@@ -49,8 +47,8 @@ class SolverPool(metaclass=Singleton):
             assert isinstance(solver_name, str), "precondition violation, solver_name type str expected, got {} instead!".format(type(solver_name))
         if project is not None:
             assert isinstance(project, HyppopyProject), "precondition violation, project type HyppopyProject expected, got {} instead!".format(type(project))
-            if "custom_use_solver" in project.__dict__:
-                solver_name = project.custom_use_solver
+            if "solver" in project.__dict__:
+                solver_name = project.solver
         if solver_name not in self._solver_list:
             raise AssertionError("Solver named [{}] not implemented!".format(solver_name))
 
@@ -62,10 +60,6 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return OptunitySolver(project)
             return OptunitySolver()
-        elif solver_name == "bayesopt":
-            if project is not None:
-                return BayesOptSolver(project)
-            return BayesOptSolver()
         elif solver_name == "optuna":
             if project is not None:
                 return OptunaSolver(project)
