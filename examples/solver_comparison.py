@@ -24,12 +24,25 @@ from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.BlackboxFunction import BlackboxFunction
 
-OUTPUTDIR = "C:\\Users\\s635r\\Desktop\\solver_comparison"
-SOLVER = ["hyperopt", "optunity", "randomsearch", "optuna", "quasirandomsearch"]
-ITERATIONS = [50, 100, 250, 500]
-STATREPEATS = 50
-OVERWRITE = False
+#OUTPUTDIR = "C:\\Users\\s635r\\Desktop\\solver_comparison"
+OUTPUTDIR = "D:\\Projects\\Python\\hyppopy\\examples\\solver_comparison\\gfx"
 
+SOLVER = []
+#SOLVER.append("hyperopt")
+#SOLVER.append("optunity")
+#SOLVER.append("randomsearch")
+#SOLVER.append("optuna")
+SOLVER.append("quasirandomsearch")
+
+ITERATIONS = []
+ITERATIONS.append(50)
+ITERATIONS.append(100)
+ITERATIONS.append(250)
+ITERATIONS.append(500)
+
+STATREPEATS = 1
+
+OVERWRITE = False
 
 
 def compute_deviation(solver_name, vfunc_id, iterations, N, fname):
@@ -262,13 +275,14 @@ def print_durations(results, fname=None):
     f.close()
 
 
+id2dirmapping = {"5D": "data_I", "5D2": "data_II", "5D3": "data_II"}
 if __name__ == "__main__":
     vfunc_ID = "5D"
     if len(sys.argv) == 2:
         vfunc_ID = sys.argv[1]
     print("Start Evaluation on {}".format(vfunc_ID))
 
-    OUTPUTDIR = os.path.join(OUTPUTDIR, vfunc_ID)
+    OUTPUTDIR = os.path.join(OUTPUTDIR, id2dirmapping[vfunc_ID])
     if not os.path.isdir(OUTPUTDIR):
         os.makedirs(OUTPUTDIR)
 

@@ -321,7 +321,7 @@ Each hyperparameter needs a range and a domain specifier. The range, specified v
 
 *<span style="color:red">Not all domains are supported by all solvers, this might be fixed in the future, but until, the solver throws an error telling you that the domain is unknown.</span>
 
-When using the GridsearchSolver we need to specifiy an interval and a number of samples using a frequency specifier. The max_iterations parameter is obsolet in this case, because each axis specifies an individual number of samples via frequency.
+When using the GridsearchSolver we need to specifiy an interval and a number of samples using a frequency specifier. The max_iterations parameter is obsolet in this case, because each axis specifies an individual number of samples via frequency. This applies only to numerical space domains, categorical space domains need a frequency value of 1.
 
 ```python
 # import the SolverPool class
@@ -374,6 +374,6 @@ solver.run()
 
 You can also change the port and the server name in start_viewer(port=8097, server="http://localhost")
 
-## Acknowledgements: 
+## Acknowledgements:
 _This work is supported by the [Helmholtz Association Initiative and Networking](https://www.helmholtz.de/en/about_us/the_association/initiating_and_networking/) Fund under project number ZT-I-0003._
 <br>

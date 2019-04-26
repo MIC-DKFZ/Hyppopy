@@ -1,0 +1,138 @@
+\subsection{Virtual Function I}
+The figures below are depicting the axis plots of the virtual hyperparameter space function I to be optimized with the available hyppopy solvers. 
+\begin{figure}[h]
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/axis_00} 
+		\caption{axis 00}
+		\label{fig:axis00_I}
+	\end{subfigure}
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/axis_01}
+		\caption{axis 01}
+		\label{fig:axis01_I}
+	\end{subfigure}
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/axis_02}
+		\caption{axis 02}
+		\label{fig:axis02_I}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/axis_03} 
+		\caption{axis 03}
+		\label{fig:axis03_I}
+	\end{subfigure}
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/axis_04}
+		\caption{axis 04}
+		\label{fig:axis04_I}
+	\end{subfigure}
+	\begin{subfigure}{0.32\textwidth}
+		\includegraphics[width=\linewidth]{gt_I/dummy}
+		\caption{}
+		\label{fig:dummy1_I}
+	\end{subfigure}
+\end{figure}
+
+
+\newpage
+
+
+\subsubsection{Minimum Finding Abilities}
+
+The pictures below depict the accuracies reached on the individual axis. The light green region is the ground truth and the red, blue, violet and orange lines are the results after 50, 100, 250, and 500 iterations. Each line is the mean result over 50 individual optimizations on the target function.
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/hyperopt_deviation}
+		\label{fig:hyperopt_deviation_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/optunity_deviation}
+		\label{fig:optunity_deviation_I}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/optuna_deviation} 
+		\label{fig:optuna_deviation_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/randomsearch_deviation}
+		\label{fig:randomsearch_deviation_I}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/quasirandomsearch_deviation} 
+		\label{fig:quasirandomsearch_deviation_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/dummy}
+		\label{fig:dummy2_I}
+	\end{subfigure}
+\end{figure}
+
+
+\newpage
+
+
+\subsubsection{Relative Distances to the Axis Optima}
+
+The pictures in this section depict the mean distance and the standard deviation per axis for each solver.
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/errorbars_50}
+		\label{fig:errorbars_50_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/errorbars_100}
+		\label{fig:errorbars_100_I}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/errorbars_250}
+		\label{fig:errorbars_250_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/errorbars_500}
+		\label{fig:errorbars_500_I}
+	\end{subfigure}
+\end{figure}
+
+
+\newpage
+
+
+\subsubsection{Convergence Beahviour}
+
+The pictures in this section depict the loss over iteration plots for each of the 50 iterations for each solver. For better visualization the Loss values are sorted, so the mapping between Iteration and Loss values might not be correct. The purpose of these plots is to show the overall Loss curve for each solver and it's variation over different runs.  
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/losshistory_50}
+		\label{fig:losshistory_50_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/losshistory_100}
+		\label{fig:losshistory_100_I}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/losshistory_250}
+		\label{fig:losshistory_250_I}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=0.9\linewidth]{data_I/losshistory_500}
+		\label{fig:losshistory_500_I}
+	\end{subfigure}
+\end{figure}
