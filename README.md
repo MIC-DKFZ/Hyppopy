@@ -13,6 +13,7 @@ Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer 
 * Randomsearch Solver
 * Gridsearch Solver
 
+[See a solver analysis here: https://github.com/MIC-DKFZ/Hyppopy/blob/master/examples/solver_comparison/HyppopyReport.pdf]
 
 ## Installation
 
