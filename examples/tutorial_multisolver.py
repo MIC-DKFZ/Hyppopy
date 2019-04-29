@@ -72,7 +72,7 @@ config = {
         "type": str
     }
 },
-"max_iterations": 100,
+"max_iterations": 300,
 "solver": "quasirandomsearch"
 }
 

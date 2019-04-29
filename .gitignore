@@ -11,7 +11,9 @@ __pycache__/
 *.tcp
 
 # solver_comparison
-examples/solver_comparison/gfx/*
+examples/solver_comparison/gfx/data_I
+examples/solver_comparison/gfx/data_II
+examples/solver_comparison/gfx/data_III
 
 *.vpp.lck
 

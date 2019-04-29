@@ -14,44 +14,13 @@
 import os
 import logging
 import warnings
-import itertools
 import numpy as np
-from random import choice
 from pprint import pformat
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.solvers.HyppopySolver import HyppopySolver
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
-
-
-def get_gaussian_ranges(a, b, N):
-    r = abs(b-a)/2
-    if N % 2 == 0:
-        _N = int(N/2)
-    else:
-        _N = int((N-1)/2)
-    dr = r/_N
-    sigma = r/2.5
-    mu = a + r
-    cuts = []
-    csum = 0
-    for n in range(_N):
-        x = a+r+n*dr
-        c = sigma*np.sqrt(2.0*np.pi)/(np.exp(-0.5*((x-mu)/sigma)**2))
-        cuts.append(c)
-        cuts.insert(0, c)
-        csum += 2*c
-    for n in range(len(cuts)):
-        cuts[n] /= csum
-        cuts[n] *= abs(b-a)
-    ranges = []
-    end = a
-    for n, c in enumerate(cuts):
-        start = end
-        end = start + c
-        ranges.append([start, end])
-    return ranges
 
 
 def get_loguniform_ranges(a, b, N):
@@ -64,15 +33,51 @@ def get_loguniform_ranges(a, b, N):
     return ranges
 
 
+class HaltonSequenceGenerator(object):
+
+    def __init__(self, N_samples, dimensions):
+        self._N = N_samples
+        self._dims = dimensions
+
+    def next_prime(self):
+        def is_prime(num):
+            "Checks if num is a prime value"
+            for i in range(2, int(num ** 0.5) + 1):
+                if (num % i) == 0: return False
+            return True
+
+        prime = 3
+        while 1:
+            if is_prime(prime):
+                yield prime
+            prime += 2
+
+    def vdc(self, n, base):
+        vdc, denom = 0, 1
+        while n:
+            denom *= base
+            n, remainder = divmod(n, base)
+            vdc += remainder / float(denom)
+        return vdc
+
+    def get_sequence(self):
+        seq = []
+        primeGen = self.next_prime()
+        next(primeGen)
+        for d in range(self._dims):
+            base = next(primeGen)
+            seq.append([self.vdc(i, base) for i in range(self._N)])
+        return seq
+
+
 class QuasiRandomSampleGenerator(object):
 
-    def __init__(self, N_samples=None, border_frac=0.1):
-        self._grid = None
+    def __init__(self, N_samples=None):
         self._axis = None
+        self._samples = []
         self._numerical = []
         self._categorical = []
         self._N_samples = N_samples
-        self._border_frac = border_frac
 
     def set_axis(self, name, data, domain, dtype):
         if domain == "categorical":
@@ -86,85 +91,44 @@ class QuasiRandomSampleGenerator(object):
         else:
             self._numerical.append({"name": name, "data": data, "type": dtype, "domain": domain})
 
-    def build_grid(self, N_samples=None):
+    def generate_samples(self, N_samples=None):
         self._axis = []
         if N_samples is None:
             assert isinstance(self._N_samples, int), "Precondition violation, no number of samples specified!"
         else:
             self._N_samples = N_samples
 
+        axis_samples = {}
         if len(self._numerical) > 0:
-            axis_steps = int(round(self._N_samples**(1.0/len(self._numerical))))
-            self._N_samples = int(axis_steps**(len(self._numerical)))
-
-            for axis in self._numerical:
-                self._axis.append(None)
-                n = len(self._axis)-1
-                boxes = None
-                if axis["domain"] == "uniform":
-                    boxes = self.add_uniform_axis(n, axis_steps)
-                elif axis["domain"] == "normal":
-                    boxes = self.add_normal_axis(n, axis_steps)
-                elif axis["domain"] == "loguniform":
-                    boxes = self.add_loguniform_axis(n, axis_steps)
-
-                assert isinstance(boxes, list), "failed to compute axis ranges!"
-                for k in range(len(boxes)):
-                    dx = abs(boxes[k][1] - boxes[k][0])
-                    boxes[k][0] += self._border_frac * dx
-                    boxes[k][1] -= self._border_frac * dx
-                self._axis[n] = boxes
-            self._grid = list(itertools.product(*self._axis))
+            generator = HaltonSequenceGenerator(self._N_samples, len(self._numerical))
+            unit_space = generator.get_sequence()
+            for n, axis in enumerate(self._numerical):
+                width = abs(axis["data"][1] - axis["data"][0])
+                unit_space[n] = [x * width for x in unit_space[n]]
+                unit_space[n] = [x + axis["data"][0] for x in unit_space[n]]
+                if axis["type"] is int:
+                    unit_space[n] = [int(round(x)) for x in unit_space[n]]
+                axis_samples[axis["name"]] = unit_space[n]
         else:
             warnings.warn("No numerical axis defined, this warning can be ignored if searchspace is categorical only, otherwise check if axis was set!")
 
-    def add_uniform_axis(self, n, axis_steps):
-        drange = self._numerical[n]["data"]
-        width = abs(drange[1]-drange[0])
-        dx = width / axis_steps
-        boxes = []
-        for k in range(1, axis_steps+1):
-            bl = drange[0] + (k-1)*dx
-            br = drange[0] + k*dx
-            boxes.append([bl, br])
-        return boxes
-
-    def add_normal_axis(self, n, axis_steps):
-        drange = self._numerical[n]["data"]
-        boxes = get_gaussian_ranges(drange[0], drange[1], axis_steps)
-        for k in range(len(boxes)):
-            dx = abs(boxes[k][1] - boxes[k][0])
-            boxes[k][0] += self._border_frac * dx
-            boxes[k][1] -= self._border_frac * dx
-        return boxes
-
-    def add_loguniform_axis(self, n, axis_steps):
-        drange = self._numerical[n]["data"]
-        boxes = get_loguniform_ranges(drange[0], drange[1], axis_steps)
-        for k in range(len(boxes)):
-            dx = abs(boxes[k][1] - boxes[k][0])
-            boxes[k][0] += self._border_frac * dx
-            boxes[k][1] -= self._border_frac * dx
-        return boxes
+        for n in range(self._N_samples):
+            sample = {}
+            for name, data in axis_samples.items():
+               sample[name] = data[n]
+            for cat in self._categorical:
+                choice = np.random.choice(len(cat["data"]), 1)[0]
+                sample[cat["name"]] = cat["data"][choice]
+            self._samples.append(sample)
 
     def next(self):
-        if self._grid is None:
-            self.build_grid()
-        if len(self._grid) == 0:
+        if len(self._samples) == 0:
+            self.generate_samples()
+        if len(self._samples) == 0:
             return None
-        next_index = np.random.randint(0, len(self._grid), 1)[0]
-        next_range = self._grid.pop(next_index)
-        pset = {}
-        for n, rng in enumerate(next_range):
-            name = self._numerical[n]["name"]
-            rnd = np.random.random()
-            param = rng[0] + rnd*abs(rng[1]-rng[0])
-            if self._numerical[n]["type"] is int:
-                param = int(np.floor(param))
-            pset[name] = param
-        for cat in self._categorical:
-            pset[cat["name"]] = choice(cat["data"])
-        return pset
+        next_index = np.random.choice(len(self._samples), 1)[0]
+        sample = self._samples.pop(next_index)
+        return sample
 
 
 class QuasiRandomsearchSolver(HyppopySolver):
@@ -180,7 +144,7 @@ class QuasiRandomsearchSolver(HyppopySolver):
     def define_interface(self):
         self.add_member("max_iterations", int)
         self.add_hyperparameter_signature(name="domain", dtype=str,
-                                          options=["uniform", "normal", "loguniform", "categorical"])
+                                          options=["uniform", "categorical"])
         self.add_hyperparameter_signature(name="data", dtype=list)
         self.add_hyperparameter_signature(name="type", dtype=type)
 

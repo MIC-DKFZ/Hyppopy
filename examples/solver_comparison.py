@@ -28,19 +28,20 @@ from hyppopy.BlackboxFunction import BlackboxFunction
 OUTPUTDIR = "D:\\Projects\\Python\\hyppopy\\examples\\solver_comparison\\gfx"
 
 SOLVER = []
-#SOLVER.append("hyperopt")
-#SOLVER.append("optunity")
-#SOLVER.append("randomsearch")
-#SOLVER.append("optuna")
+
 SOLVER.append("quasirandomsearch")
+SOLVER.append("randomsearch")
+SOLVER.append("hyperopt")
+SOLVER.append("optunity")
+SOLVER.append("optuna")
 
 ITERATIONS = []
+ITERATIONS.append(15)
 ITERATIONS.append(50)
-ITERATIONS.append(100)
-ITERATIONS.append(250)
-ITERATIONS.append(500)
+ITERATIONS.append(300)
+ITERATIONS.append(1000)
 
-STATREPEATS = 1
+STATREPEATS = 50
 
 OVERWRITE = False
 
@@ -61,7 +62,6 @@ def compute_deviation(solver_name, vfunc_id, iterations, N, fname):
         return vfunc(**params)
 
     blackbox = BlackboxFunction(data=[], blackbox_func=my_loss_function)
-
 
     results = {}
     results["gt"] = []
@@ -256,12 +256,11 @@ def plot_loss_histories(results, fname=None):
 
 
 def print_durations(results, fname=None):
-    colors = []
-    for c in range(len(SOLVER)):
-        colors.append(plt.cm.Set2(c / len(SOLVER)))
-
-    f = open(fname, "w")
-    lines = ["\t".join(SOLVER)+"\n"]
+    # colors = []
+    # for c in range(len(SOLVER)):
+    #     colors.append(plt.cm.Set2(c / len(SOLVER)))
+    f = open(fname + ".txt", "w")
+    lines = ["iterations\t"+"\t".join(SOLVER)+"\n"]
 
     for iter in ITERATIONS:
         txt = str(iter) + "\t"
@@ -274,8 +273,47 @@ def print_durations(results, fname=None):
     f.writelines(lines)
     f.close()
 
+    durations = {}
+    for iter in ITERATIONS:
+        for solver_name in SOLVER:
+            duration = results[solver_name][iter]["duration"]
+            if not solver_name in durations:
+                durations[solver_name] = duration/iter
+            else:
+                durations[solver_name] += duration/iter
 
-id2dirmapping = {"5D": "data_I", "5D2": "data_II", "5D3": "data_II"}
+    for name in durations.keys():
+        durations[name] /= len(ITERATIONS)
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+
+    # Example data
+    y_pos = np.arange(len(durations.keys()))
+
+    t = []
+    for solver in SOLVER:
+        t.append(durations[solver])
+    print(SOLVER)
+    print(t)
+
+    ax.barh(y_pos, t, align='center', color='green')
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(SOLVER)
+    ax.invert_yaxis()
+    ax.set_xscale('log')
+    ax.set_xlabel('Duration in [s]')
+    ax.set_title('Mean Solver Computation Time per Iteration')
+
+    if fname is None:
+        plt.show()
+    else:
+        plt.savefig(fname + ".png")
+        # plt.savefig(fname + "_{}.svg".format(iter))
+    plt.clf()
+
+
+
+id2dirmapping = {"5D": "data_I", "5D2": "data_II", "5D3": "data_III"}
 if __name__ == "__main__":
     vfunc_ID = "5D"
     if len(sys.argv) == 2:
@@ -313,13 +351,14 @@ if __name__ == "__main__":
     fname = os.path.join(OUTPUTDIR, "losshistory")
     plot_loss_histories(all_results, fname)
 
-    fname = os.path.join(OUTPUTDIR, "durations.txt")
+    fname = os.path.join(OUTPUTDIR, "durations")
     print_durations(all_results, fname)
 
     for solver_name, iterations in all_results.items():
         for iter, numbers in iterations.items():
             if numbers["set_difference"] != 0:
                 print("solver {} has a different parameter set match in iteration {}".format(solver_name, iter))
+    ##################################################
+    ##################################################
 
-    ##################################################
-    ##################################################
+    plt.imsave(fname=os.path.join(OUTPUTDIR, "dummy.png"), arr=np.ones((800, 1000, 3), dtype=np.uint8)*255)

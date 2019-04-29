@@ -42,7 +42,7 @@ The figures below are depicting the axis plots of the virtual hyperparameter spa
 
 \subsubsection{Minimum Finding Abilities}
 
-The pictures below depict the accuracies reached on the individual axis. The light green region is the ground truth and the red, blue, violet and orange lines are the results after 50, 100, 250, and 500 iterations. Each line is the mean result over 50 individual optimizations on the target function.
+The pictures below depict the accuracies reached on the individual axis. The light green region is the ground truth and the red, blue, violet and orange lines are the results after \myiterI, \myiterII, \myiterIII, and \myiterIV~iterations. Each line is the mean result over 50 individual optimizations on the target function. Exception is the QuasiRandomSolver, whose parameter space is deterministic and thus has no natural statistical variation. 
 
 \begin{figure}[h]
 	\begin{subfigure}{0.5\textwidth}
@@ -87,23 +87,23 @@ The pictures in this section depict the mean distance and the standard deviation
 
 \begin{figure}[h]
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/errorbars_50}
-		\label{fig:errorbars_50_II}
+		\includegraphics[width=0.9\linewidth]{data_II/errorbars_\myiterI}
+		\label{fig:errorbars_\myiterI_II}
 	\end{subfigure}
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/errorbars_100}
-		\label{fig:errorbars_100_II}
+		\includegraphics[width=0.9\linewidth]{data_II/errorbars_\myiterII}
+		\label{fig:errorbars_\myiterII_II}
 	\end{subfigure}
 \end{figure}
 
 \begin{figure}[h]
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/errorbars_250}
-		\label{fig:errorbars_250_II}
+		\includegraphics[width=0.9\linewidth]{data_II/errorbars_\myiterIII}
+		\label{fig:errorbars_\myiterIII_II}
 	\end{subfigure}
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/errorbars_500}
-		\label{fig:errorbars_500_II}
+		\includegraphics[width=0.9\linewidth]{data_II/errorbars_\myiterIV}
+		\label{fig:errorbars_\myiterIV_II}
 	\end{subfigure}
 \end{figure}
 
@@ -117,22 +117,35 @@ The pictures in this section depict the loss over iteration plots for each of th
 
 \begin{figure}[h]
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/losshistory_50}
-		\label{fig:losshistory_50_II}
+		\includegraphics[width=0.9\linewidth]{data_II/losshistory_\myiterI}
+		\label{fig:losshistory_\myiterI_II}
 	\end{subfigure}
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/losshistory_100}
-		\label{fig:losshistory_100_II}
+		\includegraphics[width=0.9\linewidth]{data_II/losshistory_\myiterII}
+		\label{fig:losshistory_\myiterII_II}
 	\end{subfigure}
 \end{figure}
 
 \begin{figure}[h]
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/losshistory_250}
-		\label{fig:losshistory_250_II}
+		\includegraphics[width=0.9\linewidth]{data_II/losshistory_\myiterIII}
+		\label{fig:losshistory_\myiterIII_II}
 	\end{subfigure}
 	\begin{subfigure}{0.5\textwidth}
-		\includegraphics[width=0.9\linewidth]{data_II/losshistory_500}
-		\label{fig:losshistory_500_II}
+		\includegraphics[width=0.9\linewidth]{data_II/losshistory_\myiterIV}
+		\label{fig:losshistory_\myiterIV_II}
 	\end{subfigure}
+\end{figure}
+
+
+\newpage
+
+
+\subsubsection{Mean Solver Runtime}
+
+The below depicts the mean computation time per iteration for each solver. The time axis is logarithmic!  
+
+\begin{figure}[h]
+		\includegraphics[width=\linewidth]{data_II/durations}
+		\label{fig:duration_II}
 \end{figure}
