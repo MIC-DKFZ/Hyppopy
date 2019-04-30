@@ -30,6 +30,9 @@ def default_kwargs(**defaultKwargs):
 
 
 class BlackboxFunction(object):
+    """
+    This is the BlackboxFunction class doing blackbox function stuff
+    """
 
     @default_kwargs(blackbox_func=None, dataloader_func=None, preprocess_func=None, callback_func=None, data=None)
     def __init__(self, **kwargs):
