@@ -22,7 +22,7 @@ print("ROOT", ROOT)
 sys.path.insert(0, ROOT)
 
 README_PATH_SRC = os.path.join(ROOT, "README.md")
-README_PATH_DST = os.path.join(ROOT, *("hyppopy", "README.md"))
+README_PATH_DST = os.path.join(ROOT, *("doc", "README.md"))
 print("copy", README_PATH_SRC, "to", README_PATH_DST)
 try:
 	copyfile(README_PATH_SRC, README_PATH_DST)
@@ -30,7 +30,7 @@ except:
 	print("Missing README.md file in subdir!")
 
 LICENSE_PATH_SRC = os.path.join(ROOT, "LICENSE")
-LICENSE_PATH_DST = os.path.join(ROOT, *("hyppopy", "LICENSE.rst"))
+LICENSE_PATH_DST = os.path.join(ROOT, *("doc", "LICENSE.rst"))
 print("copy", LICENSE_PATH_SRC, "to", LICENSE_PATH_DST)
 try:
 	copyfile(LICENSE_PATH_SRC, LICENSE_PATH_DST)

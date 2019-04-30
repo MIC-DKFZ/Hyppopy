@@ -66,7 +66,9 @@ class HyppopySolver(object):
         This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
         convert it into a solver lib specific format. The function is invoked when run is called and what it returns
         is passed as searchspace argument to the function execute_solver.
+
         :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+
         :return: [object] converted hyperparameter space
         """
         raise NotImplementedError('users must define convert_searchspace to use this class')
@@ -76,6 +78,7 @@ class HyppopySolver(object):
         """
         This function is called immediatly after convert_searchspace and get the output of the latter as input. It's
         purpose is to call the solver libs main optimization function.
+
         :param searchspace: converted hyperparameter space
         """
         raise NotImplementedError('users must define execute_solver to use this class')
@@ -87,7 +90,9 @@ class HyppopySolver(object):
         in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
         lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
         function, e.g. parameter converting.
+
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
         :return: [float] loss
         """
         raise NotImplementedError('users must define loss_function_call to use this class')
@@ -123,7 +128,9 @@ class HyppopySolver(object):
         of the callback_func is available. As a developer you might want to overwrite this function completely (e.g.
         HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
         implement loss_function_call (e.g. OptunitySolver).
+
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
         :return: [float] loss
         """
         self._idx += 1
@@ -170,6 +177,7 @@ class HyppopySolver(object):
     def run(self, print_stats=True):
         """
         This function starts the optimization process.
+
         :param print_stats: [bool] en- or disable console output
         """
         self._idx = 0
@@ -203,6 +211,7 @@ class HyppopySolver(object):
     def get_results(self):
         """
         This function returns a complete optimization history as pandas DataFrame and a dict with the optimal parameter set.
+
         :return: [DataFrame], [dict] history and optimal parameter set
         """
         assert isinstance(self.trials, Trials), "precondition violation, wrong trials type! Maybe solver was not yet executed?"
