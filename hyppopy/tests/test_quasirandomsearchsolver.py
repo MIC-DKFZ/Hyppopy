@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -12,7 +11,6 @@
 # See LICENSE
 
 import unittest
-import matplotlib.pylab as plt
 
 from hyppopy.solvers.QuasiRandomsearchSolver import *
 from hyppopy.VirtualFunction import VirtualFunction
