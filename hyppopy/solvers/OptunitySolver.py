@@ -31,11 +31,11 @@ class OptunitySolver(HyppopySolver):
         self.opt_trials = None
 
     def define_interface(self):
-        self.add_member("max_iterations", int)
-        self.add_hyperparameter_signature(name="domain", dtype=str,
+        self._add_member("max_iterations", int)
+        self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "categorical"])
-        self.add_hyperparameter_signature(name="data", dtype=list)
-        self.add_hyperparameter_signature(name="type", dtype=type)
+        self._add_hyperparameter_signature(name="data", dtype=list)
+        self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         for key in params.keys():

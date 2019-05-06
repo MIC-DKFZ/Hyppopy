@@ -132,11 +132,11 @@ class GridsearchSolver(HyppopySolver):
         HyppopySolver.__init__(self, project)
 
     def define_interface(self):
-        self.add_hyperparameter_signature(name="domain", dtype=str,
+        self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
-        self.add_hyperparameter_signature(name="data", dtype=list)
-        self.add_hyperparameter_signature(name="frequency", dtype=int)
-        self.add_hyperparameter_signature(name="type", dtype=type)
+        self._add_hyperparameter_signature(name="data", dtype=list)
+        self._add_hyperparameter_signature(name="frequency", dtype=int)
+        self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)
