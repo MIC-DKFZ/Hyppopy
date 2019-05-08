@@ -11,6 +11,7 @@
 # See LICENSE
 
 import unittest
+import numpy as np
 import matplotlib.pylab as plt
 
 from hyppopy.solvers.RandomsearchSolver import *

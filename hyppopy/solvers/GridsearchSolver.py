@@ -26,11 +26,13 @@ LOG.setLevel(DEBUGLEVEL)
 
 def get_uniform_axis_sample(a, b, N, dtype):
     """
-    returns a uniform sample x(n) in the range [a,b] sampled at N pojnts
+    Returns a uniform sample x(n) in the range [a,b] sampled at N pojnts
+
     :param a: left value range bound
     :param b: right value range bound
     :param N: discretization of intervall [a,b]
     :param dtype: data type
+
     :return: [list] axis range
     """
     assert a < b, "condition a < b violated!"
@@ -45,8 +47,10 @@ def get_uniform_axis_sample(a, b, N, dtype):
 
 def get_norm_cdf(N):
     """
-    returns a normed gaussian cdf (range [0,1]) with N sampling points
+    Returns a normed gaussian cdf (range [0,1]) with N sampling points
+
     :param N: sampling points
+
     :return: [ndarray] gaussian cdf function values
     """
     assert isinstance(N, int), "condition N of type int violated!"
@@ -68,11 +72,13 @@ def get_norm_cdf(N):
 
 def get_gaussian_axis_sample(a, b, N, dtype):
     """
-    returns a function value f(n) where f is a gaussian cdf in range [a, b] and N sampling points
+    Returns a function value f(n) where f is a gaussian cdf in range [a, b] and N sampling points
+
     :param a: left value range bound
     :param b: right value range bound
     :param N: discretization of intervall [a,b]
     :param dtype: data type
+
     :return: [list] axis range
     """
     assert a < b, "condition a < b violated!"
@@ -92,13 +98,15 @@ def get_gaussian_axis_sample(a, b, N, dtype):
 
 def get_logarithmic_axis_sample(a, b, N, dtype):
     """
-    returns a function value f(n) where f is logarithmic function e^x sampling
+    Returns a function value f(n) where f is logarithmic function e^x sampling
     the exponent range [log(a), log(b)] linear at N sampling points.
     The function values returned are in the range [a, b].
+
     :param a: left value range bound
     :param b: right value range bound
     :param N: discretization of intervall [a,b]
     :param dtype: data type
+
     :return: [list] axis range
     """
     assert a < b, "condition a < b violated!"
@@ -159,10 +167,12 @@ class GridsearchSolver(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         """
-        the function converts the standard parameter input into a range list depending
+        The function converts the standard parameter input into a range list depending
         on the domain. These rangelists are later used with itertools product to create
         a paramater space sample of each combination.
+
         :param hyperparameter: [dict] hyperparameter space
+
         :return: [list] name and range for each parameter space axis
         """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))

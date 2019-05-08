@@ -94,4 +94,3 @@ class SolverPool(metaclass=Singleton):
             if project is not None:
                 return QuasiRandomsearchSolver(project)
             return QuasiRandomsearchSolver()
-

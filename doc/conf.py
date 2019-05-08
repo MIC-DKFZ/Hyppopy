@@ -17,8 +17,8 @@ import os
 import sys
 from shutil import copyfile
 
-ROOT = os.path.abspath('..')
-print("ROOT", ROOT)
+ROOT = os.path.abspath('../')
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, ROOT)
 
 README_PATH_SRC = os.path.join(ROOT, "README.md")
@@ -61,7 +61,8 @@ release = '0.5.0'
 extensions = [
     'sphinx.ext.autodoc',
 	'recommonmark',
-	'autoapi.extension'
+	'autoapi.extension',
+	'sphinx.ext.napoleon',
 ]
 
 autoapi_type = 'python'
