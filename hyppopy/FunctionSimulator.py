@@ -13,9 +13,9 @@
 ########################################################################################################################
 # USAGE
 #
-# The class VirtualFunction is meant to be a virtual energy function with an arbitrary dimensionality. The user can
+# The class FunctionSimulator is meant to be a virtual energy function with an arbitrary dimensionality. The user can
 # simply scribble functions as a binary image using e.g. Gimp, defining their ranges using .cfg file and loading them
-# into the VirtualFunction. An instance of the class can then be used like a normal function returning the sampling of
+# into the FunctionSimulator. An instance of the class can then be used like a normal function returning the sampling of
 # each dimension loaded.
 #
 # 1. create binary images (IMPORTANT same shape for each), background black the function signature white, ensure that
@@ -23,11 +23,13 @@
 #
 # 2. create a .cfg file, see an example in hyppopy/virtualparameterspace
 #
-# 3. vfunc = VirtualFunction()
+# 3. vfunc = FunctionSimulator()
 #    vfunc.load_images(path/of/your/binaryfiles/and/the/configfile)
 #
 # 4. use vfunc like a normal function, if you loaded 4 dimension binary images use it like f = vfunc(a,b,c,d)
 ########################################################################################################################
+
+__all__ = ['FunctionSimulator']
 
 import os
 import sys
@@ -36,17 +38,33 @@ import configparser
 from glob import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from hyppopy.globals import VFUNCDATAPATH
+from hyppopy.globals import FUNCTIONSIMULATOR_DATAPATH
 
 
-class VirtualFunction(object):
+class FunctionSimulator(object):
+    """
+    The FunctionSimulator class serves as simulation tool for solver testing and evaluation purposes. It's designed to
+    simulate an energy functional by setting axis data for each dimension via binary image files. The binary image files
+    are sampled and a range interval is read from a config file. The class implements __call__ to act like a blackbox function
+    when initialized.
 
+    f=f(x1,x2,...,xn) [for n binary images and n range config files
+
+    as image input .png grayscale images are expected
+    as range config .cfg ascii files are expected containing 
+    """
     def __init__(self):
         self.config = None
         self.data = None
         self.axis = []
 
     def __call__(self, *args, **kwargs):
+        """
+        the call function expects the hyperparameter
+        :param args:
+        :param kwargs:
+        :return:
+        """
         if len(kwargs) == self.dims():
             args = [0]*len(kwargs)
             for key, value in kwargs.items():
@@ -136,11 +154,11 @@ class VirtualFunction(object):
         self.axis.append(x_range)
 
     def load_default(self, name="3D"):
-        path = os.path.join(VFUNCDATAPATH, "{}".format(name))
+        path = os.path.join(FUNCTIONSIMULATOR_DATAPATH, "{}".format(name))
         if os.path.exists(path):
             self.load_images(path)
         else:
-            raise FileExistsError("No virtualfunction of dimension {} available".format(name))
+            raise FileExistsError("No FunctionSimulator of dimension {} available".format(name))
 
     def load_images(self, path):
         self.config = None

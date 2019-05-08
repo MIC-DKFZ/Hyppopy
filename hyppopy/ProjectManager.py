@@ -17,6 +17,8 @@ import logging
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.globals import DEBUGLEVEL
 
+__all__ = ['ProjectManager']
+
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 

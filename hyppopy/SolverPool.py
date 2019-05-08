@@ -10,6 +10,8 @@
 #
 # See LICENSE
 
+__all__ = ['SolverPool']
+
 from .Singleton import *
 
 import os
@@ -29,6 +31,10 @@ LOG.setLevel(DEBUGLEVEL)
 
 @singleton_object
 class SolverPool(metaclass=Singleton):
+    """
+    The SolverPool is a helper singleton class to get the desired solver either by name and a HyppopyProject instance or
+    by a HyppopyProject instance only, if it defines a setting field called solver.
+    """
 
     def __init__(self):
         self._solver_list = ["hyperopt",
@@ -39,9 +45,22 @@ class SolverPool(metaclass=Singleton):
                              "gridsearch"]
 
     def get_solver_names(self):
+        """
+        Returns a list of available solvers
+
+        :return: [list] solver list
+        """
         return self._solver_list
 
     def get(self, solver_name=None, project=None):
+        """
+        Get the configured solver instance
+
+        :param solver_name: [str] solver name, if None, the project must have an attribute solver keeping the solver name, default=None
+        :param project: [HyppopyProject] HyppopyProject instance
+
+        :return: [HyppopySolver] the configured solver instance
+        """
         if solver_name is not None:
             assert isinstance(solver_name, str), "precondition violation, solver_name type str expected, got {} instead!".format(type(solver_name))
         if project is not None:

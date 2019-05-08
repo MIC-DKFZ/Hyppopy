@@ -13,7 +13,7 @@
 import unittest
 
 from hyppopy.solvers.HyperoptSolver import *
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.HyppopyProject import HyppopyProject
 
 
@@ -46,7 +46,7 @@ class HyperoptSolverTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = HyperoptSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)
@@ -84,7 +84,7 @@ class HyperoptSolverTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = HyperoptSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)

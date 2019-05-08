@@ -23,7 +23,7 @@ from hyppopy.globals import *
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -394,7 +394,7 @@ class HyppopySolver(object):
 
     @blackbox.setter
     def blackbox(self, value):
-        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, VirtualFunction):
+        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator):
             self._blackbox = value
         else:
             self._blackbox = None

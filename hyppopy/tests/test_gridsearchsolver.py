@@ -13,8 +13,8 @@
 import unittest
 
 from hyppopy.solvers.GridsearchSolver import *
-from hyppopy.VirtualFunction import VirtualFunction
 from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.FunctionSimulator import FunctionSimulator
 
 
 class GridsearchTestSuite(unittest.TestCase):
@@ -187,7 +187,7 @@ class GridsearchTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = GridsearchSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)
@@ -226,7 +226,7 @@ class GridsearchTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = GridsearchSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)
@@ -265,7 +265,7 @@ class GridsearchTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = GridsearchSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)

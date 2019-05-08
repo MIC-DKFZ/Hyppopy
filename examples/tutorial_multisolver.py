@@ -1,4 +1,5 @@
-# Hyppopy - A Hyper-Parameter Optimization Toolbox
+# DKFZ
+#
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
