@@ -12,9 +12,10 @@
 
 __all__ = ['HyppopyProject']
 
-import copy
 
+import copy
 from hyppopy.globals import *
+
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -96,7 +97,7 @@ class HyppopyProject(object):
         once.
 
         :param name: [str] hyperparameter name
-        :param **kwargs: [dict] configuration dict defining a hyperparameter e.g. domain='uniform', data=[1,100], ...
+        :param kwargs: [dict] configuration dict defining a hyperparameter e.g. domain='uniform', data=[1,100], ...
         """
         assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
         self._data[HYPERPARAMETERPATH][name] = kwargs
@@ -106,7 +107,7 @@ class HyppopyProject(object):
         This function can be used to set the general settings directly by passing the settings as name=value pairs.
         Alternatively use add_setting to add one after each other.
 
-        :param **kwargs: [dict] settings dict e.g. my_setting_1=3.1415, my_setting_2='hello world', ...
+        :param kwargs: [dict] settings dict e.g. my_setting_1=3.1415, my_setting_2='hello world', ...
         """
         self._data[SETTINGSPATH] = kwargs
         self.__parse_members()

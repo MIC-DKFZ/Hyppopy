@@ -20,6 +20,7 @@ examples/solver_comparison/gfx/data_III
 .pytest_cache/
 *.vpp.bak_*
 python_tests_xml
+doc/CHANGELOG.md
 
 # C extensions
 *.so
