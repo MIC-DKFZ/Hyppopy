@@ -10,14 +10,14 @@ HyppopyProject
 .. automodule:: hyppopy.HyppopyProject
     :members:
 	
-BlackboxFunction
-****************
-.. automodule:: hyppopy.BlackboxFunction
-    :members:
-		
 HyppopySolver
 *************
 .. automodule:: hyppopy.solvers.HyppopySolver
+    :members:
+	
+BlackboxFunction
+****************
+.. automodule:: hyppopy.BlackboxFunction
     :members:
 	
 SolverPool
