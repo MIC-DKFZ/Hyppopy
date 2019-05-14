@@ -1,10 +1,28 @@
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
+#
+# Copyright (c) German Cancer Research Center,
+# Division of Medical Image Computing.
+# All rights reserved.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.
+#
+# See LICENSE
+
+__all__ = ['VisdomViewer']
+
 import warnings
 import numpy as np
 from visdom import Visdom
-import matplotlib.pyplot as plt
 
 
 def time_formatter(time_s):
+    """
+    Formats time in seconds input to more intuitive form h, min, s or ms, depending on magnitude
+    :param time_s: [float] time in seconds
+    :return:
+    """
     if time_s < 0.01:
         return int(time_s * 1000.0 * 1000) / 1000.0, "ms"
     elif 100 < time_s < 3600:
@@ -16,7 +34,10 @@ def time_formatter(time_s):
 
 
 class VisdomViewer(object):
-
+    """
+    The VisdomViewer class implements the live viewer plots via visdom. When extending implement your plot as methos and
+    call it in update. Using this class make it necessary starting a visdom server beforehand $ python -m visdom.server
+    """
     def __init__(self, project, port=8097, server="http://localhost"):
         self._viz = Visdom(port=port, server=server)
         self._enabled = self._viz.check_connection(timeout_seconds=3)
@@ -32,6 +53,11 @@ class VisdomViewer(object):
         self._axis_plots = None
 
     def plot_losshistory(self, input_data):
+        """
+        This function plots the loss history loss over iteration
+
+        :param input_data: [dict] trail infos
+        """
         loss = np.array([input_data["loss"]])
         iter = np.array([input_data["iterations"]])
         if self._loss_iter_plot is None:
@@ -47,6 +73,11 @@ class VisdomViewer(object):
             self._viz.line(loss, X=iter, win=self._loss_iter_plot, update='append')
 
     def plot_hyperparameter(self, input_data):
+        """
+        This function plots each hyperparameter axis
+
+        :param input_data: [dict] trail infos
+        """
         if self._axis_plots is None:
             self._axis_tags = []
             self._axis_plots = {}
@@ -75,6 +106,11 @@ class VisdomViewer(object):
                 self._viz.scatter(axis_loss, win=self._axis_plots[axis], update='append')
 
     def show_statusreport(self, input_data):
+        """
+        This function prints status report per iteration
+
+        :param input_data: [dict] trail infos
+        """
         duration = input_data['refresh_time'] - input_data['book_time']
         duration, time_format = time_formatter(duration.total_seconds())
         report = "Iteration {}:&nbsp;{}{}&nbsp;->&nbsp;{}\n".format(input_data["iterations"], duration, time_format, input_data["status"])
@@ -84,6 +120,11 @@ class VisdomViewer(object):
             self._viz.text(report, win=self._status_report, append=True)
 
     def show_best(self, input_data):
+        """
+        Shows best parameter set
+
+        :param input_data: [dict] trail infos
+        """
         if self._best_win is None:
             self._best_loss = input_data["loss"]
             txt = "Best Parameter Set:<hr>Loss: {}<hr><ul>".format(self._best_loss)
@@ -107,6 +148,11 @@ class VisdomViewer(object):
                 self._viz.text(txt, win=self._best_win, append=False)
 
     def update(self, input_data):
+        """
+        This function calls all visdom displaying routines
+
+        :param input_data: [dict] trail infos
+        """
         if self._enabled:
             self.show_statusreport(input_data)
             self.plot_losshistory(input_data)

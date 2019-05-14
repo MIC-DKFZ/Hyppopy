@@ -1,3 +1,5 @@
+# Changelog
+
 Release 0.5.0.0
 
 - settings structure changed, additional settings now can be addded as additional entries in the config dict or using the methods add_setting or set_settings

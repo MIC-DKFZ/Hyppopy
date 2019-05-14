@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -10,6 +9,8 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+
+__all__ = ['HaltonSequenceGenerator', 'QuasiRandomSampleGenerator', 'QuasiRandomsearchSolver']
 
 import os
 import logging
@@ -23,25 +24,20 @@ LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
 
-def get_loguniform_ranges(a, b, N):
-    aL = np.log(a)
-    bL = np.log(b)
-    exp_range = np.linspace(aL, bL, N+1)
-    ranges = []
-    for i in range(N):
-        ranges.append([np.exp(exp_range[i]), np.exp(exp_range[i+1])])
-    return ranges
-
-
 class HaltonSequenceGenerator(object):
+    """
+    This class generates Halton sequences (https://en.wikipedia.org/wiki/Halton_sequence). The class needs a total
+    number of samples and the number of dimensions to generate a quasirandom sequence for each axis. The method
+    get_unit_space returns a sequence list with N_samples for each axis representing N_samples vectors on a unit sphere.
+    """
+    def __init__(self):
+        pass
 
-    def __init__(self, N_samples, dimensions):
-        self._N = N_samples
-        self._dims = dimensions
-
-    def next_prime(self):
+    def __next_prime(self):
+        """
+        Checks if num is a prime value
+        """
         def is_prime(num):
-            "Checks if num is a prime value"
             for i in range(2, int(num ** 0.5) + 1):
                 if (num % i) == 0: return False
             return True
@@ -52,7 +48,7 @@ class HaltonSequenceGenerator(object):
                 yield prime
             prime += 2
 
-    def vdc(self, n, base):
+    def __vdc(self, n, base):
         vdc, denom = 0, 1
         while n:
             denom *= base
@@ -60,18 +56,29 @@ class HaltonSequenceGenerator(object):
             vdc += remainder / float(denom)
         return vdc
 
-    def get_sequence(self):
+    def get_unit_space(self, N_samples, N_dims):
+        """
+        Returns a unit space in form of a sequence list keeping N_dims sequences with N_sample samplings. Each sample
+        represents a N_dims dimensional vector on a unit sphere.
+
+        :param N_samples: [int] Number of samples
+        :param N_dims: [int] Number of dimensions
+
+        :return: [list] samples list of length N_dims keeping lists each of length N_samples
+        """
         seq = []
-        primeGen = self.next_prime()
+        primeGen = self.__next_prime()
         next(primeGen)
-        for d in range(self._dims):
+        for d in range(N_dims):
             base = next(primeGen)
-            seq.append([self.vdc(i, base) for i in range(self._N)])
+            seq.append([self.__vdc(i, base) for i in range(N_samples)])
         return seq
 
 
 class QuasiRandomSampleGenerator(object):
-
+    """
+    This class takes care of the hyperparameter space creation and next sample delivery.
+    """
     def __init__(self, N_samples=None):
         self._axis = None
         self._samples = []
@@ -80,6 +87,14 @@ class QuasiRandomSampleGenerator(object):
         self._N_samples = N_samples
 
     def set_axis(self, name, data, domain, dtype):
+        """
+        Add an axis description.
+
+        :param name: [str] axis name
+        :param data: [list] axis range [min, max]
+        :param domain: [str] axis domain
+        :param dtype: [type] axis data type
+        """
         if domain == "categorical":
             if dtype is int:
                 data = [int(i) for i in data]
@@ -92,6 +107,11 @@ class QuasiRandomSampleGenerator(object):
             self._numerical.append({"name": name, "data": data, "type": dtype, "domain": domain})
 
     def generate_samples(self, N_samples=None):
+        """
+        This function is called once when the first sample is requested. It generates the halton sequence space.
+
+        :param N_samples: [int] number of samples
+        """
         self._axis = []
         if N_samples is None:
             assert isinstance(self._N_samples, int), "Precondition violation, no number of samples specified!"
@@ -100,8 +120,8 @@ class QuasiRandomSampleGenerator(object):
 
         axis_samples = {}
         if len(self._numerical) > 0:
-            generator = HaltonSequenceGenerator(self._N_samples, len(self._numerical))
-            unit_space = generator.get_sequence()
+            generator = HaltonSequenceGenerator()
+            unit_space = generator.get_unit_space(self._N_samples, len(self._numerical))
             for n, axis in enumerate(self._numerical):
                 width = abs(axis["data"][1] - axis["data"][0])
                 unit_space[n] = [x * width for x in unit_space[n]]
@@ -122,6 +142,11 @@ class QuasiRandomSampleGenerator(object):
             self._samples.append(sample)
 
     def next(self):
+        """
+        Returns the next sample. Returns None if all samples are requested.
+
+        :return: [dict] sample dict {'name':value, ...}
+        """
         if len(self._samples) == 0:
             self.generate_samples()
         if len(self._samples) == 0:
@@ -134,19 +159,19 @@ class QuasiRandomSampleGenerator(object):
 class QuasiRandomsearchSolver(HyppopySolver):
     """
     The QuasiRandomsearchSolver class implements a quasi randomsearch optimization. The quasi randomsearch supports
-    categorical, uniform, normal and loguniform sampling. The solver defines a grid which size and appearance depends
-    on the max_iterations parameter and the domain. The at each grid box a random value is drawn. This ensures both,
-    random parameter samples with the cosntraint that the space is evenly sampled and cluster building prevention."""
+    categorical and uniform sampling. The solver defines a Halton Sequence distributed hyperparameter space. This
+    means a rather evenly distributed space sampling but no real randomness.
+    """
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
         self._sampler = None
 
     def define_interface(self):
-        self.add_member("max_iterations", int)
-        self.add_hyperparameter_signature(name="domain", dtype=str,
+        self._add_member("max_iterations", int)
+        self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "categorical"])
-        self.add_hyperparameter_signature(name="data", dtype=list)
-        self.add_hyperparameter_signature(name="type", dtype=type)
+        self._add_hyperparameter_signature(name="data", dtype=list)
+        self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)
@@ -172,11 +197,5 @@ class QuasiRandomsearchSolver(HyppopySolver):
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
-        """
-        this function simply pipes the input parameter through, the sample
-        drawing functions are responsible for interpreting the parameter.
-        :param hyperparameter: [dict] hyperparameter space
-        :return: [dict] hyperparameter space
-        """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         return hyperparameter

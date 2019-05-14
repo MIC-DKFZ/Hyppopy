@@ -20,6 +20,7 @@ examples/solver_comparison/gfx/data_III
 .pytest_cache/
 *.vpp.bak_*
 python_tests_xml
+doc/CHANGELOG.md
 
 # C extensions
 *.so
@@ -72,8 +73,10 @@ coverage.xml
 *.log
 
 # Sphinx documentation
-docs/_build/
-doc/
+doc/_build/
+doc/LICENSE.rst
+doc/README.md
+
 
 # PyBuilder
 target/

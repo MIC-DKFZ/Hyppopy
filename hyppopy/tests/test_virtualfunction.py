@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -15,17 +14,17 @@ import os
 import unittest
 import numpy as np
 
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import TESTDATA_DIR
 
 
-class VirtualFunctionTestSuite(unittest.TestCase):
+class FunctionSimulatorTestSuite(unittest.TestCase):
 
     def setUp(self):
         pass
 
     def test_imagereading(self):
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_images(os.path.join(TESTDATA_DIR, 'functionsimulator'))
         self.assertTrue(isinstance(vfunc.data, np.ndarray))
         self.assertEqual(vfunc.data.shape[0], 5)
@@ -40,7 +39,7 @@ class VirtualFunctionTestSuite(unittest.TestCase):
 
     def test_data_adding(self):
         gt = [[-10, 10], [-30, 5]]
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         dim0 = np.arange(0, 1.1, 0.1)
         dim1 = np.arange(1.0, -0.1, -0.1)
         vfunc.add_dimension(dim0, gt[0])
@@ -58,7 +57,7 @@ class VirtualFunctionTestSuite(unittest.TestCase):
             self.assertEqual(vfunc.axis[i][1], gt[i][1])
 
     def test_minima(self):
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_images(os.path.join(TESTDATA_DIR, 'functionsimulator'))
         minima = vfunc.minima()
 

@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -23,12 +22,11 @@ TESTDATA_DIR = os.path.join(ROOT, *(LIBNAME, "tests", "data"))
 
 HYPERPARAMETERPATH = "hyperparameter"
 SETTINGSPATH = "settings"
-VFUNCDATAPATH = os.path.join(os.path.join(ROOT, LIBNAME), "virtualparameterspace")
+FUNCTIONSIMULATOR_DATAPATH = os.path.join(os.path.join(ROOT, LIBNAME), "virtualparameterspace")
 
 SUPPORTED_DOMAINS = ["uniform", "normal", "loguniform", "categorical"]
 SUPPORTED_DTYPES = ["int", "float", "str"]
 
-#DEFAULTITERATIONS = 500
 DEFAULTGRIDFREQUENCY = 10
 
 LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))

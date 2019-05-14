@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -10,6 +9,8 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+
+__all__ = ['HyppopySolver']
 
 import abc
 import copy
@@ -22,7 +23,7 @@ from hyppopy.globals import *
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -42,6 +43,28 @@ class HyppopySolver(object):
     parameter space description into the solver lib specific description. The method loss_function_call is used to
     handle solver lib specifics of calling the actual blackbox function and execute_solver is executed when the run
     method is invoked und takes care of calling the solver lib solving routine.
+
+    The class HyppopySolver defines an interface to be implemented when writing a custom solver. Each solver derivative
+    needs to implement the abstract methods:
+
+    - convert_searchspace
+    - execute_solver
+    - loss_function_call
+    - define_interface
+
+    The dev-user interface consists of the methods:
+
+    - _add_member
+    - _add_hyperparameter_signature
+    - _check_project
+
+    The end-user interface consists of the methods:
+
+    - run
+    - get_results
+    - print_best
+    - print_timestats
+    - start_viewer
     """
     def __init__(self, project=None):
         self._idx = None                        # current iteration counter
@@ -67,7 +90,9 @@ class HyppopySolver(object):
         This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
         convert it into a solver lib specific format. The function is invoked when run is called and what it returns
         is passed as searchspace argument to the function execute_solver.
+
         :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+
         :return: [object] converted hyperparameter space
         """
         raise NotImplementedError('users must define convert_searchspace to use this class')
@@ -77,6 +102,7 @@ class HyppopySolver(object):
         """
         This function is called immediatly after convert_searchspace and get the output of the latter as input. It's
         purpose is to call the solver libs main optimization function.
+
         :param searchspace: converted hyperparameter space
         """
         raise NotImplementedError('users must define execute_solver to use this class')
@@ -88,7 +114,9 @@ class HyppopySolver(object):
         in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
         lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
         function, e.g. parameter converting.
+
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
         :return: [float] loss
         """
         raise NotImplementedError('users must define loss_function_call to use this class')
@@ -97,14 +125,23 @@ class HyppopySolver(object):
     def define_interface(self):
         """
         This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
-        individual parameter here by calling the add_member function for each class member variable need to be defined.
-        Using add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
         Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
         settings passed fullfill solver needs.
         """
         raise NotImplementedError('users must define define_interface to use this class')
 
-    def add_member(self, name, dtype, value=None, default=None):
+    def _add_member(self, name, dtype, value=None, default=None):
+        """
+        When designing your child solver class you need to implement the define_interface abstract method where you can
+        call _add_member to define custom solver options that are automatically converted to class attributes.
+
+        :param name: [str] option name
+        :param dtype: [type] option data type
+        :param value: [object] option value
+        :param default: [object] option default value
+        """
         assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
         if value is not None:
             assert isinstance(value, dtype), "precondition violation, value does not match dtype condition!"
@@ -113,9 +150,65 @@ class HyppopySolver(object):
         setattr(self, name, value)
         self._child_members[name] = {"type": dtype, "value": value, "default": default}
 
-    def add_hyperparameter_signature(self, name, dtype, options=None):
+    def _add_hyperparameter_signature(self, name, dtype, options=None):
+        """
+        When designing your child solver class you need to implement the define_interface abstract method where you can
+        call _add_hyperparameter_signature to define a hyperparamter signature which is automatically checked for
+        consistency while solver execution.
+
+        :param name: [str] hyperparameter name
+        :param dtype: [type] hyperparameter data type
+        :param options: [list] list of possible values the hp can be set, if None no option check is done
+        """
         assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
         self._hopt_signatures[name] = {"type": dtype, "options": options}
+
+    def _check_project(self):
+        """
+        The function checks the members and hyperparameter signatures read from the project instance to be consistent
+        with the members and signatures defined in the child class via define_interface.
+        """
+        assert isinstance(self.project, HyppopyProject), "Invalid project instance, either not set or setting failed!"
+
+        # check hyperparameter signatures
+        for name, param in self.project.hyperparameter.items():
+            for sig, settings in self._hopt_signatures.items():
+                if sig not in param.keys():
+                    msg = "Missing hyperparameter signature {}!".format(sig)
+                    LOG.error(msg)
+                    raise LookupError(msg)
+                else:
+                    if not isinstance(param[sig], settings["type"]):
+                        msg = "Hyperparameter signature type mismatch, expected type {} got {}!".format(settings["type"], param[sig])
+                        LOG.error(msg)
+                        raise TypeError(msg)
+                    if settings["options"] is not None:
+                        if param[sig] not in settings["options"]:
+                            msg = "Wrong signature value, {} not found in signature options!".format(param[sig])
+                            LOG.error(msg)
+                            raise LookupError(msg)
+
+        # check child members
+        for name in self._child_members.keys():
+            if name not in self.project.__dict__.keys():
+                msg = "missing settings field {}!".format(name)
+                LOG.error(msg)
+                raise LookupError(msg)
+            self.__dict__[name] = self.project.settings[name]
+
+    def __compute_time_statistics(self):
+        """
+        Evaluates all timestatistic values available
+        """
+        dts = []
+        for trial in self._trials.trials:
+            if 'book_time' in trial.keys() and 'refresh_time' in trial.keys():
+                dt = trial['refresh_time'] - trial['book_time']
+                dts.append(dt.total_seconds())
+        self._time_per_iteration = np.mean(dts) * 1e3
+        self._accumulated_blackbox_time = np.sum(dts) * 1e3
+        tmp = self.total_duration - self._accumulated_blackbox_time
+        self._solver_overhead = int(np.round(100.0 / (self.total_duration + 1e-12) * tmp))
 
     def loss_function(self, **params):
         """
@@ -124,7 +217,9 @@ class HyppopySolver(object):
         of the callback_func is available. As a developer you might want to overwrite this function completely (e.g.
         HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
         implement loss_function_call (e.g. OptunitySolver).
+
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
         :return: [float] loss
         """
         self._idx += 1
@@ -171,6 +266,7 @@ class HyppopySolver(object):
     def run(self, print_stats=True):
         """
         This function starts the optimization process.
+
         :param print_stats: [bool] en- or disable console output
         """
         self._idx = 0
@@ -204,6 +300,7 @@ class HyppopySolver(object):
     def get_results(self):
         """
         This function returns a complete optimization history as pandas DataFrame and a dict with the optimal parameter set.
+
         :return: [DataFrame], [dict] history and optimal parameter set
         """
         assert isinstance(self.trials, Trials), "precondition violation, wrong trials type! Maybe solver was not yet executed?"
@@ -226,6 +323,9 @@ class HyppopySolver(object):
         return pd.DataFrame.from_dict(results), self.best
 
     def print_best(self):
+        """
+        Optimization result console output printing.
+        """
         print("\n")
         print("#" * 40)
         print("###       Best Parameter Choice      ###")
@@ -240,18 +340,10 @@ class HyppopySolver(object):
                                                               self._total_duration[4]))
         print("#" * 40)
 
-    def compute_time_statistics(self):
-        dts = []
-        for trial in self._trials.trials:
-            if 'book_time' in trial.keys() and 'refresh_time' in trial.keys():
-                dt = trial['refresh_time'] - trial['book_time']
-                dts.append(dt.total_seconds())
-        self._time_per_iteration = np.mean(dts) * 1e3
-        self._accumulated_blackbox_time = np.sum(dts) * 1e3
-        tmp = self.total_duration - self._accumulated_blackbox_time
-        self._solver_overhead = int(np.round(100.0 / (self.total_duration+1e-12) * tmp))
-
     def print_timestats(self):
+        """
+        Time statistic console output printing.
+        """
         print("\n")
         print("#" * 40)
         print("###        Timing Statistics        ###")
@@ -266,6 +358,12 @@ class HyppopySolver(object):
         print(" - solver overhead: {}%".format(self.solver_overhead))
 
     def start_viewer(self, port=8097, server="http://localhost"):
+        """
+        Starts the visdom viewer.
+
+        :param port: [int] port number, default: 8097
+        :param server:  [str] server name, default: http://localhost
+        """
         try:
             self._visdom_viewer = VisdomViewer(self._project, port, server)
         except Exception as e:
@@ -273,33 +371,6 @@ class HyppopySolver(object):
             warnings.warn("Failed starting VisdomViewer. Is the server running? If not start it via $visdom")
             LOG.error("Failed starting VisdomViewer: {}".format(e))
             self._visdom_viewer = None
-
-    def check_project(self):
-        # check hyperparameter signatures
-        for name, param in self.project.hyperparameter.items():
-            for sig, settings in self._hopt_signatures.items():
-                if sig not in param.keys():
-                    msg = "Missing hyperparameter signature {}!".format(sig)
-                    LOG.error(msg)
-                    raise LookupError(msg)
-                else:
-                    if not isinstance(param[sig], settings["type"]):
-                        msg = "Hyperparameter signature type mismatch, expected type {} got {}!".format(settings["type"], param[sig])
-                        LOG.error(msg)
-                        raise TypeError(msg)
-                    if settings["options"] is not None:
-                        if param[sig] not in settings["options"]:
-                            msg = "Wrong signature value, {} not found in signature options!".format(param[sig])
-                            LOG.error(msg)
-                            raise LookupError(msg)
-
-        # check child members
-        for name in self._child_members.keys():
-            if name not in self.project.__dict__.keys():
-                msg = "missing settings field {}!".format(name)
-                LOG.error(msg)
-                raise LookupError(msg)
-            self.__dict__[name] = self.project.settings[name]
 
     @property
     def project(self):
@@ -315,7 +386,7 @@ class HyppopySolver(object):
             msg = "Input error, project_manager of type: {} not allowed!".format(type(value))
             LOG.error(msg)
             raise TypeError(msg)
-        self.check_project()
+        self._check_project()
 
     @property
     def blackbox(self):
@@ -323,7 +394,7 @@ class HyppopySolver(object):
 
     @blackbox.setter
     def blackbox(self, value):
-        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, VirtualFunction):
+        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator):
             self._blackbox = value
         else:
             self._blackbox = None
@@ -358,17 +429,17 @@ class HyppopySolver(object):
     @property
     def solver_overhead(self):
         if self._solver_overhead is None:
-            self.compute_time_statistics()
+            self.__compute_time_statistics()
         return self._solver_overhead
 
     @property
     def time_per_iteration(self):
         if self._time_per_iteration is None:
-            self.compute_time_statistics()
+            self.__compute_time_statistics()
         return self._time_per_iteration
 
     @property
     def accumulated_blackbox_time(self):
         if self._accumulated_blackbox_time is None:
-            self.compute_time_statistics()
+            self.__compute_time_statistics()
         return self._accumulated_blackbox_time

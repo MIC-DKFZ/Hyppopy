@@ -21,28 +21,33 @@ import matplotlib.pyplot as plt
 
 from hyppopy.SolverPool import SolverPool
 from hyppopy.HyppopyProject import HyppopyProject
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.BlackboxFunction import BlackboxFunction
 
-#OUTPUTDIR = "C:\\Users\\s635r\\Desktop\\solver_comparison"
-OUTPUTDIR = "D:\\Projects\\Python\\hyppopy\\examples\\solver_comparison\\gfx"
+OUTPUTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), *("solver_comparison", "gfx")))
 
+# The solvers to be evaluated
 SOLVER = []
-
 SOLVER.append("quasirandomsearch")
 SOLVER.append("randomsearch")
 SOLVER.append("hyperopt")
 SOLVER.append("optunity")
 SOLVER.append("optuna")
 
+# number of iterations to be tested
 ITERATIONS = []
 ITERATIONS.append(15)
 ITERATIONS.append(50)
 ITERATIONS.append(300)
 ITERATIONS.append(1000)
 
+# number of repetitions for each solver and iteration the results
+# plottet are the mean and std dev of these independent trials
 STATREPEATS = 50
 
+# evaluations are stored using pickle, if OVERWRITE is True these
+# are ignored and overwritten each time, set to False when only the
+# plottings need to be re-evaluated
 OVERWRITE = False
 
 
@@ -54,7 +59,7 @@ def compute_deviation(solver_name, vfunc_id, iterations, N, fname):
     project.add_hyperparameter(name="axis_03", domain="uniform", data=[0, 1], type=float)
     project.add_hyperparameter(name="axis_04", domain="uniform", data=[0, 1], type=float)
 
-    vfunc = VirtualFunction()
+    vfunc = FunctionSimulator()
     vfunc.load_default(vfunc_id)
     minima = vfunc.minima()
 

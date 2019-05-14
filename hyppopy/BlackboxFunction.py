@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -11,6 +10,8 @@
 #
 # See LICENSE
 
+__all__ = ['BlackboxFunction']
+
 import os
 import logging
 import functools
@@ -21,6 +22,9 @@ LOG.setLevel(DEBUGLEVEL)
 
 
 def default_kwargs(**defaultKwargs):
+    """
+    Decorator defining default args in **kwargs arguments
+    """
     def actual_decorator(fn):
         @functools.wraps(fn)
         def g(*args, **kwargs):
@@ -31,9 +35,32 @@ def default_kwargs(**defaultKwargs):
 
 
 class BlackboxFunction(object):
+    """
+    This class is a BlackboxFunction wrapper class encapsulating the loss function. Additional function pointer can be
+    set to get access at different pipelining steps:
+
+    - dataloader_func: data loading, the function must return a data object and is called first when the solver is executed.
+                       The data object returned will be the input of the blackbox function.
+    - preprocess_func: data preprocessing is called after dataloader_func, the functions signature must be foo(data, params)
+                       and must return a data object. The input is the data object set directly or via dataloader_func,
+                       the params are passed from constructor params.
+    - callback_func: this function is called at each iteration step getting passed the trail info content, can be used for
+                     custom visualization
+    - data: add a data object directly
+    """
 
     @default_kwargs(blackbox_func=None, dataloader_func=None, preprocess_func=None, callback_func=None, data=None)
     def __init__(self, **kwargs):
+        """
+        Constructor accepts function pointer or a data object which are all None by default. Additionally one can define
+        an arbitrary number of arg pairs. These are passed as input to each function pointer as arguments.
+
+        :param dataloader_func: data loading function pointer, default=None
+        :param preprocess_func: data preprocessing function pointer, default=None
+        :param callback_func: callback function pointer, default=None
+        :param data: data object, default=None
+        :param kwargs: additional arg=value pairs
+        """
         self._blackbox_func = None
         self._preprocess_func = None
         self._dataloader_func = None
@@ -43,9 +70,21 @@ class BlackboxFunction(object):
         self.setup(kwargs)
 
     def __call__(self, **kwargs):
+        """
+        Call method calls blackbox_func passing the data object and the args passed
+
+        :param kwargs: [dict] args
+
+        :return: blackbox_func(data, kwargs)
+        """
         return self.blackbox_func(self.data, kwargs)
 
     def setup(self, kwargs):
+        """
+        Alternative to Constructor, kwargs signature see __init__
+
+        :param kwargs: (see __init__)
+        """
         self._blackbox_func = kwargs['blackbox_func']
         self._preprocess_func = kwargs['preprocess_func']
         self._dataloader_func = kwargs['dataloader_func']

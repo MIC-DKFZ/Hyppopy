@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -10,6 +9,13 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+
+__all__ = ['RandomsearchSolver',
+           'draw_uniform_sample',
+           'draw_normal_sample',
+           'draw_loguniform_sample',
+           'draw_categorical_sample',
+           'draw_sample']
 
 import os
 import copy
@@ -26,8 +32,10 @@ LOG.setLevel(DEBUGLEVEL)
 
 def draw_uniform_sample(param):
     """
-    function draws a random sample from a uniform range
+    Function draws a random sample from a uniform range
+
     :param param: [dict] input hyperparameter discription
+
     :return: random sample value of type data['type']
     """
     assert param['type'] is not str, "cannot sample a string list!"
@@ -46,8 +54,10 @@ def draw_uniform_sample(param):
 
 def draw_normal_sample(param):
     """
-    function draws a random sample from a normal distributed range
+    Function draws a random sample from a normal distributed range
+
     :param param: [dict] input hyperparameter discription
+
     :return: random sample value of type data['type']
     """
     assert param['type'] is not str, "cannot sample a string list!"
@@ -67,8 +77,10 @@ def draw_normal_sample(param):
 
 def draw_loguniform_sample(param):
     """
-    function draws a random sample from a logarithmic distributed range
+    Function draws a random sample from a logarithmic distributed range
+
     :param param: [dict] input hyperparameter discription
+
     :return: random sample value of type data['type']
     """
     assert param['type'] is not str, "cannot sample a string list!"
@@ -89,8 +101,10 @@ def draw_loguniform_sample(param):
 
 def draw_categorical_sample(param):
     """
-    function draws a random sample from a categorical list
+    Function draws a random sample from a categorical list
+
     :param param: [dict] input hyperparameter discription
+
     :return: random sample value of type data['type']
     """
     return random.sample(param['data'], 1)[0]
@@ -98,8 +112,10 @@ def draw_categorical_sample(param):
 
 def draw_sample(param):
     """
-    function draws a sample from the input hyperparameter descriptor depending on it's domain
+    Function draws a sample from the input hyperparameter descriptor depending on it's domain
+
     :param param: [dict] input hyperparameter discription
+
     :return: random sample value of type data['type']
     """
     assert isinstance(param, dict), "input error, hyperparam descriptors of type {} not allowed!".format(type(param))
@@ -119,16 +135,17 @@ class RandomsearchSolver(HyppopySolver):
     """
     The RandomsearchSolver class implements a randomsearch optimization. The randomsearch supports
     categorical, uniform, normal and loguniform sampling. The solver draws an independent sample
-    from the parameter space each iteration."""
+    from the parameter space each iteration.
+    """
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
 
     def define_interface(self):
-        self.add_member("max_iterations", int)
-        self.add_hyperparameter_signature(name="domain", dtype=str,
+        self._add_member("max_iterations", int)
+        self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
-        self.add_hyperparameter_signature(name="data", dtype=list)
-        self.add_hyperparameter_signature(name="type", dtype=type)
+        self._add_hyperparameter_signature(name="data", dtype=list)
+        self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
         loss = self.blackbox(**params)
@@ -151,11 +168,5 @@ class RandomsearchSolver(HyppopySolver):
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
-        """
-        this function simply pipes the input parameter through, the sample
-        drawing functions are responsible for interpreting the parameter.
-        :param hyperparameter: [dict] hyperparameter space
-        :return: [dict] hyperparameter space
-        """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         return hyperparameter

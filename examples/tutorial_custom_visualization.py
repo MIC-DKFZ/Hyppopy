@@ -15,7 +15,7 @@ import matplotlib.pylab as plt
 
 from hyppopy.SolverPool import SolverPool
 from hyppopy.HyppopyProject import HyppopyProject
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.BlackboxFunction import BlackboxFunction
 
 project = HyppopyProject()
@@ -81,7 +81,7 @@ def my_visualization_function(**kwargs):
 
 
 def my_loss_function(data, params):
-    vfunc = VirtualFunction()
+    vfunc = FunctionSimulator()
     vfunc.load_default("5D")
     return vfunc(**params)
 

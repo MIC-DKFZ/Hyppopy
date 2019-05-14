@@ -1,0 +1,3 @@
+[run]
+source=hyppopy
+omit=hyppopy/tests/*

@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -12,10 +11,11 @@
 # See LICENSE
 
 import unittest
+import numpy as np
 import matplotlib.pylab as plt
 
 from hyppopy.solvers.RandomsearchSolver import *
-from hyppopy.VirtualFunction import VirtualFunction
+from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.HyppopyProject import HyppopyProject
 
 
@@ -109,7 +109,7 @@ class RandomsearchTestSuite(unittest.TestCase):
 
         project = HyppopyProject(config)
         solver = RandomsearchSolver(project)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)
@@ -146,7 +146,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             }
 
         solver = RandomsearchSolver(config)
-        vfunc = VirtualFunction()
+        vfunc = FunctionSimulator()
         vfunc.load_default()
         solver.blackbox = vfunc
         solver.run(print_stats=False)

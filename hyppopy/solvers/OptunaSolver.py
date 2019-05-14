@@ -1,5 +1,4 @@
-# DKFZ
-#
+# Hyppopy - A Hyper-Parameter Optimization Toolbox
 #
 # Copyright (c) German Cancer Research Center,
 # Division of Medical Image Computing.
@@ -32,11 +31,11 @@ class OptunaSolver(HyppopySolver):
         self._searchspace = None
 
     def define_interface(self):
-        self.add_member("max_iterations", int)
-        self.add_hyperparameter_signature(name="domain", dtype=str,
+        self._add_member("max_iterations", int)
+        self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "categorical"])
-        self.add_hyperparameter_signature(name="data", dtype=list)
-        self.add_hyperparameter_signature(name="type", dtype=type)
+        self._add_hyperparameter_signature(name="data", dtype=list)
+        self._add_hyperparameter_signature(name="type", dtype=type)
 
     def reformat_parameter(self, params):
         out_params = {}
