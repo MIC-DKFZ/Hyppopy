@@ -2,6 +2,10 @@
 # A Hyper-Parameter Optimization Toolbox
 <br>
 
+## Project Status
+[![Documentation Status](https://readthedocs.org/projects/hyppopy/badge/?version=latest)](https://hyppopy.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/mic-dkfz/hyppopy/branch/master/graph/badge.svg)](https://codecov.io/gh/mic-dkfz/hyppopy)
+
 ## What is Hyppopy?
 
 Hyppopy is a python toolbox for blackbox optimization. It's purpose is to offer a unified and easy to use interface to a collection of solver libraries. Currently provided solvers are:
