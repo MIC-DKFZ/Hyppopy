@@ -73,7 +73,7 @@ config = {
     }
 },
 "max_iterations": 300,
-"solver": "quasirandomsearch"
+"solver": "hyperopt"
 }
 
 

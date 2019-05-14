@@ -13,7 +13,6 @@
 import os
 import logging
 import optunity
-import warnings
 from pprint import pformat
 from hyppopy.globals import DEBUGLEVEL
 
@@ -27,8 +26,6 @@ class OptunitySolver(HyppopySolver):
 
     def __init__(self, project=None):
         HyppopySolver.__init__(self, project)
-        self._solver_info = None
-        self.opt_trials = None
 
     def define_interface(self):
         self._add_member("max_iterations", int)
@@ -66,7 +63,6 @@ class OptunitySolver(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
-        solution_space = {}
         # split input in categorical and non-categorical data
         cat, uni = self.split_categorical(hyperparameter)
         # build up dictionary keeping all non-categorical data
@@ -87,12 +83,11 @@ class OptunitySolver(HyppopySolver):
         inner_level = uniforms
         for key, value in cat.items():
             tmp = {}
-            tmp2 = {}
+            optunity_space = {}
             for key2, value2 in value.items():
                 if key2 == 'data':
                     for elem in value2:
                         tmp[elem] = inner_level
-            tmp2[key] = tmp
-            inner_level = tmp2
-        solution_space = tmp2
-        return solution_space
+            optunity_space[key] = tmp
+            inner_level = optunity_space
+        return optunity_space
