@@ -163,10 +163,22 @@ class QuasiRandomsearchSolver(HyppopySolver):
     means a rather evenly distributed space sampling but no real randomness.
     """
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         HyppopySolver.__init__(self, project)
         self._sampler = None
 
     def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
         self._add_member("max_iterations", int)
         self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "categorical"])
@@ -174,12 +186,28 @@ class QuasiRandomsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
+        """
+        This function is called within the function loss_function and encapsulates the actual blackbox function call
+        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
+        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
+        function, e.g. parameter converting.
+
+        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
+        :return: [float] loss
+        """
         loss = self.blackbox(**params)
         if loss is None:
             return np.nan
         return loss
 
     def execute_solver(self, searchspace):
+        """
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+
+        :param searchspace: converted hyperparameter space
+        """
         N = self.max_iterations
         self._sampler = QuasiRandomSampleGenerator(N)
         for name, axis in searchspace.items():
@@ -197,5 +225,14 @@ class QuasiRandomsearchSolver(HyppopySolver):
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
+        """
+        This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
+        convert it into a solver lib specific format. The function is invoked when run is called and what it returns
+        is passed as searchspace argument to the function execute_solver.
+
+        :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+
+        :return: [object] converted hyperparameter space
+        """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         return hyperparameter

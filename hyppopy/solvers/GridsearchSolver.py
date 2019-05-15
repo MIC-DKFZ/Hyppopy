@@ -137,9 +137,21 @@ class GridsearchSolver(HyppopySolver):
     a range, one must specifiy the number of samples in the domain, e.g. 'data': [0, 1, 100]
     """
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         HyppopySolver.__init__(self, project)
 
     def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
         self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
         self._add_hyperparameter_signature(name="data", dtype=list)
@@ -147,12 +159,28 @@ class GridsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function_call(self, params):
+        """
+        This function is called within the function loss_function and encapsulates the actual blackbox function call
+        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
+        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
+        function, e.g. parameter converting.
+
+        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
+
+        :return: [float] loss
+        """
         loss = self.blackbox(**params)
         if loss is None:
             return np.nan
         return loss
 
     def execute_solver(self, searchspace):
+        """
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+
+        :param searchspace: converted hyperparameter space
+        """
         for x in product(*searchspace[1]):
             params = {}
             for name, value in zip(searchspace[0], x):

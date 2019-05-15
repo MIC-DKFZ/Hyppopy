@@ -67,6 +67,11 @@ class HyppopySolver(object):
     - start_viewer
     """
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         self._idx = None                        # current iteration counter
         self._best = None                       # best parameter set
         self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
@@ -100,7 +105,7 @@ class HyppopySolver(object):
     @abc.abstractmethod
     def execute_solver(self, searchspace):
         """
-        This function is called immediatly after convert_searchspace and get the output of the latter as input. It's
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
         purpose is to call the solver libs main optimization function.
 
         :param searchspace: converted hyperparameter space
