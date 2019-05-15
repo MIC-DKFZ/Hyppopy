@@ -374,10 +374,20 @@ class HyppopySolver(object):
 
     @property
     def project(self):
+        """
+        HyppopyProject instance
+
+        :return: [HyppopyProject] project instance
+        """
         return self._project
 
     @project.setter
     def project(self, value):
+        """
+        Set HyppopyProject instance
+
+        :param value: [HyppopyProject] project instance
+        """
         if isinstance(value, dict):
             self._project = HyppopyProject(value)
         elif isinstance(value, HyppopyProject):
@@ -390,10 +400,21 @@ class HyppopySolver(object):
 
     @property
     def blackbox(self):
+        """
+        Get the BlackboxFunction object.
+
+        :return: [object] BlackboxFunction instance or function
+        """
         return self._blackbox
 
     @blackbox.setter
     def blackbox(self, value):
+        """
+        Set the BlackboxFunction wrapper class encapsulating the loss function or a function accepting a hyperparameter set
+        and returning a float.
+
+        :return: [object] pointer to blackbox_func
+        """
         if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator):
             self._blackbox = value
         else:
@@ -404,10 +425,21 @@ class HyppopySolver(object):
 
     @property
     def best(self):
+        """
+        Returns best parameter set.
+
+        :return: [dict] best parameter set
+        """
         return self._best
 
     @best.setter
     def best(self, value):
+        """
+        Set the best parameter set.
+
+        :param value: [dict] best parameter set
+
+        """
         if not isinstance(value, dict):
             msg = "Input error, best of type: {} not allowed!".format(type(value))
             LOG.error(msg)
@@ -416,30 +448,60 @@ class HyppopySolver(object):
 
     @property
     def trials(self):
+        """
+        Get the Trials instance.
+
+        :return: [object] Trials instance
+        """
         return self._trials
 
     @trials.setter
     def trials(self, value):
+        """
+        Set the Trials object.
+
+        :param value: [object] Trials instance
+        """
         self._trials = value
 
     @property
     def total_duration(self):
+        """
+        Get total computation duration.
+
+        :return: [float] total computation time
+        """
         return (self._total_duration[0]*86400 + self._total_duration[1] * 3600 + self._total_duration[2] * 60 + self._total_duration[3]) * 1000 + self._total_duration[4]
 
     @property
     def solver_overhead(self):
+        """
+        Get the solver overhead, this is the total time minus the duration of the blackbox function calls.
+
+        :return: [float] solver overhead duration
+        """
         if self._solver_overhead is None:
             self.__compute_time_statistics()
         return self._solver_overhead
 
     @property
     def time_per_iteration(self):
+        """
+        Get the mean duration per iteration.
+
+        :return: [float] time per iteration
+        """
         if self._time_per_iteration is None:
             self.__compute_time_statistics()
         return self._time_per_iteration
 
     @property
     def accumulated_blackbox_time(self):
+        """
+        Get the summed blackbox function computation time.
+
+        :return: [float] blackbox function computation time
+        """
         if self._accumulated_blackbox_time is None:
             self.__compute_time_statistics()
         return self._accumulated_blackbox_time

@@ -37,6 +37,9 @@ class SolverPool(metaclass=Singleton):
     """
 
     def __init__(self):
+        """
+        Constructor defines the solvers available. If a new solver should be added, add it's name to this list.
+        """
         self._solver_list = ["hyperopt",
                              "optunity",
                              "optuna",
