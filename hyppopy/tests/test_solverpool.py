@@ -232,7 +232,7 @@ class SolverPoolTestSuite(unittest.TestCase):
         for loss in df['losses']:
             self.assertTrue(isinstance(loss, float))
 
-    def test_getQuasiRandomsearchSolver(self):
+    def test_getGridsearchSolver(self):
         config = {
             "hyperparameter": {
                 "value 1": {
@@ -277,3 +277,13 @@ class SolverPoolTestSuite(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(res_values[i], searchspace[1][i])
         self.assertEqual(res_values[3], searchspace[1][3])
+
+    def test_projectNone(self):
+        solver = SolverPool.get("hyperopt")
+        solver = SolverPool.get("optunity")
+        solver = SolverPool.get("optuna")
+        solver = SolverPool.get("randomsearch")
+        solver = SolverPool.get("quasirandomsearch")
+        solver = SolverPool.get("gridsearch")
+
+        self.assertRaises(AssertionError, SolverPool.get, "foo")
