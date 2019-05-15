@@ -247,7 +247,7 @@ class HyppopySolver(object):
             loss = self.loss_function_call(params)
             trial['result']['loss'] = loss
             trial['result']['status'] = 'ok'
-            if loss == np.nan:
+            if loss is np.nan:
                 trial['result']['status'] = 'failed'
         except Exception as e:
             LOG.error("computing loss failed due to:\n {}".format(e))

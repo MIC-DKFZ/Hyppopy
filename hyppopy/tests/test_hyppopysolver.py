@@ -302,6 +302,47 @@ class TestRunSolver2(HyppopySolver):
         pass
 
 
+class TestLossFuncSolver1(HyppopySolver):
+    def __init__(self, project=None):
+        project = HyppopyProject({})
+
+        HyppopySolver.__init__(self, project)
+        self._searchspace = None
+
+    def convert_searchspace(self, hyperparameter):
+        pass
+
+    def loss_function_call(self, params):
+        raise Exception("For testing")
+
+    def execute_solver(self, searchspace):
+        self.loss_function(**{})
+
+    def define_interface(self):
+        pass
+
+
+class TestLossFuncSolver2(HyppopySolver):
+    def __init__(self, project=None):
+        project = HyppopyProject({})
+
+        HyppopySolver.__init__(self, project)
+        self._searchspace = None
+
+    def convert_searchspace(self, hyperparameter):
+        pass
+
+    def loss_function_call(self, params):
+        from numpy import nan as npnan
+        return npnan
+
+    def execute_solver(self, searchspace):
+        self.loss_function(**{})
+
+    def define_interface(self):
+        pass
+
+
 class HyppopySolverTestSuite(unittest.TestCase):
 
     def setUp(self):
@@ -334,3 +375,7 @@ class HyppopySolverTestSuite(unittest.TestCase):
         self.assertRaises(TypeError, solver.project, 100)
         self.assertRaises(TypeError, solver.blackbox, 100)
         self.assertRaises(TypeError, solver.best, 100)
+
+    def test_lossfunccall(self):
+        TestLossFuncSolver1().run(print_stats=False)
+        TestLossFuncSolver2().run(print_stats=False)
