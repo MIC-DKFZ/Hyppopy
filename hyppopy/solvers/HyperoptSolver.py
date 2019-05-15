@@ -185,17 +185,17 @@ class HyperoptSolver(HyppopySolver):
             if dtype is str:
                 return hp.choice(name, data)
             elif dtype is bool:
-                data = []
+                conv = []
                 for elem in data:
-                    if elem == "true" or elem == "True" or elem == 1 or elem == "1":
-                        data.append(True)
-                    elif elem == "false" or elem == "False" or elem == 0 or elem == "0":
-                        data.append(False)
+                    if elem == "true" or elem == "True" or elem == 1 or elem == "1" or elem == True:
+                        conv.append(True)
+                    elif elem == "false" or elem == "False" or elem == 0 or elem == "0" or elem == False:
+                        conv.append(False)
                     else:
                         msg = "cannot convert the type {} in domain {}, unknown bool type value".format(dtype, domain)
                         LOG.error(msg)
                         raise LookupError(msg)
-                return hp.choice(name, data)
+                return hp.choice(name, conv)
         else:
             msg = "Precondition violation, domain named {} not available!".format(domain)
             LOG.error(msg)

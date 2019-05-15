@@ -51,11 +51,17 @@ solver :py:mod:`hyppopy.solvers.OptunitySolver`:
 			HyppopySolver.__init__(self, project)
 
 First step is to derive from the HyppopySolver class. Good practice would be that the project can be set via __init__
-and if, is piped through to the HyppopySolver.__init__. Next step is implementing the abstract interface methods.
-We start with define_interface. This functions purpose is to define the relevant input parameter and the signature
-of the hyperparameter space. Our solver needs an parameter called max_iterations of type int. The hyperparameter 
-space has a domain that allows values 'uniform' and 'categorical', a field data of type list and a field type of type 
-type. This guarantees that exceptions are thrown if the user disrespects this signature or forgets to set max_iterations.
+and if, is piped through to the HyppopySolver.__init__.
+
+Next step is implementing the abstract interface methods. We start with define_interface. This functions purpose is to
+define the relevant input parameter and the signature of a hyperparameter description. This means the solver developer
+can define what parameter the solver expects as well as how a single hyperparameter must be described. The rules defined
+here are automatically applied when the solver run method is called and exceptions are thrown if there is a mismatch
+between these rules and the settings the user sets via it's config.
+
+Our solver in this example needs an parameter called max_iterations of type int. The hyperparameter space has a domain
+that allows values 'uniform' and 'categorical', a field data of type list and a field type of type type. This guarantees
+that exceptions are thrown if the user disrespects this signature or forgets to set max_iterations.
 
 .. code-block:: python
 
