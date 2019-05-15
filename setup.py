@@ -7,7 +7,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.5.0.3"
+VERSION = "0.5.0.4"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
