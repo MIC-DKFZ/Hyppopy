@@ -173,7 +173,8 @@ class GridsearchSolver(HyppopySolver):
             return np.nan
         return loss
 
-    def get_candidate_list(self, searchspace):
+    @staticmethod
+    def get_candidate_list(searchspace):
         """
         This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
 
