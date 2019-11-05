@@ -23,6 +23,7 @@ from hyppopy.globals import *
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
+from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import DEBUGLEVEL
 
@@ -72,9 +73,9 @@ class HyppopySolver(object):
 
         :param project: [HyppopyProject] project instance, default=None
         """
-        self._idx = None                        # current iteration counter
+        self._idx = 0                        # current iteration counter
         self._best = None                       # best parameter set
-        self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
+        self._trials = Trials()                     # trials object, hyppopy uses the Trials object from hyperopt
         self._blackbox = None                   # blackbox function, eiter a  function or a BlackboxFunction instance
         self._total_duration = None             # keeps track of the solvers running time
         self._solver_overhead = None            # stores the time overhead of the solver, means total time minus time in blackbox
@@ -262,7 +263,7 @@ class HyppopySolver(object):
         cbd['status'] = trial['result']['status']
         cbd['book_time'] = trial['book_time']
         cbd['refresh_time'] = trial['refresh_time']
-        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
+        if (isinstance(self.blackbox, BlackboxFunction) or isinstance(self.blackbox, MPIBlackboxFunction)) and self.blackbox.callback_func is not None:
             self.blackbox.callback_func(**cbd)
         if self._visdom_viewer is not None:
             self._visdom_viewer.update(cbd)
@@ -337,6 +338,7 @@ class HyppopySolver(object):
         print("#" * 40)
         for name, value in self.best.items():
             print(" - {}\t:\t{}".format(name, value))
+
         print("\n - number of iterations\t:\t{}".format(self.trials.trials[-1]['tid']+1))
         print(" - total time\t:\t{}d:{}h:{}m:{}s:{}ms".format(self._total_duration[0],
                                                               self._total_duration[1],
@@ -420,7 +422,7 @@ class HyppopySolver(object):
 
         :return: [object] pointer to blackbox_func
         """
-        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator):
+        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator) or isinstance(value, MPIBlackboxFunction):
             self._blackbox = value
         else:
             self._blackbox = None
