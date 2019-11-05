@@ -15,6 +15,7 @@ import logging
 import warnings
 import numpy as np
 from pprint import pformat
+
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
@@ -164,15 +165,31 @@ class GridsearchSolver(HyppopySolver):
         in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
         lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
         function, e.g. parameter converting.
-
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
         :return: [float] loss
         """
         loss = self.blackbox(**params)
         if loss is None:
             return np.nan
         return loss
+
+    def get_candidate_list(self, searchspace):
+        """
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
+
+        :param searchspace: converted hyperparameter space
+        """
+
+        candidates_list = list()
+        candidates = [x for x in product(*searchspace[1])]
+        # [print(c) for c in candidates]
+        for c in candidates:
+            params = {}
+            for name, value in zip(searchspace[0], c):
+                params[name] = value
+            candidates_list.append(params)
+
+        return candidates_list
 
     def execute_solver(self, searchspace):
         """
