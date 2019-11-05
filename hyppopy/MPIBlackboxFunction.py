@@ -9,7 +9,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-from mpi4py import MPI
 
 __all__ = ['MPIBlackboxFunction']
 
@@ -18,7 +17,6 @@ import logging
 import functools
 from hyppopy.globals import DEBUGLEVEL
 from mpi4py import MPI
-import numpy as np
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
