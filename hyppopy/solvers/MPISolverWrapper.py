@@ -105,45 +105,30 @@ class MPISolverWrapper:
                 #     loss = np.nan
         return
 
-    @staticmethod
-    def call_batch(candidates):
-        size = MPI.COMM_WORLD.Get_size()
-        for i, candidate in enumerate(candidates):
-            dest = (i % (size-1)) +1
-            MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_DATA.value)
-
-    def call_worker(self):
+    def run_worker_mode(self):
         """
-        This function calls a worker for a specific MPI rank.
+        This function is called if the wrapper should run as a worker for a specific MPI rank.
         It receives messages for the following tags:
-        tag==MPI_SEND_DATA: parameters for the loss calculation. It param==None, the worker finishes.
+        tag==MPI_SEND_CANDIDATE: parameters for the loss calculation. It param==None, the worker finishes.
         It sends messages for the following tags:
-        tag==99: trials of this mpi process.
+        tag==MPI_SEND_RESULT: result of an evaluated candidate.
 
-        :return:
+        :return: the evaluated loss of the candidate
         """
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         print("Starting worker {}. Waiting for param...".format(rank))
 
         while True:
-            param = comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_DATA.value)  # Wait here till params are received
+            candidate = comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
 
-            # param == None indicates that the worker should finish.
-            if param is None:
-                MPI.COMM_WORLD.send(self._solver._trials, dest=0, tag=MPI_TAGS.MPI_SEND_TRIALS.value)
-                # trials = comm.gather(self._solver._trials, root=0)  # TODO can we solve this with gather as well?
-
-                self._solver.best = self._solver._trials.argmin
-                # TODO: Printing does not work for now.
-                # self.print_best()
-                # self.print_timestats()
+            if candidate == None:
+                print(print("process {} received finish signal.".format(rank)))
                 return
-            self.loss_function(param)  # No **params here... I overwrote this method.
-
-            # TODO: Do we need this here?
-            # loss = self.loss_function(param)  # No **params here... I overwrote this method.
-            # print('{}: param = {}, loss={}'.format(rank, param, loss))
+            id,params = candidate
+            loss = self._solver.blackbox.blackbox_func(None, **params)
+            # RALF: Ergebnisse müssen zurück geschickt werden und nicht local in einem trial gespeichert werden
+            comm.send((id,loss), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
     @staticmethod
     def signal_worker_finished():
@@ -155,65 +140,26 @@ class MPISolverWrapper:
         print('signal_worker_finished')
         size = MPI.COMM_WORLD.Get_size()
         for i in range(size - 1):
-            MPI.COMM_WORLD.send(None, dest=i + 1, tag=MPI_TAGS.MPI_SEND_DATA.value)
+            MPI.COMM_WORLD.send(None, dest=i + 1, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
 
-    def run(self):
+    def run(self, *args, **kwargs):
         """
         This function starts the optimization process.
-
-        TODO:
-        This is a copy paste of the HyppopySolver method. Maybe not the most elegant solution, but works for now.
-
         :param print_stats: [bool] en- or disable console output
         """
-        self._idx = 0
+        # RALF das ist der job von run hier: das eigentliche run MPI-aware zu machen.
+        # TODO: Kommentar wieder entfernen
+        mpi_rank = MPI.COMM_WORLD.Get_rank()
+        if mpi_rank == 0:
+            # This is the master process. From here we run the solver and start all the other processes.
+            self._solver.run(*args, **kwargs)
+            self.signal_worker_finished()  # Tell the workers to finish.
+        else:
+            # this script execution should be in worker mode as it is an mpi worker.
+            self.run_worker_mode()
 
-        start_time = datetime.datetime.now()
-        try:
-            search_space = self.convert_searchspace(self._solver.project.hyperparameter)
-        except Exception as e:
-            msg = "Failed to convert searchspace, error: {}".format(e)
-            LOG.error(msg)
-            raise AssertionError(msg)
-        try:
-            self.execute_solver(search_space)
-        except Exception as e:
-            msg = "Failed to execute solver, error: {}".format(e)
-            LOG.error(msg)
-            raise AssertionError(msg)
-        end_time = datetime.datetime.now()
-        dt = end_time - start_time
-        days = divmod(dt.total_seconds(), 86400)
-        hours = divmod(days[1], 3600)
-        minutes = divmod(hours[1], 60)
-        seconds = divmod(minutes[1], 1)
-        milliseconds = divmod(seconds[1], 0.001)
-        self._total_duration = [int(days[0]), int(hours[0]), int(minutes[0]), int(seconds[0]), int(milliseconds[0])]
-
-        # TODO: Do print later... Workers might not be finished
-        # if print_stats:
-        #     self.print_best()
-        #     self.print_timestats()
-
-    def execute_solver(self, searchspace):
-        """
-        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
-        purpose is to call the solver libs main optimization function.
-
-        :param searchspace: converted hyperparameter space
-        """
-
-        candidates_list = self._solver.get_candidate_list(searchspace)
-
-        try:
-            self.call_batch(candidates_list)
-        except:
-            for params in candidates_list:
-                self.loss_function(params)  # No **params here... I overwrote this method.
-
-        return
-
-        # results are gathered in the get_results() function
+    # RALF execute_solver hat hier nichts zu suchen. Das ist wirklich job des gewrappten solvers
+    # TODO: Kommentar wieder entfernen
 
     def convert_searchspace(self, hyperparameter):
         """

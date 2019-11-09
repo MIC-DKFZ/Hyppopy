@@ -36,5 +36,5 @@ logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(levelname)s: %
 
 
 class MPI_TAGS(Enum):
-     MPI_SEND_DATA = 55
-     MPI_SEND_TRIALS = 99
+     MPI_SEND_CANDIDATE = 55
+     MPI_SEND_RESULTS = 99

@@ -15,7 +15,7 @@ __all__ = ['MPIBlackboxFunction']
 import os
 import logging
 import functools
-from hyppopy.globals import DEBUGLEVEL
+from hyppopy.globals import DEBUGLEVEL, MPI_TAGS
 from mpi4py import MPI
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -84,34 +84,18 @@ class MPIBlackboxFunction(object):
         print('batch_call')
 
         size = MPI.COMM_WORLD.Get_size()
+
+        #RALF: Hier müssen die Kandidaten an die Worker verteilt werden, dass machst du.
+        # Aber auch die ergebnisse eingesammelt werden und für alle Kandidaten zurück gemeldet werden
+        # das wird so vom solver erwartet wenn er call_batch macht.
         for i, candidate in enumerate(candidates):
             dest = (i % (size-1)) +1
-            MPI.COMM_WORLD.send(candidate, dest=dest, tag=55)
+            MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
         # shared = {'d1': 55, 'd2': 42}
         # MPI.COMM_WORLD.send(shared, dest=1, tag=13)
 
-    def signal_worker_finished(self):
-        print('signal_worker_finished')
-        size = MPI.COMM_WORLD.Get_size()
-        for i in range(size-1):
-            MPI.COMM_WORLD.send(None, dest=i+1, tag=55)
-
-    def call_worker(self):
-        comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()
-        print("Hello, World! I am process {}. I am waiting for param".format(rank))
-
-        candidates_loss = []
-        while True:
-            param = comm.recv(source=0, tag=55)  # Receive the param
-
-            if param == None:
-                print(print("process {} received finish signal.".format(rank)))
-                return
-            loss = self._blackbox_func(None, param)
-            print('{}: param = {}, loss={}'.format(rank,param, loss))
-            candidates_loss.append(loss)
-
+    #RALF: call_worker wird hier nicht gebraucht. das passiert im SolverWrapper
+    # TODO Kommentar löschen
 
     def setup(self, kwargs):
         """

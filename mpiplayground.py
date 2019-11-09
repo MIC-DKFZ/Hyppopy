@@ -71,19 +71,9 @@ solver = MPISolverWrapper(GridsearchSolver(project))
 blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function)
 solver.blackbox = blackbox
 
-# this part should be covered by a MPI solver wrapper. That is just a wrapper around normal solvers, mimicking the HypopySolver interact and just
-# treating run() and get_results() in a special way.
-mpi_rank = MPI.COMM_WORLD.Get_rank()
-if mpi_rank == 0:
-    # This is the master process. From here we run the solver and start all the other processes.
-    solver.run()
-    solver.signal_worker_finished()  # Tell the workes to finish.
-    df, best = solver.get_results()  # gather the results from the different processes.
-
-    print("\n")
-    print("*" * 100)
-    print("Best Parameter Set:\n{}".format(best))
-    print("*" * 100)
-else:
-    # Call the worker and make it wait till it receives input.
-    solver.call_worker()
+solver.run()
+df, best = solver.get_results()  # gather the results from the different processes.
+print("\n")
+print("*" * 100)
+print("Best Parameter Set:\n{}".format(best))
+print("*" * 100)

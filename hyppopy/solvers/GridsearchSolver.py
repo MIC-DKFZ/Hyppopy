@@ -173,8 +173,11 @@ class GridsearchSolver(HyppopySolver):
             return np.nan
         return loss
 
-    @staticmethod
-    def get_candidate_list(searchspace):
+    #RALF: Ich würde allgemein candidaten listen zu dict machen, damit jeder candidate auch
+    # eine ID (key) hat, die der Solver vergeben kann. Hier würde ich einfach die stringifizierten params
+    # zum key machen oder du führst die CandidateDescritorClasse (siehe HyppopySolver.py) als Convinience.
+    # TODO: Kommentar wieder entfernen
+    def get_candidate_list(self, searchspace):
         """
         This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
 
@@ -199,16 +202,17 @@ class GridsearchSolver(HyppopySolver):
 
         :param searchspace: converted hyperparameter space
         """
-        for x in product(*searchspace[1]):
-            params = {}
-            for name, value in zip(searchspace[0], x):
-                params[name] = value
-            try:
-                self.loss_function(**params)
-            except Exception as e:
-                msg = "internal error in randomsearch execute_solver occured. {}".format(e)
-                LOG.error(msg)
-                raise BrokenPipeError(msg)
+        candidates = self.get_candidate_list()
+
+        #RALF: Hier wird get_candidate_list gebraucht um einen loss_function_batch aufzurufen
+        # entsprechend muss auch HypopySolver erweitert werden, dass sie die loss_function_batch unterstützen.
+        # TODO: Kommentar wieder entfernen
+        try:
+            self.loss_function_batch(candidates)
+        except Exception as e:
+            msg = "internal error in randomsearch execute_solver occured. {}".format(e)
+            LOG.error(msg)
+            raise BrokenPipeError(msg)
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
