@@ -81,21 +81,40 @@ class MPIBlackboxFunction(object):
         return self.blackbox_func(self.data, kwargs)
 
     def call_batch(self, candidates):
-        print('batch_call')
+        # raise NotImplementedError('users must define loss_function_call to use this class')
+        print('call_batch')
+        losses = dict()
 
         size = MPI.COMM_WORLD.Get_size()
 
-        #RALF: Hier müssen die Kandidaten an die Worker verteilt werden, dass machst du.
-        # Aber auch die ergebnisse eingesammelt werden und für alle Kandidaten zurück gemeldet werden
+        # RALF: Hier müssen die Kandidaten an die Worker verteilt werden, das machst du.
+        # Aber auch die Ergebnisse eingesammelt werden und für alle Kandidaten zurück gemeldet werden
         # das wird so vom solver erwartet wenn er call_batch macht.
-        for i, candidate in enumerate(candidates):
-            dest = (i % (size-1)) +1
-            MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
-        # shared = {'d1': 55, 'd2': 42}
-        # MPI.COMM_WORLD.send(shared, dest=1, tag=13)
+        try:
+            for i, candidate in enumerate(candidates):
+                dest = (i % (size-1)) + 1
+                MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
+        except Exception as e:
+            # TODO
+            print('EXCEPTION '.format(e))
+            for i, candidate in enumerate(candidates):
+                id = candidate.ID
+                params = candidate._definingValues
 
-    #RALF: call_worker wird hier nicht gebraucht. das passiert im SolverWrapper
-    # TODO Kommentar löschen
+                loss = self.blackbox_func(None, params)
+                losses[id] = loss
+            return losses
+
+        size = MPI.COMM_WORLD.Get_size()
+        while True:
+            for i in range(size - 1):
+                if len(candidates) == len(losses):
+                    print('All results received!')
+                    print(losses)
+                    return losses
+                id,loss = MPI.COMM_WORLD.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+                losses[id] = loss
+                # print('ID: {}, loss: {}'.format(id,loss))
 
     def setup(self, kwargs):
         """
