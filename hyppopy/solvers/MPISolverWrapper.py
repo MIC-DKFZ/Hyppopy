@@ -9,7 +9,6 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
-import datetime
 import os
 import logging
 
@@ -23,6 +22,8 @@ LOG.setLevel(DEBUGLEVEL)
 class MPISolverWrapper:
     """
     TODO
+    The MPISolverWrapper class wraps the functionality of solvers in Hyppopy to extend them with MPI functionality.
+    It builds upon the interface defined by the HyppopySolver class.
     """
     def __init__(self, solver=None):
         """
@@ -56,22 +57,11 @@ class MPISolverWrapper:
         Just call get_results of the member solver and return the result.
         :return: return value of self._solver.get_results()
         """
-
-        comm = MPI.COMM_WORLD
-        size = comm.size
-
-        # This loop collects the results from the worker processes.
-        # If we start this without MPI, this loop is skipped and the results are already in the member variable.
-        # Genius? Maybe... or maybe it just turned out this way. :-P
-        for i in range(size - 1):
-            rec_trials = comm.recv(source=i+1, tag=MPI_TAGS.MPI_SEND_TRIALS.value)
-            for trial in rec_trials.trials:
-                self._solver._trials.trials.append(trial)
-        self._solver.best = self._solver._trials.argmin
-
-        print('Number of processes: {}'.format(size))
-        print('Best result: {}'.format(self._solver.best))
-        return self._solver.get_results()
+        # TODO: This is ugly.
+        mpi_rank = MPI.COMM_WORLD.Get_rank()
+        if mpi_rank == 0:
+            return self._solver.get_results()
+        return None, None
 
     def define_interface(self):
         """
@@ -83,27 +73,11 @@ class MPISolverWrapper:
         """
         self._solver.define_interface()
 
-    def loss_function_call(self, candidates):
+    def loss_function_call(self, params):
         """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-
-        :param candidates: TODO params [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...} TODO remove
-
-        :return: [float] loss
+        TODO: Do we even need this here? Don't think so.
         """
-        try:
-            self.call_batch(candidates)
-        except:
-            for params in candidates:
-                self.blackbox(**params)
-                # TODO: Why do we need the loss as a return here?
-                # loss = self.blackbox(**params)
-                # if loss is None:
-                #     loss = np.nan
-        return
+        return self._solver.loss_function_call(params)
 
     def run_worker_mode(self):
         """
@@ -125,9 +99,14 @@ class MPISolverWrapper:
             if candidate == None:
                 print(print("process {} received finish signal.".format(rank)))
                 return
-            id,params = candidate
-            loss = self._solver.blackbox.blackbox_func(None, **params)
+
+            id = candidate.ID
+            params = candidate._definingValues
+
+            loss = self._solver.blackbox.blackbox_func(None, params)
             # RALF: Ergebnisse müssen zurück geschickt werden und nicht local in einem trial gespeichert werden
+            # TODO
+            # print('ID: {}, param: {}'.format(id, params))
             comm.send((id,loss), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
     @staticmethod
@@ -147,8 +126,7 @@ class MPISolverWrapper:
         This function starts the optimization process.
         :param print_stats: [bool] en- or disable console output
         """
-        # RALF das ist der job von run hier: das eigentliche run MPI-aware zu machen.
-        # TODO: Kommentar wieder entfernen
+
         mpi_rank = MPI.COMM_WORLD.Get_rank()
         if mpi_rank == 0:
             # This is the master process. From here we run the solver and start all the other processes.
@@ -157,9 +135,6 @@ class MPISolverWrapper:
         else:
             # this script execution should be in worker mode as it is an mpi worker.
             self.run_worker_mode()
-
-    # RALF execute_solver hat hier nichts zu suchen. Das ist wirklich job des gewrappten solvers
-    # TODO: Kommentar wieder entfernen
 
     def convert_searchspace(self, hyperparameter):
         """
@@ -185,6 +160,4 @@ class MPISolverWrapper:
         self._solver.print_best()
 
     def print_timestats(self):
-        print('Implement me!')
-        # TODO
-        # self._solver.print_timestats()
+        self._solver.print_timestats()
