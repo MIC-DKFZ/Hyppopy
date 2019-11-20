@@ -19,7 +19,7 @@ from pprint import pformat
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
-from hyppopy.solvers.HyppopySolver import HyppopySolver
+from hyppopy.solvers.HyppopySolver import HyppopySolver, CandidateDescriptor
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -175,15 +175,14 @@ class GridsearchSolver(HyppopySolver):
 
     #RALF: Ich würde allgemein candidaten listen zu dict machen, damit jeder candidate auch
     # eine ID (key) hat, die der Solver vergeben kann. Hier würde ich einfach die stringifizierten params
-    # zum key machen oder du führst die CandidateDescritorClasse (siehe HyppopySolver.py) als Convinience.
+    # zum key machen oder du führst die CandidateDescritorClass (siehe HyppopySolver.py) als Convinience.
     # TODO: Kommentar wieder entfernen
-    def get_candidate_list(self, searchspace):
+    def get_candidates(self, searchspace):
         """
         This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
 
         :param searchspace: converted hyperparameter space
         """
-
         candidates_list = list()
         candidates = [x for x in product(*searchspace[1])]
         # [print(c) for c in candidates]
@@ -191,7 +190,7 @@ class GridsearchSolver(HyppopySolver):
             params = {}
             for name, value in zip(searchspace[0], c):
                 params[name] = value
-            candidates_list.append(params)
+            candidates_list.append(CandidateDescriptor(**params))
 
         return candidates_list
 
@@ -202,15 +201,15 @@ class GridsearchSolver(HyppopySolver):
 
         :param searchspace: converted hyperparameter space
         """
-        candidates = self.get_candidate_list()
+        candidates = self.get_candidates(searchspace)
 
-        #RALF: Hier wird get_candidate_list gebraucht um einen loss_function_batch aufzurufen
+        # RALF: Hier wird get_candidate_list gebraucht um einen loss_function_batch aufzurufen
         # entsprechend muss auch HypopySolver erweitert werden, dass sie die loss_function_batch unterstützen.
         # TODO: Kommentar wieder entfernen
         try:
             self.loss_function_batch(candidates)
         except Exception as e:
-            msg = "internal error in randomsearch execute_solver occured. {}".format(e)
+            msg = "internal error in grdsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
             raise BrokenPipeError(msg)
         self.best = self._trials.argmin
