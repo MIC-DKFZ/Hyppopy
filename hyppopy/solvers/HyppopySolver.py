@@ -32,13 +32,16 @@ LOG.setLevel(DEBUGLEVEL)
 
 
 class CandidateDescriptor(object):
-    '''Descriptor that defines an candidate the solver wants to be checked.
-      It use used to lable/identify the candidates and there results in the case of batch processing.'''
+    """
+    Descriptor that defines an candidate the solver wants to be checked.
+    It is used to lable/identify the candidates and their results in the case of batch processing.
+    """
 
     def __init__(self, **definingValues):
-        '''@param definingValues Class assumes that all variables passed to the copmuter are parametes of the candidate
-           the instance should represent.'''
-
+        """
+        @param definingValues Class assumes that all variables passed to the computer are parameters of the candidate
+        the instance should represent.
+        """
         import uuid
 
         self._definingValues = definingValues
@@ -130,7 +133,7 @@ class HyppopySolver(object):
         """
         self._idx = 0                        # current iteration counter
         self._best = None                       # best parameter set
-        self._trials = Trials()                     # trials object, hyppopy uses the Trials object from hyperopt
+        self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
         self._blackbox = None                   # blackbox function, eiter a  function or a BlackboxFunction instance
         self._total_duration = None             # keeps track of the solvers running time
         self._solver_overhead = None            # stores the time overhead of the solver, means total time minus time in blackbox
@@ -311,7 +314,7 @@ class HyppopySolver(object):
             trial['result']['loss'] = np.nan
             trial['result']['status'] = 'failed'
         trial['refresh_time'] = datetime.datetime.now()
-        self._trials.trials.append(trial)
+        self.trials.trials.append(trial)
         cbd = copy.deepcopy(params)
         cbd['iterations'] = self._idx
         cbd['loss'] = loss
@@ -324,10 +327,68 @@ class HyppopySolver(object):
 
     # RALF: Das wird gebraucht um ganze batches abzugeben und hier werden dann auch die trials eingepflegt.
     def loss_function_batch(self, candidates):
+        # TODO
         # RALF analog zu loss_function aber für alle candidates. hier wird erstmal getestet ob die eigentliche function batches
-        #unterstützt. Wenn ja: go for it. Wenn nein: brav in einer schleife abspulen.
+        # unterstützt. Wenn ja: go for it. Wenn nein: brav in einer schleife abspulen.
         # wenn sauber implementiert wird loss_function() obsolet bzw. macht nichts anderes als loss_function_batch() mit
         # nur einem Kandidaten aufrufen.
+
+        candidate_losses = dict()
+        try:
+            candidate_losses = self.blackbox.call_batch(candidates)
+        except Exception as e:
+            LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
+            for i, candidate in enumerate(candidates):
+                id = candidate.ID
+                params = candidate._definingValues
+
+                loss = self.blackbox(**params)
+                candidate_losses[id] = loss
+
+
+        # initialize trials
+        for i, candidate in enumerate(candidates):
+            self._idx += 1
+            vals = {}
+            idx = {}
+            for key in candidate.keys():
+                vals[key] = [candidate[key]]
+                idx[key] = [self._idx]
+            trial = {'tid': self._idx,
+                    'result': {'loss': None, 'status': 'ok'},
+                    'misc': {
+                        'tid': self._idx,
+                        'idxs': idx,
+                        'vals': vals
+                    },
+                    'book_time': datetime.datetime.now(),
+                    'refresh_time': None
+                    }
+            try:
+                loss = candidate_losses[candidate.ID]
+                trial['result']['loss'] = loss
+                trial['result']['status'] = 'ok'
+                if loss is np.nan:
+                    trial['result']['status'] = 'failed'
+            except Exception as e:
+                LOG.error("computing loss failed due to:\n {}".format(e))
+                loss = np.nan
+                trial['result']['loss'] = np.nan
+                trial['result']['status'] = 'failed'
+            trial['refresh_time'] = datetime.datetime.now()
+            self._trials.trials.append(trial)
+            cbd = copy.deepcopy(candidate._definingValues)
+            cbd['iterations'] = self._idx
+            cbd['loss'] = loss
+            cbd['status'] = trial['result']['status']
+            cbd['book_time'] = trial['book_time']
+            cbd['refresh_time'] = trial['refresh_time']
+            if (isinstance(self.blackbox, BlackboxFunction) or isinstance(self.blackbox, MPIBlackboxFunction)) and self.blackbox.callback_func is not None:
+                self.blackbox.callback_func(**cbd)
+
+        # for candidate in candidates:
+        #     candidate_losses.append(self.loss_function(**candidate))
+
         return candidate_losses
 
     def run(self, print_stats=True):
