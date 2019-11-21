@@ -19,7 +19,8 @@ from pprint import pformat
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
-from hyppopy.solvers.HyppopySolver import HyppopySolver, CandidateDescriptor
+from hyppopy.solvers.HyppopySolver import HyppopySolver
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -176,7 +177,7 @@ class GridsearchSolver(HyppopySolver):
     #RALF: Ich würde allgemein candidaten listen zu dict machen, damit jeder candidate auch
     # eine ID (key) hat, die der Solver vergeben kann. Hier würde ich einfach die stringifizierten params
     # zum key machen oder du führst die CandidateDescritorClass (siehe HyppopySolver.py) als Convinience.
-    # TODO: Kommentar wieder entfernen
+    # TODO: Kommentar wieder entfernen. -> List of CandidateDescriptor ok, or rather dict?
     def get_candidates(self, searchspace):
         """
         This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
@@ -203,9 +204,6 @@ class GridsearchSolver(HyppopySolver):
         """
         candidates = self.get_candidates(searchspace)
 
-        # RALF: Hier wird get_candidate_list gebraucht um einen loss_function_batch aufzurufen
-        # entsprechend muss auch HypopySolver erweitert werden, dass sie die loss_function_batch unterstützen.
-        # TODO: Kommentar wieder entfernen
         try:
             self.loss_function_batch(candidates)
         except Exception as e:
