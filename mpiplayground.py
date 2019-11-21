@@ -18,7 +18,6 @@ from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.solvers.GridsearchSolver import GridsearchSolver
 from hyppopy.solvers.MPISolverWrapper import MPISolverWrapper
 from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
-from mpi4py import MPI
 
 # To configure the Hyppopy solver we use a simple nested dictionary with two obligatory main sections,
 # hyperparameter and settings. The hyperparameter section defines your searchspace. Each hyperparameter
@@ -45,13 +44,13 @@ config = {
             "domain": "normal",
             "data": [-10.0, 10.0],
             "type": float,
-            "frequency": 100
+            "frequency": 10
         },
         "y": {
             "domain": "uniform",
             "data": [-10.0, 10.0],
             "type": float,
-            "frequency": 100
+            "frequency": 10
         }
     },
     "max_iterations": 500
@@ -72,8 +71,11 @@ blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function)
 solver.blackbox = blackbox
 
 solver.run()
+
 df, best = solver.get_results()  # gather the results from the different processes.
-print("\n")
-print("*" * 100)
-print("Best Parameter Set:\n{}".format(best))
-print("*" * 100)
+
+if solver.is_master() is True:  # TODO: Find better solution. At the moment it is printed for every worker in the End.
+    print("\n")
+    print("*" * 100)
+    print("Best Parameter Set:\n{}".format(best))
+    print("*" * 100)
