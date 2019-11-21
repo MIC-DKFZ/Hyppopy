@@ -130,6 +130,10 @@ class HyppopySolver(object):
         raise NotImplementedError('users must define loss_function_call to use this class')
 
     @abc.abstractmethod
+    def loss_function_batch_call(self, candidates):
+        raise NotImplementedError('users must define loss_function_call to use this class')
+
+    @abc.abstractmethod
     def define_interface(self):
         """
         This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
@@ -249,8 +253,7 @@ class HyppopySolver(object):
 
         results = dict()
         try:
-            # TODO: Do we need to introduce something like loss_function_batch_call() here? At the moment we call the blackbox directly.
-            results = self.blackbox.call_batch(candidates)
+            results = self.loss_function_batch_call(candidates)
         except Exception as e:
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
             LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
