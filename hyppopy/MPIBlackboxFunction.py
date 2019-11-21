@@ -80,41 +80,22 @@ class MPIBlackboxFunction(object):
         """
         return self.blackbox_func(self.data, kwargs)
 
-    def call_batch(self, candidates):
-        # raise NotImplementedError('users must define loss_function_call to use this class')
-        print('call_batch')
-        losses = dict()
-
+    @staticmethod
+    def call_batch(candidates):
+        results = dict()
         size = MPI.COMM_WORLD.Get_size()
 
-        # RALF: Hier müssen die Kandidaten an die Worker verteilt werden, das machst du.
-        # Aber auch die Ergebnisse eingesammelt werden und für alle Kandidaten zurück gemeldet werden
-        # das wird so vom solver erwartet wenn er call_batch macht.
-        try:
-            for i, candidate in enumerate(candidates):
-                dest = (i % (size-1)) + 1
-                MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
-        except Exception as e:
-            # TODO
-            print('EXCEPTION '.format(e))
-            for i, candidate in enumerate(candidates):
-                id = candidate.ID
-                params = candidate._definingValues
+        for i, candidate in enumerate(candidates):
+            dest = (i % (size-1)) + 1
+            MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
 
-                loss = self.blackbox_func(None, params)
-                losses[id] = loss
-            return losses
-
-        size = MPI.COMM_WORLD.Get_size()
         while True:
             for i in range(size - 1):
-                if len(candidates) == len(losses):
+                if len(candidates) == len(results):
                     print('All results received!')
-                    print(losses)
-                    return losses
-                id,loss = MPI.COMM_WORLD.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
-                losses[id] = loss
-                # print('ID: {}, loss: {}'.format(id,loss))
+                    return results
+                cand_id, result_dict = MPI.COMM_WORLD.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+                results[cand_id] = result_dict
 
     def setup(self, kwargs):
         """
@@ -123,29 +104,7 @@ class MPIBlackboxFunction(object):
         :param kwargs: (see __init__)
         """
         self._blackbox_func = kwargs['blackbox_func']
-        # self._preprocess_func = kwargs['preprocess_func']
-        # self._dataloader_func = kwargs['dataloader_func']
-        # self._callback_func = kwargs['callback_func']
-         #self._raw_data = kwargs['data']
-        # self._data = self._raw_data
         del kwargs['blackbox_func']
-        # del kwargs['preprocess_func']
-        # del kwargs['dataloader_func']
-        # del kwargs['data']
-        # params = kwargs
-
-        # if self.dataloader_func is not None:
-        #     self._raw_data = self.dataloader_func(params=params)
-        # assert self._raw_data is not None, "Missing data exception!"
-        # assert self.blackbox_func is not None, "Missing blackbox fucntion exception!"
-        # if self.preprocess_func is not None:
-        #     result = self.preprocess_func(data=self._raw_data, params=params)
-        #     if result is not None:
-        #         self._data = result
-        #     else:
-        #         self._data = self._raw_data
-        # else:
-        #     self._data = self._raw_data
 
     @property
     def blackbox_func(self):
