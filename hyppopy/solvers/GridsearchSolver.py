@@ -160,48 +160,6 @@ class GridsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="frequency", dtype=int)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-        :return: [float] loss
-        """
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
-
-    def loss_function_call(self, params):
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-        :return: [float] loss
-        """
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
-
-    def loss_function_call_batch(self, candidates):
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-        :return: [float] loss
-        """
-        loss = self.blackbox.call_batch(candidates)
-        if loss is None:
-            return np.nan
-        return loss
-
     def get_candidates(self, searchspace):
         """
         This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
@@ -230,7 +188,7 @@ class GridsearchSolver(HyppopySolver):
         try:
             self.loss_function_batch(candidates)
         except Exception as e:
-            msg = "internal error in grdsearch execute_solver occured. {}".format(e)
+            msg = "internal error in gridsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
             raise BrokenPipeError(msg)
         self.best = self._trials.argmin

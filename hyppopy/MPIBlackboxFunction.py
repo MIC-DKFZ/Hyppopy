@@ -37,18 +37,8 @@ def default_kwargs(**defaultKwargs):
 
 class MPIBlackboxFunction(object):
     """
-    This class is a BlackboxFunction wrapper class encapsulating the loss function. Additional function pointer can be
-    set to get access at different pipelining steps:
-
-    - dataloader_func: data loading, the function must return a data object and is called first when the solver is executed.
-                       The data object returned will be the input of the blackbox function.
-    - preprocess_func: data preprocessing is called after dataloader_func, the functions signature must be foo(data, params)
-                       and must return a data object. The input is the data object set directly or via dataloader_func,
-                       the params are passed from constructor params.
-    - callback_func: this function is called at each iteration step getting passed the trail info content, can be used for
-                     custom visualization
-    - data: add a data object directly
-
+    This class is a BlackboxFunction wrapper class encapsulating the loss function.
+    # TODO: complete class documentation
     The constructor accepts several function pointers or a data object which are all None by default (see below).
     Additionally one can define an arbitrary number of arg pairs. These are passed as input to each function pointer as
     arguments.
