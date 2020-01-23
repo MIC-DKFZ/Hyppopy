@@ -90,6 +90,7 @@ class MPISolverWrapper:
             #     comm.gather(losses, root=0)
             #     continue
 
+            print("[WORKING] Process {} is actually doing things.".format(rank))
             cand_id = candidate.ID
             params = candidate.get_values()
 
