@@ -77,6 +77,8 @@ class BlackboxFunction(object):
 
         :return: blackbox_func(data, kwargs)
         """
+        if self._data == None:
+            return self.blackbox_func(kwargs)
         return self.blackbox_func(self.data, kwargs)
 
     def setup(self, kwargs):
@@ -99,8 +101,10 @@ class BlackboxFunction(object):
 
         if self.dataloader_func is not None:
             self._raw_data = self.dataloader_func(params=params)
-        assert self._raw_data is not None, "Missing data exception!"
-        assert self.blackbox_func is not None, "Missing blackbox fucntion exception!"
+        else:
+            self._raw_data = None
+        # assert self._raw_data is not None, "Missing data exception!"
+        assert self.blackbox_func is not None, "Missing blackbox function exception!"
         if self.preprocess_func is not None:
             result = self.preprocess_func(data=self._raw_data, params=params)
             if result is not None:
