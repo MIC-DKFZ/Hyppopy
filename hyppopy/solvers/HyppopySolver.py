@@ -9,6 +9,8 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from _pytest import deprecated
+
 from hyppopy import CandidateDescriptor
 
 __all__ = ['HyppopySolver']
@@ -53,6 +55,7 @@ class HyppopySolver(object):
     - convert_searchspace
     - execute_solver
     - loss_function_call
+    - TODO
     - define_interface
 
     The dev-user interface consists of the methods:
@@ -116,7 +119,7 @@ class HyppopySolver(object):
         raise NotImplementedError('users must define execute_solver to use this class')
 
     @abc.abstractmethod
-    def loss_function_call(self, params):
+    def loss_function_call(self, params):  # TODO: Delete me...
         """
         This function is called within the function loss_function and encapsulates the actual blackbox function call
         in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
@@ -127,11 +130,41 @@ class HyppopySolver(object):
 
         :return: [float] loss
         """
+
+        # TODO This is deprecated! Mark or remove...
         raise NotImplementedError('users must define loss_function_call to use this class')
 
     @abc.abstractmethod
-    def loss_function_batch_call(self, candidates):
-        raise NotImplementedError('users must define loss_function_call to use this class')
+    def loss_function_batch_call(self, candidates):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+
+        # TODO This is deprecated! Mark or remove...
+        raise NotImplementedError('users must define loss_function_batch_call to use this class')
+
+    def loss_func_cand_preprocess(self, candidates):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+        # User may implement this function to preprocess candidates before calling the actual loss_function
+        # raise NotImplementedError('users must define loss_function_batch_call to use this class')
+        return candidates
+
+    def loss_func_postprocess(self, results):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+        # User may implement this function to postprocess results after calling the actual loss_function
+        # raise NotImplementedError('users must define loss_function_batch_call to use this class')
+        return results
+
 
     @abc.abstractmethod
     def define_interface(self):
@@ -253,7 +286,11 @@ class HyppopySolver(object):
 
         results = dict()
         try:
-            results = self.loss_function_batch_call(candidates)
+            candidates = self.loss_func_cand_preprocess(candidates)
+            results = self.blackbox.call_batch(candidates)
+            if results is None:
+                results = np.nan
+            results = self.loss_func_postprocess(results)
         except Exception as e:
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
             LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
@@ -264,7 +301,12 @@ class HyppopySolver(object):
                 cand_results = dict()
                 cand_results['book_time'] = datetime.datetime.now()
                 try:
-                    cand_results['loss'] = self.loss_function_call(params)
+                    params = self.loss_func_cand_preprocess(params)  # TODO does it make sense to have the same preprocessing here? Probably not...
+                    loss = self.blackbox(params)
+                    if loss is None:
+                        loss = np.nan
+                    loss = self.loss_func_postprocess(loss)  # TODO does it make sense to have the same postprocessing here? Probably not...
+                    cand_results['loss'] = loss
                 except Exception as e:
                     LOG.error("computing loss failed due to:\n {}".format(e))
                     cand_results['loss'] = np.nan
