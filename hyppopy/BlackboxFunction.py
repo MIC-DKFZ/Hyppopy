@@ -25,12 +25,15 @@ def default_kwargs(**defaultKwargs):
     """
     Decorator defining default args in **kwargs arguments
     """
+
     def actual_decorator(fn):
         @functools.wraps(fn)
         def g(*args, **kwargs):
             defaultKwargs.update(kwargs)
             return fn(*args, **defaultKwargs)
+
         return g
+
     return actual_decorator
 
 
@@ -77,9 +80,16 @@ class BlackboxFunction(object):
 
         :return: blackbox_func(data, kwargs)
         """
-        if self._data == None:
-            return self.blackbox_func(kwargs)
-        return self.blackbox_func(self.data, kwargs)
+        try:
+            try:
+                return self.blackbox_func(self.data, kwargs)
+            except:
+                return self.blackbox_func(self.data, **kwargs)
+        except:
+            try:
+                return self.blackbox_func(kwargs)
+            except:
+                return self.blackbox_func(**kwargs)
 
     def setup(self, kwargs):
         """
@@ -101,8 +111,6 @@ class BlackboxFunction(object):
 
         if self.dataloader_func is not None:
             self._raw_data = self.dataloader_func(params=params)
-        else:
-            self._raw_data = None
         # assert self._raw_data is not None, "Missing data exception!"
         assert self.blackbox_func is not None, "Missing blackbox function exception!"
         if self.preprocess_func is not None:

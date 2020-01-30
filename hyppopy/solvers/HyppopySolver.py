@@ -302,7 +302,10 @@ class HyppopySolver(object):
                 cand_results['book_time'] = datetime.datetime.now()
                 try:
                     params = self.loss_func_cand_preprocess(params)  # TODO does it make sense to have the same preprocessing here? Probably not...
-                    loss = self.blackbox(params)
+                    try:
+                        loss = self.blackbox(**params)
+                    except:
+                        loss = self.blackbox(params)
                     if loss is None:
                         loss = np.nan
                     loss = self.loss_func_postprocess(loss)  # TODO does it make sense to have the same postprocessing here? Probably not...
