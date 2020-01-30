@@ -9,6 +9,7 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from hyppopy.BlackboxFunction import BlackboxFunction
 
 __all__ = ['MPIBlackboxFunction']
 
@@ -35,7 +36,7 @@ def default_kwargs(**defaultKwargs):
     return actual_decorator
 
 
-class MPIBlackboxFunction(object):
+class MPIBlackboxFunction(BlackboxFunction):
     """
     This class is a BlackboxFunction wrapper class encapsulating the loss function.
     # TODO: complete class documentation
@@ -52,23 +53,7 @@ class MPIBlackboxFunction(object):
 
     @default_kwargs(blackbox_func=None, dataloader_func=None, preprocess_func=None, callback_func=None, data=None)
     def __init__(self, **kwargs):
-        self._blackbox_func = None
-        self._preprocess_func = None
-        self._dataloader_func = None
-        self._callback_func = None
-        self._raw_data = None
-        self._data = None
-        self.setup(kwargs)
-
-    def __call__(self, **kwargs):
-        """
-        Call method calls blackbox_func passing the data object and the args passed
-
-        :param kwargs: [dict] args
-
-        :return: blackbox_func(data, kwargs)
-        """
-        return self.blackbox_func(self.data, kwargs)
+        super().__init__(**kwargs)
 
     @staticmethod
     def call_batch(candidates):
@@ -86,72 +71,3 @@ class MPIBlackboxFunction(object):
                     return results
                 cand_id, result_dict = MPI.COMM_WORLD.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
                 results[cand_id] = result_dict
-
-    def setup(self, kwargs):
-        """
-        Alternative to Constructor, kwargs signature see __init__
-
-        :param kwargs: (see __init__)
-        """
-        self._blackbox_func = kwargs['blackbox_func']
-        del kwargs['blackbox_func']
-
-    @property
-    def blackbox_func(self):
-        """
-        BlackboxFunction wrapper class encapsulating the loss function or a function accepting a hyperparameter set and
-        returning a float.
-
-        :return: [object] pointer to blackbox_func
-        """
-        return self._blackbox_func
-
-    @property
-    def preprocess_func(self):
-        """
-        Data preprocessing is called after dataloader_func, the functions signature must be foo(data, params) and must
-        return a data object. The input is the data object set directly or via dataloader_func, the params are passed
-        from constructor params.
-
-        :return: [object] preprocess_func
-        """
-        return self._preprocess_func
-
-    @property
-    def dataloader_func(self):
-        """
-        Data loading, the function must return a data object and is called first when the solver is executed. The data
-        object returned will be the input of the blackbox function.
-
-        :return: [object] dataloader_func
-        """
-        return self._dataloader_func
-
-    @property
-    def callback_func(self):
-        """
-        This function is called at each iteration step getting passed the trail info content, can be used for
-        custom visualization
-
-        :return: [object] callback_func
-        """
-        return self._callback_func
-
-    @property
-    def raw_data(self):
-        """
-        This data structure is used to store the return from dataloader_func to serve as input for preprocess_func if
-        available.
-
-        :return: [object] raw_data
-        """
-        return self._raw_data
-
-    @property
-    def data(self):
-        """
-        Datastructure keeping the input data.
-
-        :return: [object] data
-        """
-        return self._data
