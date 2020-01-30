@@ -68,9 +68,8 @@ def my_loss_function(params):
     return x**2+y**3
 
 
-bb = BlackboxFunction(blackbox_func=my_loss_function)
 solver = MPISolverWrapper(GridsearchSolver(project))
-blackbox = MPIBlackboxFunction(blackbox_func=bb)
+blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function)
 solver.blackbox = blackbox
 
 solver.run()
