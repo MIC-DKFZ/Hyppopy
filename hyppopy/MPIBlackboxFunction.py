@@ -51,8 +51,18 @@ class MPIBlackboxFunction(BlackboxFunction):
     :param kwargs: additional arg=value pairs
     """
 
-    @default_kwargs(blackbox_func=None, dataloader_func=None, preprocess_func=None, callback_func=None, data=None)
+    @default_kwargs(blackbox_func=None, dataloader_func=None, preprocess_func=None, callback_func=None, data=None, mpi_comm=None)
     def __init__(self, **kwargs):
+        mpi_comm = kwargs['mpi_comm']
+        del kwargs['mpi_comm']
+        self._mpi_comm = None
+
+        if mpi_comm is None:
+            print('MPIBlackboxFunction: No mpi_comm given: Using MPI.COMM_WORLD')
+            self._mpi_comm = MPI.COMM_WORLD
+        else:
+            self._mpi_comm = mpi_comm
+
         super().__init__(**kwargs)
 
     @staticmethod

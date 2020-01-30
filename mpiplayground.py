@@ -14,6 +14,8 @@
 # A hyppopy minimal example optimizing a simple demo function f(x,y) = x**2+y**2
 
 # import the HyppopyProject class keeping track of inputs
+from mpi4py import MPI
+
 from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.solvers.RandomsearchSolver import RandomsearchSolver
@@ -68,8 +70,9 @@ def my_loss_function(params):
     return x**2+y**3
 
 
-solver = MPISolverWrapper(GridsearchSolver(project))
-blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function)
+comm = MPI.COMM_WORLD
+solver = MPISolverWrapper(solver = GridsearchSolver(project), mpi_comm=comm)
+blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function, mpi_comm=comm)
 solver.blackbox = blackbox
 
 solver.run()

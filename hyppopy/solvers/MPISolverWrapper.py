@@ -26,13 +26,19 @@ class MPISolverWrapper:
     The MPISolverWrapper class wraps the functionality of solvers in Hyppopy to extend them with MPI functionality.
     It builds upon the interface defined by the HyppopySolver class.
     """
-    def __init__(self, solver=None):
+    def __init__(self, solver=None, mpi_comm=None):
         """
         The constructor accepts a HyppopySolver.
 
         :param solver: [HyppopySolver] solver instance, default=None
         """
         self._solver = solver
+        self._mpi_comm = None
+        if mpi_comm is None:
+            print('MPISolverWrapper: No mpi_comm given: Using MPI.COMM_WORLD')
+            self._mpi_comm = MPI.COMM_WORLD
+        else:
+            self._mpi_comm = mpi_comm
 
     @property
     def blackbox(self):
@@ -59,7 +65,7 @@ class MPISolverWrapper:
         :return: return value of self._solver.get_results()
         """
         # Only rank==0 returns results, the workers return None.
-        mpi_rank = MPI.COMM_WORLD.Get_rank()
+        mpi_rank = self._mpi_comm.Get_rank()
         if mpi_rank == 0:
             return self._solver.get_results()
         return None, None
@@ -74,13 +80,12 @@ class MPISolverWrapper:
 
         :return: the evaluated loss of the candidate
         """
-        comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()
+        rank = self._mpi_comm.Get_rank()
         print("Starting worker {}. Waiting for param...".format(rank))
 
         cand_results = dict()
         while True:
-            candidate = comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
+            candidate = self._mpi_comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
 
             if candidate is None:
                 print("[RECEIVE] Process {} received finish signal.".format(rank))
@@ -99,7 +104,7 @@ class MPISolverWrapper:
             cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
             cand_results['refresh_time'] = datetime.datetime.now()
 
-            comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+            self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
     @staticmethod
     def signal_worker_finished():
@@ -118,7 +123,7 @@ class MPISolverWrapper:
         This function starts the optimization process of the underlying solver and takes care of the MPI awareness.
         """
 
-        mpi_rank = MPI.COMM_WORLD.Get_rank()
+        mpi_rank = self._mpi_comm.Get_rank()
         if mpi_rank == 0:
             # This is the master process. From here we run the solver and start all the other processes.
             self._solver.run(*args, **kwargs)
@@ -127,17 +132,15 @@ class MPISolverWrapper:
             # this script execution should be in worker mode as it is an mpi worker.
             self.run_worker_mode()
 
-    @staticmethod
-    def is_master():
-        mpi_rank = MPI.COMM_WORLD.Get_rank()
+    def is_master(self):
+        mpi_rank = self._mpi_comm.Get_rank()
         if mpi_rank == 0:
             return True
         else:
             return False
 
-    @staticmethod
     def is_worker(self):
-        mpi_rank = MPI.COMM_WORLD.Get_rank()
+        mpi_rank = self._mpi_comm.Get_rank()
         if mpi_rank != 0:
             return True
         else:
