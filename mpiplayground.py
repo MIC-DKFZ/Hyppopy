@@ -14,7 +14,9 @@
 # A hyppopy minimal example optimizing a simple demo function f(x,y) = x**2+y**2
 
 # import the HyppopyProject class keeping track of inputs
+from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.HyppopyProject import HyppopyProject
+from hyppopy.solvers.RandomsearchSolver import RandomsearchSolver
 from hyppopy.solvers.GridsearchSolver import GridsearchSolver
 from hyppopy.solvers.MPISolverWrapper import MPISolverWrapper
 from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
@@ -60,19 +62,20 @@ project = HyppopyProject(config=config)
 
 
 # The user defined loss function
-def my_loss_function(data, params):
+def my_loss_function(params):
     x = params['x']
     y = params['y']
     return x**2+y**3
 
 
+bb = BlackboxFunction(blackbox_func=my_loss_function)
 solver = MPISolverWrapper(GridsearchSolver(project))
-blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function)
+blackbox = MPIBlackboxFunction(blackbox_func=bb)
 solver.blackbox = blackbox
 
 solver.run()
 
-df, best = solver.get_results()  # gather the results from the different processes.
+df, best = solver.get_results()
 
 if solver.is_master() is True:  # TODO: Find better solution. At the moment it is printed for every worker in the End.
     print("\n")
