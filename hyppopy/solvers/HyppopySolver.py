@@ -296,25 +296,27 @@ class HyppopySolver(object):
             LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
-                params = candidate.get_values()
+                # params = candidate.get_values()
 
                 cand_results = dict()
                 cand_results['book_time'] = datetime.datetime.now()
                 try:
-                    params = self.loss_func_cand_preprocess(params)  # TODO does it make sense to have the same preprocessing here? Probably not...
+                    preprocessed_candidate_list = self.loss_func_cand_preprocess([candidate])
+                    candidate = preprocessed_candidate_list[0]
+                    params = candidate.get_values()
                     try:
                         loss = self.blackbox(**params)
                     except:
                         loss = self.blackbox(params)
                     if loss is None:
                         loss = np.nan
-                    loss = self.loss_func_postprocess(loss)  # TODO does it make sense to have the same postprocessing here? Probably not...
                     cand_results['loss'] = loss
                 except Exception as e:
                     LOG.error("computing loss failed due to:\n {}".format(e))
                     cand_results['loss'] = np.nan
                 cand_results['refresh_time'] = datetime.datetime.now()
                 results[cand_id] = cand_results
+            results = self.loss_func_postprocess(results)
 
         # initialize trials
         for i, candidate in enumerate(candidates):
