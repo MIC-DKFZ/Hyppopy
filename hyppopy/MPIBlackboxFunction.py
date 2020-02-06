@@ -48,6 +48,7 @@ class MPIBlackboxFunction(BlackboxFunction):
     :param preprocess_func: data preprocessing function pointer, default=None
     :param callback_func: callback function pointer, default=None
     :param data: data object, default=None
+    :param mpi_comm: [MPI communicator] MPI communicator instance. If None, we create a new MPI.COMM_WORLD, default=None
     :param kwargs: additional arg=value pairs
     """
 
