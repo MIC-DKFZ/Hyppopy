@@ -9,6 +9,7 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 __all__ = ['RandomsearchSolver',
            'draw_uniform_sample',
@@ -159,6 +160,22 @@ class RandomsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
+    def get_candidates(self, searchspace):
+        """
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
+
+        :param searchspace: converted hyperparameter space
+        """
+        candidates_list = list()
+        N = self.max_iterations
+        for n in range(N):
+            params = {}
+            for name, p in searchspace.items():
+                params[name] = draw_sample(p)
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
+
     def execute_solver(self, searchspace):
         """
         This function is called immediately after convert_searchspace and get the output of the latter as input. It's
@@ -166,13 +183,10 @@ class RandomsearchSolver(HyppopySolver):
 
         :param searchspace: converted hyperparameter space
         """
-        N = self.max_iterations
+
+        candidates = self.get_candidates(searchspace)
         try:
-            for n in range(N):
-                params = {}
-                for name, p in searchspace.items():
-                    params[name] = draw_sample(p)
-                self.loss_function(**params)
+            self.loss_function_batch(candidates)
         except Exception as e:
             msg = "internal error in randomsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
