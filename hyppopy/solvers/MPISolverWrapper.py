@@ -31,6 +31,7 @@ class MPISolverWrapper:
         The constructor accepts a HyppopySolver.
 
         :param solver: [HyppopySolver] solver instance, default=None
+        :param mpi_comm: [MPI communicator] MPI communicator instance. If None, we create a new MPI.COMM_WORLD, default=None
         """
         self._solver = solver
         self._mpi_comm = None
