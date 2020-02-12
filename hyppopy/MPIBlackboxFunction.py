@@ -66,14 +66,13 @@ class MPIBlackboxFunction(BlackboxFunction):
 
         super().__init__(**kwargs)
 
-    @staticmethod
-    def call_batch(candidates):
+    def call_batch(self, candidates):
         results = dict()
-        size = MPI.COMM_WORLD.Get_size()
+        size = self._mpi_comm.Get_size()
 
         for i, candidate in enumerate(candidates):
             dest = (i % (size-1)) + 1
-            MPI.COMM_WORLD.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
+            self._mpi_comm.send(candidate, dest=dest, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
 
         while True:
             for i in range(size - 1):

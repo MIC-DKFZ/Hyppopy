@@ -107,17 +107,16 @@ class MPISolverWrapper:
 
             self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
-    @staticmethod
-    def signal_worker_finished():
+    def signal_worker_finished(self):
         """
         This function sends data==None to all workers from the master. This is the signal that tells the workers to finish.
 
         :return:
         """
         print('[SEND] signal_worker_finished')
-        size = MPI.COMM_WORLD.Get_size()
+        size = self._mpi_comm.Get_size()
         for i in range(size - 1):
-            MPI.COMM_WORLD.send(None, dest=i + 1, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
+            self._mpi_comm.send(None, dest=i + 1, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
 
     def run(self, *args, **kwargs):
         """
