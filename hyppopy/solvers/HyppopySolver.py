@@ -273,7 +273,7 @@ class HyppopySolver(object):
 
     def loss_function_batch(self, candidates):
         """
-        This function is called  with a list of candidates. This list is driven by the solver lib itself.
+        This function is called with a list of candidates. This list is driven by the solver lib itself.
         The purpose of this function is to take care of the iteration reporting and the calling
         of the callback_func if available. As a developer you might want to overwrite this function (or the 'non-batch'-version completely (e.g.
         HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
@@ -284,6 +284,7 @@ class HyppopySolver(object):
         :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
         """
 
+        # print('hello'*10)
         results = dict()
         try:
             candidates = self.loss_func_cand_preprocess(candidates)
@@ -294,6 +295,7 @@ class HyppopySolver(object):
         except Exception as e:
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
             LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
+            print("call_batch not supported in BlackboxFunction:\n {}".format(e))
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
                 # params = candidate.get_values()
