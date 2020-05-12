@@ -18,8 +18,7 @@ from mpi4py import MPI
 
 from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.HyppopyProject import HyppopyProject
-from hyppopy.solvers.RandomsearchSolver import RandomsearchSolver
-from hyppopy.solvers.GridsearchSolver import GridsearchSolver
+from hyppopy.SolverPool import SolverPool
 from hyppopy.solvers.MPISolverWrapper import MPISolverWrapper
 from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 
@@ -45,7 +44,7 @@ from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 config = {
     "hyperparameter": {
         "x": {
-            "domain": "normal",
+            "domain": "uniform",
             "data": [-10.0, 10.0],
             "type": float,
             "frequency": 10
@@ -57,7 +56,8 @@ config = {
             "frequency": 10
         }
     },
-    "max_iterations": 500
+    "max_iterations": 500,
+    "solver": "optunity"
 }
 
 project = HyppopyProject(config=config)
@@ -71,7 +71,7 @@ def my_loss_function(params):
 
 
 comm = MPI.COMM_WORLD
-solver = MPISolverWrapper(solver = GridsearchSolver(project), mpi_comm=comm)
+solver = MPISolverWrapper(solver=SolverPool.get(project=project), mpi_comm=comm)
 blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function, mpi_comm=comm)
 solver.blackbox = blackbox
 
@@ -79,7 +79,7 @@ solver.run()
 
 df, best = solver.get_results()
 
-if solver.is_master() is True:  # TODO: Find better solution. At the moment it is printed for every worker in the End.
+if solver.is_master() is True:
     print("\n")
     print("*" * 100)
     print("Best Parameter Set:\n{}".format(best))
