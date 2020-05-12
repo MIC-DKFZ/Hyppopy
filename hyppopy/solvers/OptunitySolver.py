@@ -14,6 +14,8 @@ import os
 import logging
 import optunity
 from pprint import pformat
+
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -62,6 +64,33 @@ class OptunitySolver(HyppopySolver):
                 params[key] = int(round(params[key]))
         return self.blackbox(**params)
 
+    def loss_function_batch2(self, candidates):
+        """
+        This function is called  with a list of candidates. This list is driven by the solver lib itself.
+        The purpose of this function is to take care of the iteration reporting and the calling
+        of the callback_func if available. As a developer you might want to overwrite this function (or the 'non-batch'-version completely (e.g.
+        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
+        implement loss_function_call (e.g. OptunitySolver).
+
+        :param candidates: [list of CandidateDescriptors]
+
+        :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
+        """
+
+        # candidate_list = candidates['cand_list']
+        print('hello')
+        # can = [CandidateDescriptor(**candidates)]
+        # super(OptunitySolver, self).loss_function_batch(can)
+        # HyppopySolver.loss_function_batch(candidate_list)
+
+    def my_pmap(self, f, seq):
+        candidates = []
+        for elem in seq:
+            can = CandidateDescriptor(**elem)
+            candidates.append(can) #{'x': can})
+
+        return map(f, candidates)
+
     def execute_solver(self, searchspace):
         """
         This function is called immediately after convert_searchspace and get the output of the latter as input. It's
@@ -73,7 +102,8 @@ class OptunitySolver(HyppopySolver):
         try:
             self.best, _, _ = optunity.minimize_structured(f=self.loss_function,
                                                            num_evals=self.max_iterations,
-                                                           search_space=searchspace)
+                                                           search_space=searchspace,
+                                                           ) # pmap=self.my_pmap)
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
