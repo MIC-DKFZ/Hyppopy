@@ -64,7 +64,7 @@ class OptunitySolver(HyppopySolver):
                 params[key] = int(round(params[key]))
         return self.blackbox(**params)
 
-    def loss_function_batch2(self, candidates):
+    def loss_function_batch(self, **candidates):
         """
         This function is called  with a list of candidates. This list is driven by the solver lib itself.
         The purpose of this function is to take care of the iteration reporting and the calling
@@ -79,9 +79,11 @@ class OptunitySolver(HyppopySolver):
 
         # candidate_list = candidates['cand_list']
         print('hello')
-        # can = [CandidateDescriptor(**candidates)]
-        # super(OptunitySolver, self).loss_function_batch(can)
-        # HyppopySolver.loss_function_batch(candidate_list)
+        can = [CandidateDescriptor(**candidates)]
+        result = super(OptunitySolver, self).loss_function_batch(can)
+        # result = HyppopySolver.loss_function_batch(self, can)
+
+        return list(result.values())[0]['loss']
 
     def my_pmap(self, f, seq):
         candidates = []
@@ -89,6 +91,8 @@ class OptunitySolver(HyppopySolver):
             can = CandidateDescriptor(**elem)
             candidates.append(can) #{'x': can})
 
+
+        # candidates = [candidates]
         return map(f, candidates)
 
     def execute_solver(self, searchspace):
@@ -100,7 +104,7 @@ class OptunitySolver(HyppopySolver):
         """
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(searchspace)))
         try:
-            self.best, _, _ = optunity.minimize_structured(f=self.loss_function,
+            self.best, _, _ = optunity.minimize_structured(f=self.loss_function_batch,
                                                            num_evals=self.max_iterations,
                                                            search_space=searchspace,
                                                            ) # pmap=self.my_pmap)
