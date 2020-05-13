@@ -259,7 +259,7 @@ class HyppopySolver(object):
         """
         This function is called each iteration with a selected parameter set. The parameter set selection is driven by
         the solver lib itself.
-        This function just calles loss_function_batch() with a batch size of one. It takes care of converting the params to CandidateDescriptors.
+        This function just calls loss_function_batch() with a batch size of one. It takes care of converting the params to CandidateDescriptors.
 
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
 
