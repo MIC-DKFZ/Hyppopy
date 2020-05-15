@@ -83,6 +83,7 @@ class OptunitySolver(HyppopySolver):
         result = super(OptunitySolver, self).loss_function_batch(can)
         # result = HyppopySolver.loss_function_batch(self, can)
 
+        self.best = self._trials.argmin
         return list(result.values())[0]['loss']
 
     def my_pmap(self, f, seq):
@@ -104,10 +105,11 @@ class OptunitySolver(HyppopySolver):
         """
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(searchspace)))
         try:
-            self.best, _, _ = optunity.minimize_structured(f=self.loss_function_batch,
-                                                           num_evals=self.max_iterations,
-                                                           search_space=searchspace,
-                                                           ) # pmap=self.my_pmap)
+            optunity.minimize_structured(f=self.loss_function_batch,
+                                         num_evals=self.max_iterations,
+                                         search_space=searchspace,
+                                         pmap=self.my_pmap)
+            print('bla')
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
