@@ -15,7 +15,7 @@ import logging
 import optunity
 from pprint import pformat
 
-from hyppopy.CandidateDescriptor import CandidateDescriptor
+from hyppopy.CandidateDescriptor import CandidateDescriptor, CandicateDescriptorWrapper
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -77,24 +77,44 @@ class OptunitySolver(HyppopySolver):
         :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
         """
 
-        # candidate_list = candidates['cand_list']
-        print('hello')
-        can = [CandidateDescriptor(**candidates)]
-        result = super(OptunitySolver, self).loss_function_batch(can)
-        # result = HyppopySolver.loss_function_batch(self, can)
+        candidate_list = []
 
+        keysValue = candidates.keys()
+        temp = {}
+        for key in keysValue:
+            temp[key] = candidates[key].get()
+
+        for i, pack in enumerate(zip(*temp.values())):
+            candidate_list.append(CandidateDescriptor(**(dict(zip(keysValue, pack)))))
+
+        result = super(OptunitySolver, self).loss_function_batch(candidate_list)
         self.best = self._trials.argmin
-        return list(result.values())[0]['loss']
+
+        return [x['loss'] for x in result.values()]
 
     def my_pmap(self, f, seq):
+        keys = seq[0].keys()
+
         candidates = []
         for elem in seq:
             can = CandidateDescriptor(**elem)
             candidates.append(can) #{'x': can})
 
+        cand_list = CandicateDescriptorWrapper(keys=seq[0].keys())
+        cand_list.set(candidates)
 
-        # candidates = [candidates]
-        return map(f, candidates)
+        f_result = f(cand_list)
+
+        try:
+            for x in f_result:
+                continue
+        except:
+            bla = f_result
+            f_result = []
+            for x in candidates:
+                f_result.append(bla)
+
+        return f_result
 
     def execute_solver(self, searchspace):
         """

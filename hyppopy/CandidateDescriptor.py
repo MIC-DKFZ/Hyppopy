@@ -57,3 +57,52 @@ class CandidateDescriptor(object):
 
     def get_values(self):
         return self._definingValues
+
+
+class CandicateDescriptorWrapper:
+
+    class InternalCandidateValueWrapper:
+        def __init__(self, value_list):
+            self._value_list = value_list
+
+        def __gt__(self, other):
+            boundary_condition = True
+            for value in self._value_list:
+                if value > other:
+                    continue
+                else:
+                    boundary_condition = False
+                    break
+            return boundary_condition
+
+        def __lt__(self, other):
+            boundary_condition = True
+            for value in self._value_list:
+                if value < other:
+                    continue
+                else:
+                    boundary_condition = False
+                    break
+            return boundary_condition
+
+        def get(self):
+            return self._value_list
+
+    def __init__(self, keys):
+        self._cand = None
+        self._keys = keys
+
+    def __iter__(self):
+        return self._cand
+
+    def __getitem__(self, key):
+        return self.InternalCandidateValueWrapper([x[key] for x in self._cand])
+
+    def keys(self):
+        return self._keys
+
+    def set(self, obj):
+        self._cand = obj
+
+    def get(self):
+        return self._cand
