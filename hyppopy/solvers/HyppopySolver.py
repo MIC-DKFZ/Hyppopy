@@ -294,8 +294,9 @@ class HyppopySolver(object):
             results = self.loss_func_postprocess(results)
         except Exception as e:
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
-            LOG.error("call_batch not supported in BlackboxFunction:\n {}".format(e))
-            print("call_batch not supported in BlackboxFunction:\n {}".format(e))
+            message = "call_batch not supported in BlackboxFunction or script not started via MPI:\n {}".format(e)
+            LOG.error(message)
+            print(message)
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
                 # params = candidate.get_values()
