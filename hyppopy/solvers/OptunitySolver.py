@@ -136,7 +136,6 @@ class OptunitySolver(HyppopySolver):
                                          num_evals=self.max_iterations,
                                          search_space=searchspace,
                                          pmap=self.hyppopy_optunity_solver_pmap)
-            print('bla')
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))
