@@ -93,7 +93,7 @@ class CandicateDescriptorWrapper:
         self._keys = keys
 
     def __iter__(self):
-        return self._cand
+        return iter(self._cand)
 
     def __getitem__(self, key):
         return self.InternalCandidateValueWrapper([x[key] for x in self._cand])
