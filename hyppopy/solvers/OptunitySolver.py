@@ -92,27 +92,34 @@ class OptunitySolver(HyppopySolver):
 
         return [x['loss'] for x in result.values()]
 
-    def my_pmap(self, f, seq):
-        keys = seq[0].keys()
+    def hyppopy_optunity_solver_pmap(self, f, seq):
+        # Check if seq is empty. I so, return an empty result list.
+        if len(seq) == 0:
+            return []
 
         candidates = []
         for elem in seq:
             can = CandidateDescriptor(**elem)
-            candidates.append(can) #{'x': can})
+            candidates.append(can)
 
         cand_list = CandicateDescriptorWrapper(keys=seq[0].keys())
         cand_list.set(candidates)
 
         f_result = f(cand_list)
 
-        try:
-            for x in f_result:
-                continue
-        except:
-            bla = f_result
-            f_result = []
-            for x in candidates:
-                f_result.append(bla)
+        # If one candidate does not match the constraints, f() returns a single default value.
+        # This is a problem as all the other candidates are not calculated either.
+        # The following is a workaround. We split the candidate_list into 2 lists and call the map function recursively until all valid parameters are processed.
+        if not isinstance(f_result, list):
+            # First half
+            seq_A = seq[:len(seq) // 2]
+            temp_result_a = self.hyppopy_optunity_solver_pmap(f, seq_A)
+
+            seq_B = seq[len(seq) // 2:]
+            temp_result_b = self.hyppopy_optunity_solver_pmap(f, seq_B)
+            # f_result = [42]
+
+            f_result = temp_result_a + temp_result_b
 
         return f_result
 
@@ -128,7 +135,7 @@ class OptunitySolver(HyppopySolver):
             optunity.minimize_structured(f=self.loss_function_batch,
                                          num_evals=self.max_iterations,
                                          search_space=searchspace,
-                                         pmap=self.my_pmap)
+                                         pmap=self.hyppopy_optunity_solver_pmap)
             print('bla')
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
