@@ -101,7 +101,12 @@ class MPISolverWrapper:
             params = candidate.get_values()
 
             cand_results['book_time'] = datetime.datetime.now()
-            loss = self._solver.blackbox.blackbox_func(params)
+
+            print(params)
+            try:
+                loss = self._solver.blackbox.blackbox_func(params)
+            except:
+                loss = self._solver.blackbox.blackbox_func(**params)
             cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
             cand_results['refresh_time'] = datetime.datetime.now()
 
