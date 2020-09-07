@@ -13,6 +13,7 @@ import datetime
 import os
 import logging
 
+import numpy as np
 from mpi4py import MPI
 from hyppopy.globals import DEBUGLEVEL, MPI_TAGS
 
@@ -85,27 +86,37 @@ class MPISolverWrapper:
         print("Starting worker {}. Waiting for param...".format(rank))
 
         cand_results = dict()
+
         while True:
-            candidate = self._mpi_comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
+            try:
+                candidate = self._mpi_comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
 
-            if candidate is None:
-                print("[RECEIVE] Process {} received finish signal.".format(rank))
-                return
+                if candidate is None:
+                    print("[RECEIVE] Process {} received finish signal.".format(rank))
+                    return
 
-            # if candidate.ID == 9999:
-            #     comm.gather(losses, root=0)
-            #     continue
+                # if candidate.ID == 9999:
+                #     comm.gather(losses, root=0)
+                #     continue
 
-            print("[WORKING] Process {} is actually doing things.".format(rank))
-            cand_id = candidate.ID
-            params = candidate.get_values()
+                # print("[WORKING] Process {} is actually doing things.".format(rank))
+                cand_id = candidate.ID
+                params = candidate.get_values()
 
-            cand_results['book_time'] = datetime.datetime.now()
-            loss = self._solver.blackbox.blackbox_func(params)
-            cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
-            cand_results['refresh_time'] = datetime.datetime.now()
+                loss = self._solver.blackbox.blackbox_func(params)
 
-            self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+            except Exception as e:
+                msg = "Error in Worker(rank={}): {}".format(rank, e)
+                LOG.error(msg)
+                print(msg)
+
+                loss = np.nan
+            finally:
+                cand_results['book_time'] = datetime.datetime.now()
+                cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
+                cand_results['refresh_time'] = datetime.datetime.now()
+
+                self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
     def signal_worker_finished(self):
         """
