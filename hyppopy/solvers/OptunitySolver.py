@@ -88,7 +88,10 @@ class OptunitySolver(HyppopySolver):
             candidate_list.append(CandidateDescriptor(**(dict(zip(keysValue, pack)))))
 
         results = super(OptunitySolver, self).loss_function_batch(candidate_list)
-        self.best = self._trials.argmin
+        try:
+            self.best = self._trials.argmin
+        except:
+            pass
 
         result = [x['loss'] for x in results.values()]
         return result

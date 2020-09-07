@@ -103,7 +103,10 @@ class MPISolverWrapper:
                 cand_id = candidate.ID
                 params = candidate.get_values()
 
-                loss = self._solver.blackbox.blackbox_func(params)
+                try:
+                    loss = self._solver.blackbox.blackbox_func(params)
+                except:
+                    loss = self._solver.blackbox.blackbox_func(**params)
 
             except Exception as e:
                 msg = "Error in Worker(rank={}): {}".format(rank, e)
@@ -113,6 +116,11 @@ class MPISolverWrapper:
                 loss = np.nan
             finally:
                 cand_results['book_time'] = datetime.datetime.now()
+                cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
+                cand_results['refresh_time'] = datetime.datetime.now()
+
+                cand_results['book_time'] = datetime.datetime.now()
+
                 cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
                 cand_results['refresh_time'] = datetime.datetime.now()
 

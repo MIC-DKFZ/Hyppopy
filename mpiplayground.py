@@ -64,15 +64,19 @@ project = HyppopyProject(config=config)
 
 
 # The user defined loss function
-def my_loss_function(params):
+def my_loss_function_params(params):
     x = params['x']
     y = params['y']
+    return x**2+y**3
+
+# The user defined loss function
+def my_loss_function(x, y):
     return x**2+y**3
 
 
 comm = MPI.COMM_WORLD
 solver = MPISolverWrapper(solver=SolverPool.get(project=project), mpi_comm=comm)
-blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function, mpi_comm=comm)
+blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function_params, mpi_comm=comm)
 solver.blackbox = blackbox
 
 solver.run()
