@@ -172,6 +172,12 @@ class DynamicPSOSolver(OptunitySolver):
                                                      phi1=self.phi1,
                                                      phi2=self.phi2
                                                      )
+            # Workaround: Unpack best result, im max_iterations was reached.
+            try:
+                for key in self.best:
+                    self.best[key] = self.best[key].get()[0]
+            except:
+                pass
             """
             optimize_dyn_PSO(func, maximize=False, max_evals=0, pmap=map, decoder=None, update_param=None, eval_obj=None)
             Optimize func with dynamic PSO solver.
