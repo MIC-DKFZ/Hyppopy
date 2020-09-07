@@ -87,10 +87,11 @@ class OptunitySolver(HyppopySolver):
         for i, pack in enumerate(zip(*temp.values())):
             candidate_list.append(CandidateDescriptor(**(dict(zip(keysValue, pack)))))
 
-        result = super(OptunitySolver, self).loss_function_batch(candidate_list)
+        results = super(OptunitySolver, self).loss_function_batch(candidate_list)
         self.best = self._trials.argmin
 
-        return [x['loss'] for x in result.values()]
+        result = [x['loss'] for x in results.values()]
+        return result
 
     def hyppopy_optunity_solver_pmap(self, f, seq):
         # Check if seq is empty. I so, return an empty result list.
