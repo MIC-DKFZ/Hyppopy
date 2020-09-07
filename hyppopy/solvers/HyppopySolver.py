@@ -292,11 +292,16 @@ class HyppopySolver(object):
             if results is None:
                 results = np.nan
             results = self.loss_func_postprocess(results)
-        except Exception as e:
+        except ZeroDivisionError as e:
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
-            message = "call_batch not supported in BlackboxFunction or script not started via MPI:\n {}".format(e)
+            message = "Script not started via MPI:\n {}".format(e)
             LOG.error(message)
             print(message)
+        except Exception as e:
+            message = "call_batch not supported in BlackboxFunction:\n {}".format(e)
+            LOG.error(message)
+            print(message)
+        finally:
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
                 # params = candidate.get_values()
