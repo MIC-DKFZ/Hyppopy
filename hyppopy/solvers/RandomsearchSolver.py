@@ -9,6 +9,7 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 __all__ = ['RandomsearchSolver',
            'draw_uniform_sample',
@@ -159,21 +160,21 @@ class RandomsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
+    def get_candidates(self, searchspace):
         """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
 
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
-        :return: [float] loss
+        :param searchspace: converted hyperparameter space
         """
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
+        candidates_list = list()
+        N = self.max_iterations
+        for n in range(N):
+            params = {}
+            for name, p in searchspace.items():
+                params[name] = draw_sample(p)
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
 
     def execute_solver(self, searchspace):
         """
@@ -182,13 +183,10 @@ class RandomsearchSolver(HyppopySolver):
 
         :param searchspace: converted hyperparameter space
         """
-        N = self.max_iterations
+
+        candidates = self.get_candidates(searchspace)
         try:
-            for n in range(N):
-                params = {}
-                for name, p in searchspace.items():
-                    params[name] = draw_sample(p)
-                self.loss_function(**params)
+            self.loss_function_batch(candidates)
         except Exception as e:
             msg = "internal error in randomsearch execute_solver occured. {}".format(e)
             LOG.error(msg)

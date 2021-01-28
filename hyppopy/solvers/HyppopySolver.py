@@ -9,6 +9,9 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from _pytest import deprecated
+
+from hyppopy import CandidateDescriptor
 
 __all__ = ['HyppopySolver']
 
@@ -20,9 +23,11 @@ import numpy as np
 import pandas as pd
 from hyperopt import Trials
 from hyppopy.globals import *
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
+from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import DEBUGLEVEL
 
@@ -50,6 +55,7 @@ class HyppopySolver(object):
     - convert_searchspace
     - execute_solver
     - loss_function_call
+    - TODO
     - define_interface
 
     The dev-user interface consists of the methods:
@@ -72,7 +78,7 @@ class HyppopySolver(object):
 
         :param project: [HyppopyProject] project instance, default=None
         """
-        self._idx = None                        # current iteration counter
+        self._idx = 0                        # current iteration counter
         self._best = None                       # best parameter set
         self._trials = None                     # trials object, hyppopy uses the Trials object from hyperopt
         self._blackbox = None                   # blackbox function, eiter a  function or a BlackboxFunction instance
@@ -113,7 +119,7 @@ class HyppopySolver(object):
         raise NotImplementedError('users must define execute_solver to use this class')
 
     @abc.abstractmethod
-    def loss_function_call(self, params):
+    def loss_function_call(self, params):  # TODO: Delete me...
         """
         This function is called within the function loss_function and encapsulates the actual blackbox function call
         in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
@@ -124,7 +130,41 @@ class HyppopySolver(object):
 
         :return: [float] loss
         """
+
+        # TODO This is deprecated! Mark or remove...
         raise NotImplementedError('users must define loss_function_call to use this class')
+
+    @abc.abstractmethod
+    def loss_function_batch_call(self, candidates):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+
+        # TODO This is deprecated! Mark or remove...
+        raise NotImplementedError('users must define loss_function_batch_call to use this class')
+
+    def loss_func_cand_preprocess(self, candidates):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+        # User may implement this function to preprocess candidates before calling the actual loss_function
+        # raise NotImplementedError('users must define loss_function_batch_call to use this class')
+        return candidates
+
+    def loss_func_postprocess(self, results):  # TODO: Delete me...
+        """
+        TODO
+        :param candidates:
+        :return:
+        """
+        # User may implement this function to postprocess results after calling the actual loss_function
+        # raise NotImplementedError('users must define loss_function_batch_call to use this class')
+        return results
+
 
     @abc.abstractmethod
     def define_interface(self):
@@ -218,55 +258,114 @@ class HyppopySolver(object):
     def loss_function(self, **params):
         """
         This function is called each iteration with a selected parameter set. The parameter set selection is driven by
-        the solver lib itself. The purpose of this function is to take care of the iteration reporting and the calling
-        of the callback_func is available. As a developer you might want to overwrite this function completely (e.g.
-        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
-        implement loss_function_call (e.g. OptunitySolver).
+        the solver lib itself.
+        This function just calls loss_function_batch() with a batch size of one. It takes care of converting the params to CandidateDescriptors.
 
         :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
 
         :return: [float] loss
         """
-        self._idx += 1
-        vals = {}
-        idx = {}
-        for key, value in params.items():
-            vals[key] = [value]
-            idx[key] = [self._idx]
-        trial = {'tid': self._idx,
-                 'result': {'loss': None, 'status': 'ok'},
-                 'misc': {
-                     'tid': self._idx,
-                     'idxs': idx,
-                     'vals': vals
-                 },
-                 'book_time': datetime.datetime.now(),
-                 'refresh_time': None
-                 }
+
+        newCandidate = CandidateDescriptor(**params)
+        results = self.loss_function_batch([newCandidate])
+
+        return list(results.values())[0]['loss']  # Here 'results' will always contain a single dict. We extract the loss from it and return it.
+
+    def loss_function_batch(self, candidates):
+        """
+        This function is called with a list of candidates. This list is driven by the solver lib itself.
+        The purpose of this function is to take care of the iteration reporting and the calling
+        of the callback_func if available. As a developer you might want to overwrite this function (or the 'non-batch'-version completely (e.g.
+        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
+        implement loss_function_call (e.g. OptunitySolver).
+
+        :param candidates: [list of CandidateDescriptors]
+
+        :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
+        """
+
+        # print('hello'*10)
+        results = dict()
         try:
-            loss = self.loss_function_call(params)
-            trial['result']['loss'] = loss
-            trial['result']['status'] = 'ok'
-            if loss is np.nan:
-                trial['result']['status'] = 'failed'
+            candidates = self.loss_func_cand_preprocess(candidates)
+            results = self.blackbox.call_batch(candidates)
+            if results is None:
+                results = np.nan
+            results = self.loss_func_postprocess(results)
+        except ZeroDivisionError as e:
+            # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
+            message = "Script not started via MPI:\n {}".format(e)
+            LOG.error(message)
+            print(message)
         except Exception as e:
-            LOG.error("computing loss failed due to:\n {}".format(e))
-            loss = np.nan
-            trial['result']['loss'] = np.nan
-            trial['result']['status'] = 'failed'
-        trial['refresh_time'] = datetime.datetime.now()
-        self._trials.trials.append(trial)
-        cbd = copy.deepcopy(params)
-        cbd['iterations'] = self._idx
-        cbd['loss'] = loss
-        cbd['status'] = trial['result']['status']
-        cbd['book_time'] = trial['book_time']
-        cbd['refresh_time'] = trial['refresh_time']
-        if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
-            self.blackbox.callback_func(**cbd)
-        if self._visdom_viewer is not None:
-            self._visdom_viewer.update(cbd)
-        return loss
+            message = "call_batch not supported in BlackboxFunction:\n {}".format(e)
+            LOG.error(message)
+            print(message)
+        finally:
+            for i, candidate in enumerate(candidates):
+                cand_id = candidate.ID
+                # params = candidate.get_values()
+
+                cand_results = dict()
+                cand_results['book_time'] = datetime.datetime.now()
+                try:
+                    preprocessed_candidate_list = self.loss_func_cand_preprocess([candidate])
+                    candidate = preprocessed_candidate_list[0]
+                    params = candidate.get_values()
+                    try:
+                        loss = self.blackbox(**params)
+                    except:
+                        loss = self.blackbox(params)
+                    if loss is None:
+                        loss = np.nan
+                    cand_results['loss'] = loss
+                except Exception as e:
+                    LOG.error("computing loss failed due to:\n {}".format(e))
+                    cand_results['loss'] = np.nan
+                cand_results['refresh_time'] = datetime.datetime.now()
+                results[cand_id] = cand_results
+            results = self.loss_func_postprocess(results)
+
+        # initialize trials
+        for i, candidate in enumerate(candidates):
+            self._idx += 1
+            vals = {}
+            idx = {}
+            for key in candidate.keys():
+                vals[key] = [candidate[key]]
+                idx[key] = [self._idx]
+            trial = {'tid': self._idx,
+                     'result': {'loss': None, 'status': 'ok'},
+                     'misc': {
+                         'tid': self._idx,
+                         'idxs': idx,
+                         'vals': vals
+                     },
+                     'book_time': results[candidate.ID]['book_time'],
+                     'refresh_time': results[candidate.ID]['refresh_time']
+                     }
+            try:
+                loss = results[candidate.ID]['loss']
+                trial['result']['loss'] = loss
+                trial['result']['status'] = 'ok'
+                if loss is np.nan:
+                    trial['result']['status'] = 'failed'
+            except Exception as e:
+                LOG.error("computing loss failed due to:\n {}".format(e))
+                loss = np.nan
+                trial['result']['loss'] = np.nan
+                trial['result']['status'] = 'failed'
+            self._trials.trials.append(trial)
+            cbd = copy.deepcopy(candidate.get_values())
+            cbd['iterations'] = self._idx
+            cbd['loss'] = loss
+            cbd['status'] = trial['result']['status']
+            cbd['book_time'] = trial['book_time']
+            cbd['refresh_time'] = trial['refresh_time']
+            if (isinstance(self.blackbox, BlackboxFunction) or isinstance(self.blackbox, MPIBlackboxFunction)) and self.blackbox.callback_func is not None:
+                self.blackbox.callback_func(**cbd)
+
+        return results
 
     def run(self, print_stats=True):
         """
@@ -337,6 +436,7 @@ class HyppopySolver(object):
         print("#" * 40)
         for name, value in self.best.items():
             print(" - {}\t:\t{}".format(name, value))
+
         print("\n - number of iterations\t:\t{}".format(self.trials.trials[-1]['tid']+1))
         print(" - total time\t:\t{}d:{}h:{}m:{}s:{}ms".format(self._total_duration[0],
                                                               self._total_duration[1],
@@ -420,7 +520,7 @@ class HyppopySolver(object):
 
         :return: [object] pointer to blackbox_func
         """
-        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator):
+        if isinstance(value, types.FunctionType) or isinstance(value, BlackboxFunction) or isinstance(value, FunctionSimulator) or isinstance(value, MPIBlackboxFunction):
             self._blackbox = value
         else:
             self._blackbox = None

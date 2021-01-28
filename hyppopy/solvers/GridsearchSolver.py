@@ -15,10 +15,12 @@ import logging
 import warnings
 import numpy as np
 from pprint import pformat
+
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
 from hyppopy.solvers.HyppopySolver import HyppopySolver
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -158,21 +160,21 @@ class GridsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="frequency", dtype=int)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
+    def get_candidates(self, searchspace):
         """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
 
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
-        :return: [float] loss
+        :param searchspace: converted hyperparameter space
         """
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
+        candidates_list = list()
+        candidates = [x for x in product(*searchspace[1])]
+        for c in candidates:
+            params = {}
+            for name, value in zip(searchspace[0], c):
+                params[name] = value
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
 
     def execute_solver(self, searchspace):
         """
@@ -181,16 +183,14 @@ class GridsearchSolver(HyppopySolver):
 
         :param searchspace: converted hyperparameter space
         """
-        for x in product(*searchspace[1]):
-            params = {}
-            for name, value in zip(searchspace[0], x):
-                params[name] = value
-            try:
-                self.loss_function(**params)
-            except Exception as e:
-                msg = "internal error in randomsearch execute_solver occured. {}".format(e)
-                LOG.error(msg)
-                raise BrokenPipeError(msg)
+        candidates = self.get_candidates(searchspace)
+
+        try:
+            self.loss_function_batch(candidates)
+        except Exception as e:
+            msg = "internal error in gridsearch execute_solver occured. {}".format(e)
+            LOG.error(msg)
+            raise BrokenPipeError(msg)
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):

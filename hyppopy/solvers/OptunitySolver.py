@@ -14,6 +14,8 @@ import os
 import logging
 import optunity
 from pprint import pformat
+
+from hyppopy.CandidateDescriptor import CandidateDescriptor, CandicateDescriptorWrapper
 from hyppopy.globals import DEBUGLEVEL
 
 LOG = logging.getLogger(os.path.basename(__file__))
@@ -62,6 +64,69 @@ class OptunitySolver(HyppopySolver):
                 params[key] = int(round(params[key]))
         return self.blackbox(**params)
 
+    def loss_function_batch(self, **candidates):
+        """
+        This function is called  with a list of candidates. This list is driven by the solver lib itself.
+        The purpose of this function is to take care of the iteration reporting and the calling
+        of the callback_func if available. As a developer you might want to overwrite this function (or the 'non-batch'-version completely (e.g.
+        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
+        implement loss_function_call (e.g. OptunitySolver).
+
+        :param candidates: [list of CandidateDescriptors]
+
+        :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
+        """
+
+        candidate_list = []
+
+        keysValue = candidates.keys()
+        temp = {}
+        for key in keysValue:
+            temp[key] = candidates[key].get()
+
+        for i, pack in enumerate(zip(*temp.values())):
+            candidate_list.append(CandidateDescriptor(**(dict(zip(keysValue, pack)))))
+
+        results = super(OptunitySolver, self).loss_function_batch(candidate_list)
+        try:
+            self.best = self._trials.argmin
+        except:
+            pass
+
+        result = [x['loss'] for x in results.values()]
+        return result
+
+    def hyppopy_optunity_solver_pmap(self, f, seq):
+        # Check if seq is empty. I so, return an empty result list.
+        if len(seq) == 0:
+            return []
+
+        candidates = []
+        for elem in seq:
+            can = CandidateDescriptor(**elem)
+            candidates.append(can)
+
+        cand_list = CandicateDescriptorWrapper(keys=seq[0].keys())
+        cand_list.set(candidates)
+
+        f_result = f(cand_list)
+
+        # If one candidate does not match the constraints, f() returns a single default value.
+        # This is a problem as all the other candidates are not calculated either.
+        # The following is a workaround. We split the candidate_list into 2 lists and call the map function recursively until all valid parameters are processed.
+        if not isinstance(f_result, list):
+            # First half
+            seq_A = seq[:len(seq) // 2]
+            temp_result_a = self.hyppopy_optunity_solver_pmap(f, seq_A)
+
+            seq_B = seq[len(seq) // 2:]
+            temp_result_b = self.hyppopy_optunity_solver_pmap(f, seq_B)
+            # f_result = [42]
+
+            f_result = temp_result_a + temp_result_b
+
+        return f_result
+
     def execute_solver(self, searchspace):
         """
         This function is called immediately after convert_searchspace and get the output of the latter as input. It's
@@ -71,9 +136,10 @@ class OptunitySolver(HyppopySolver):
         """
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(searchspace)))
         try:
-            self.best, _, _ = optunity.minimize_structured(f=self.loss_function,
-                                                           num_evals=self.max_iterations,
-                                                           search_space=searchspace)
+            optunity.minimize_structured(f=self.loss_function_batch,
+                                         num_evals=self.max_iterations,
+                                         search_space=searchspace,
+                                         pmap=self.hyppopy_optunity_solver_pmap)
         except Exception as e:
             LOG.error("internal error in optunity.minimize_structured occured. {}".format(e))
             raise BrokenPipeError("internal error in optunity.minimize_structured occured. {}".format(e))

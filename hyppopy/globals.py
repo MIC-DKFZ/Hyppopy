@@ -13,6 +13,7 @@
 import os
 import sys
 import logging
+from enum import Enum
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -32,3 +33,8 @@ DEFAULTGRIDFREQUENCY = 10
 LOGFILENAME = os.path.join(ROOT, '{}_log.log'.format(LIBNAME))
 DEBUGLEVEL = logging.DEBUG
 logging.basicConfig(filename=LOGFILENAME, filemode='w', format='%(levelname)s: %(name)s - %(message)s')
+
+
+class MPI_TAGS(Enum):
+     MPI_SEND_CANDIDATE = 55
+     MPI_SEND_RESULTS = 99

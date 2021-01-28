@@ -87,6 +87,40 @@ class HyperoptSolver(HyppopySolver):
             self._visdom_viewer.update(cbd)
         return {'loss': loss, 'status': status}
 
+    def loss_func_cand_preprocess(self, params):
+        """
+        Loss function wrapper function.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [float] loss
+        """
+        for name, p in self._searchspace.items():
+            if p["domain"] != "categorical":
+                if params[name] < p["data"][0]:
+                    params[name] = p["data"][0]
+                if params[name] > p["data"][1]:
+                    params[name] = p["data"][1]
+
+        return params
+
+    def loss_func_postprocess(self, loss):
+        """
+        Loss function wrapper function.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [float] loss
+        """
+
+        if loss is not None:
+            status = STATUS_OK
+        else:
+            loss = 1e9
+
+        # return {'loss': loss, 'status': status}
+        return loss
+
     def execute_solver(self, searchspace):
         """
         This function is called immediately after convert_searchspace and get the output of the latter as input. It's
