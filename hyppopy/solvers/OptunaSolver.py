@@ -20,6 +20,8 @@ from pprint import pformat
 from hyppopy.globals import DEBUGLEVEL
 from hyppopy.solvers.HyppopySolver import HyppopySolver
 
+from hyppopy.CandidateDescriptor import CandidateDescriptor
+
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
 
@@ -34,6 +36,7 @@ class OptunaSolver(HyppopySolver):
         """
         HyppopySolver.__init__(self, project)
         self._searchspace = None
+        self.candidates_list = list()
 
     def define_interface(self):
         """
@@ -49,6 +52,48 @@ class OptunaSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
+    def get_candidates(self, trial=None):
+        """
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
+
+        :param searchspace: converted hyperparameter space
+        """
+
+        candidates_list = list()
+        N = self.max_iterations
+        for n in range(N):
+            print(n)
+            # Todo: Ugly hack that does not even work...
+            from optuna import trial as trial_module
+            # temp_study = optuna.create_study()
+            trial_id = self.study._storage.create_new_trial_id(0)
+            trial = trial_module.Trial(self.study, trial_id)
+            ## trial.report(result)
+            ## self._storage.set_trial_state(trial_id, structs.TrialState.COMPLETE)
+            ## self._log_completed_trial(trial_number, result)
+
+            params = {}
+            for name, param in self._searchspace.items():
+                if param["domain"] == "categorical":
+                    params[name] = trial.suggest_categorical(name, param["data"])
+                else:
+                    params[name] = trial.suggest_uniform(name, param["data"][0], param["data"][1])
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
+
+        N = self.max_iterations
+        for n in range(N):
+            params = {}
+            for name, param in self._searchspace.items():
+                if param["domain"] == "categorical":
+                    params[name] = trial.suggest_categorical(name, param["data"])
+                else:
+                    params[name] = trial.suggest_uniform(name, param["data"][0], param["data"][1])
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
+
     def trial_cache(self, trial):
         """
         Optuna specific loss function wrapper
@@ -57,29 +102,16 @@ class OptunaSolver(HyppopySolver):
 
         :return: [function] loss function
         """
+
         params = {}
+
         for name, param in self._searchspace.items():
             if param["domain"] == "categorical":
                 params[name] = trial.suggest_categorical(name, param["data"])
             else:
                 params[name] = trial.suggest_uniform(name, param["data"][0], param["data"][1])
+
         return self.loss_function(**params)
-
-    def loss_function_call(self, params):
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
-        :return: [float] loss
-        """
-        for key in params.keys():
-            if self.project.get_typeof(key) is int:
-                params[key] = int(round(params[key]))
-        return self.blackbox(**params)
 
     def execute_solver(self, searchspace):
         """

@@ -58,9 +58,6 @@ class FooSolver4(HyppopySolver):
     def define_interface(self):
         pass
 
-    def loss_function_call(self, params):
-        return 1
-
 
 class GooSolver1(HyppopySolver):
     def __init__(self, project=None):
@@ -72,9 +69,6 @@ class GooSolver1(HyppopySolver):
 
     def define_interface(self):
         self._add_member("max_iterations", int, 1.0, 100)
-
-    def loss_function_call(self, params):
-        return 1
 
     def execute_solver(self, searchspace):
         pass
@@ -90,9 +84,6 @@ class GooSolver2(HyppopySolver):
 
     def define_interface(self):
         self._add_member("max_iterations", int, 100, 5.0)
-
-    def loss_function_call(self, params):
-        return 1
 
     def execute_solver(self, searchspace):
         pass
@@ -123,9 +114,6 @@ class TestSolver1(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         pass
-
-    def loss_function_call(self, params):
-        return 1
 
     def execute_solver(self, searchspace):
         pass
@@ -165,9 +153,6 @@ class TestSolver2(HyppopySolver):
     def convert_searchspace(self, hyperparameter):
         pass
 
-    def loss_function_call(self, params):
-        return 1
-
     def execute_solver(self, searchspace):
         pass
 
@@ -205,9 +190,6 @@ class TestSolver3(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         pass
-
-    def loss_function_call(self, params):
-        return 1
 
     def execute_solver(self, searchspace):
         pass
@@ -247,9 +229,6 @@ class TestSolver4(HyppopySolver):
     def convert_searchspace(self, hyperparameter):
         pass
 
-    def loss_function_call(self, params):
-        return 1
-
     def execute_solver(self, searchspace):
         pass
 
@@ -272,9 +251,6 @@ class TestRunSolver1(HyppopySolver):
     def convert_searchspace(self, hyperparameter):
         raise EnvironmentError("ForTesting")
 
-    def loss_function_call(self, params):
-        return 1
-
     def execute_solver(self, searchspace):
         pass
 
@@ -291,9 +267,6 @@ class TestRunSolver2(HyppopySolver):
 
     def convert_searchspace(self, hyperparameter):
         pass
-
-    def loss_function_call(self, params):
-        return 1
 
     def execute_solver(self, searchspace):
         raise EnvironmentError("ForTesting")
@@ -312,9 +285,6 @@ class TestLossFuncSolver1(HyppopySolver):
     def convert_searchspace(self, hyperparameter):
         pass
 
-    def loss_function_call(self, params):
-        raise Exception("For testing")
-
     def execute_solver(self, searchspace):
         self.loss_function(**{})
 
@@ -332,10 +302,6 @@ class TestLossFuncSolver2(HyppopySolver):
     def convert_searchspace(self, hyperparameter):
         pass
 
-    def loss_function_call(self, params):
-        from numpy import nan as npnan
-        return npnan
-
     def execute_solver(self, searchspace):
         self.loss_function(**{})
 
@@ -352,10 +318,7 @@ class HyppopySolverTestSuite(unittest.TestCase):
         self.assertRaises(NotImplementedError, HyppopySolver)
         self.assertRaises(NotImplementedError, FooSolver1)
         self.assertRaises(NotImplementedError, FooSolver2)
-        foo = FooSolver3()
-        self.assertRaises(NotImplementedError, foo.loss_function_call, {})
         foo = FooSolver4()
-        self.assertEqual(foo.loss_function_call({}), 1)
         self.assertRaises(NotImplementedError, foo.execute_solver, {})
 
         self.assertRaises(AssertionError, GooSolver1)

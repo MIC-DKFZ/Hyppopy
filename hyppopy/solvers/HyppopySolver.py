@@ -42,19 +42,18 @@ class HyppopySolver(object):
     process information storing.
     The key idea is that the HyppopySolver class defines an interface to configure and run an object instance of itself
     independently from the concrete solver lib used to optimize in the background. To achieve this goal an addon
-    developer needs to implement the abstract methods 'convert_searchspace', 'execute_solver' and 'loss_function_call'.
+    developer needs to implement the abstract methods 'convert_searchspace', 'execute_solver'.
     These methods abstract the peculiarities of the solver libs to offer, on the user side, a simple and consistent
     parameter space configuration and optimization procedure. The method 'convert_searchspace' transforms the hyppopy
-    parameter space description into the solver lib specific description. The method loss_function_call is used to
-    handle solver lib specifics of calling the actual blackbox function and execute_solver is executed when the run
-    method is invoked und takes care of calling the solver lib solving routine.
+    parameter space description into the solver lib specific description. The methods loss_func_cand_preprocess and
+    loss_func_postprocess are used to handle solver lib specifics of calling the actual blackbox function and
+    execute_solver is executed when the run method is invoked und takes care of calling the solver lib solving routine.
 
     The class HyppopySolver defines an interface to be implemented when writing a custom solver. Each solver derivative
     needs to implement the abstract methods:
 
     - convert_searchspace
     - execute_solver
-    - loss_function_call
     - TODO
     - define_interface
 
@@ -117,22 +116,6 @@ class HyppopySolver(object):
         :param searchspace: converted hyperparameter space
         """
         raise NotImplementedError('users must define execute_solver to use this class')
-
-    @abc.abstractmethod
-    def loss_function_call(self, params):  # TODO: Delete me...
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
-        :return: [float] loss
-        """
-
-        # TODO This is deprecated! Mark or remove...
-        raise NotImplementedError('users must define loss_function_call to use this class')
 
     @abc.abstractmethod
     def loss_function_batch_call(self, candidates):  # TODO: Delete me...
@@ -276,8 +259,7 @@ class HyppopySolver(object):
         This function is called with a list of candidates. This list is driven by the solver lib itself.
         The purpose of this function is to take care of the iteration reporting and the calling
         of the callback_func if available. As a developer you might want to overwrite this function (or the 'non-batch'-version completely (e.g.
-        HyperoptSolver) but then you need to take care for iteration reporting for yourself. The alternative is to only
-        implement loss_function_call (e.g. OptunitySolver).
+        HyperoptSolver).
 
         :param candidates: [list of CandidateDescriptors]
 
