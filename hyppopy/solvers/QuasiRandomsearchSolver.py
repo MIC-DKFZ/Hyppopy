@@ -185,22 +185,6 @@ class QuasiRandomsearchSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
-        """
-        This function is called within the function loss_function and encapsulates the actual blackbox function call
-        in each iteration. The function loss_function takes care of the iteration driving and reporting, but each solver
-        lib might need some special treatment between the parameter set selection and the calling of the actual blackbox
-        function, e.g. parameter converting.
-
-        :param params: [dict] hyperparameter space sample e.g. {'p1': 0.123, 'p2': 3.87, ...}
-
-        :return: [float] loss
-        """
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
-
     def execute_solver(self, searchspace):
         """
         This function is called immediately after convert_searchspace and get the output of the latter as input. It's
