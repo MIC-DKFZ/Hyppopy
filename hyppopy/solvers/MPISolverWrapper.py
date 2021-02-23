@@ -16,6 +16,7 @@ import logging
 import numpy as np
 from mpi4py import MPI
 from hyppopy.globals import DEBUGLEVEL, MPI_TAGS
+from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -54,12 +55,16 @@ class MPISolverWrapper:
     @blackbox.setter
     def blackbox(self, value):
         """
-        Set the BlackboxFunction wrapper class encapsulating the loss function or a function accepting a hyperparameter set
-        and returning a float.
-
+        Set the BlackboxFunction wrapper class encapsulating the loss function or a function accepting a hyperparameter
+        set and returning a float.
+        If the passed value is not an instance of MPIBlackboxFunction (or a derived class) it will automatically
+        wrapped by an MPIBackboxFunction.
         :return:
         """
-        self._solver.blackbox = value
+        if isinstance(value, MPIBlackboxFunction):
+            self._solver.blackbox = value
+        else:
+            self._solver.blackbox = MPIBlackboxFunction(blackbox_func=value, mpi_comm=self._mpi_comm)
 
     def get_results(self):
         """

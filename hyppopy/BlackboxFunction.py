@@ -111,7 +111,6 @@ class BlackboxFunction(object):
 
         if self.dataloader_func is not None:
             self._raw_data = self.dataloader_func(params=params)
-        # assert self._raw_data is not None, "Missing data exception!"
         assert self.blackbox_func is not None, "Missing blackbox function exception!"
         if self.preprocess_func is not None:
             result = self.preprocess_func(data=self._raw_data, params=params)

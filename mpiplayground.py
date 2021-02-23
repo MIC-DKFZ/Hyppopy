@@ -14,13 +14,9 @@
 # A hyppopy minimal example optimizing a simple demo function f(x,y) = x**2+y**2
 
 # import the HyppopyProject class keeping track of inputs
-from mpi4py import MPI
-
-from hyppopy.BlackboxFunction import BlackboxFunction
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.SolverPool import SolverPool
 from hyppopy.solvers.MPISolverWrapper import MPISolverWrapper
-from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 
 # To configure the Hyppopy solver we use a simple nested dictionary with two obligatory main sections,
 # hyperparameter and settings. The hyperparameter section defines your searchspace. Each hyperparameter
@@ -62,22 +58,14 @@ config = {
 
 project = HyppopyProject(config=config)
 
-
 # The user defined loss function
 def my_loss_function_params(params):
     x = params['x']
     y = params['y']
     return x**2+y**3
 
-# The user defined loss function
-def my_loss_function(x, y):
-    return x**2+y**3
-
-
-comm = MPI.COMM_WORLD
-solver = MPISolverWrapper(solver=SolverPool.get(project=project), mpi_comm=comm)
-blackbox = MPIBlackboxFunction(blackbox_func=my_loss_function_params, mpi_comm=comm)
-solver.blackbox = blackbox
+solver = MPISolverWrapper(solver=SolverPool.get(project=project))
+solver.blackbox = my_loss_function_params
 
 solver.run()
 
