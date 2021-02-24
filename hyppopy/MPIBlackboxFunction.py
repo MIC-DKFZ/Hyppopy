@@ -79,5 +79,5 @@ class MPIBlackboxFunction(BlackboxFunction):
                 if len(candidates) == len(results):
                     print('All results received!')
                     return results
-                cand_id, result_dict = MPI.COMM_WORLD.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+                cand_id, result_dict = self._mpi_comm.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
                 results[cand_id] = result_dict
