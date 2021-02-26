@@ -27,7 +27,6 @@ from hyppopy.CandidateDescriptor import CandidateDescriptor
 from hyppopy.VisdomViewer import VisdomViewer
 from hyppopy.HyppopyProject import HyppopyProject
 from hyppopy.BlackboxFunction import BlackboxFunction
-from hyppopy.MPIBlackboxFunction import MPIBlackboxFunction
 from hyppopy.FunctionSimulator import FunctionSimulator
 from hyppopy.globals import DEBUGLEVEL
 
@@ -266,7 +265,6 @@ class HyppopySolver(object):
         :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
         """
 
-        # print('hello'*10)
         results = dict()
         try:
             candidates = self.loss_func_cand_preprocess(candidates)
@@ -278,11 +276,9 @@ class HyppopySolver(object):
             # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
             message = "Script not started via MPI:\n {}".format(e)
             LOG.error(message)
-            print(message)
         except Exception as e:
             message = "call_batch not supported in BlackboxFunction:\n {}".format(e)
             LOG.error(message)
-            print(message)
         finally:
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
@@ -344,7 +340,7 @@ class HyppopySolver(object):
             cbd['status'] = trial['result']['status']
             cbd['book_time'] = trial['book_time']
             cbd['refresh_time'] = trial['refresh_time']
-            if (isinstance(self.blackbox, BlackboxFunction) or isinstance(self.blackbox, MPIBlackboxFunction)) and self.blackbox.callback_func is not None:
+            if isinstance(self.blackbox, BlackboxFunction) and self.blackbox.callback_func is not None:
                 self.blackbox.callback_func(**cbd)
 
         return results
