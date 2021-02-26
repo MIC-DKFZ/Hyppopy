@@ -1,6 +1,6 @@
 hyperopt>=0.1.2
 matplotlib>=3.0.3
-mpi4py==3.0.2
+mpi4py[MPI]==3.0.2
 numpy>=1.16.2
 optuna>=0.9.0
 Optunity>=1.1.1
