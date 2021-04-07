@@ -108,10 +108,7 @@ class MPISolverWrapper:
                 cand_id = candidate.ID
                 params = candidate.get_values()
 
-                try:
-                    loss = self._solver.blackbox.blackbox_func(params)
-                except:
-                    loss = self._solver.blackbox.blackbox_func(**params)
+                loss = self._solver.blackbox.blackbox(params)
 
             except Exception as e:
                 msg = "Error in Worker(rank={}): {}".format(rank, e)
