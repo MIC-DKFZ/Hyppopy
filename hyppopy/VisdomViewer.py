@@ -39,6 +39,13 @@ class VisdomViewer(object):
     call it in update. Using this class make it necessary starting a visdom server beforehand $ python -m visdom.server
     """
     def __init__(self, project, port=8097, server="http://localhost"):
+        """
+        The constructor wants a HyppopyProject and accepts a visdom server port and a server name.
+
+        :param project: [HyppopyProject] project instance
+        :param port: [int] server port, default=8097
+        :param server: [str] server name, default=http://localhost
+        """
         self._viz = Visdom(port=port, server=server)
         self._enabled = self._viz.check_connection(timeout_seconds=3)
         if not self._enabled:

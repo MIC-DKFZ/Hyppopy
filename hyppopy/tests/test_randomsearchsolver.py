@@ -31,7 +31,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             values.append(draw_uniform_sample(param))
             self.assertTrue(0 <= values[-1] <= 1)
             self.assertTrue(isinstance(values[-1], float))
-        hist = plt.hist(values, bins=10, normed=True)
+        hist = plt.hist(values, bins=10, density=True)
         std = np.std(hist[0])
         mean = np.mean(hist[0])
         self.assertTrue(std < 0.05)
@@ -43,7 +43,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             values.append(draw_uniform_sample(param))
             self.assertTrue(0 <= values[-1] <= 10)
             self.assertTrue(isinstance(values[-1], int))
-        hist = plt.hist(values, bins=11, normed=True)
+        hist = plt.hist(values, bins=11, density=True)
         std = np.std(hist[0])
         mean = np.mean(hist[0])
         self.assertTrue(std < 0.05)
@@ -56,7 +56,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             values.append(draw_normal_sample(param))
             self.assertTrue(0 <= values[-1] <= 10)
             self.assertTrue(isinstance(values[-1], int))
-        hist = plt.hist(values, bins=11, normed=True)
+        hist = plt.hist(values, bins=11, density=True)
         for i in range(1, 5):
             self.assertTrue(hist[0][i-1]-hist[0][i] < 0)
         for i in range(5, 10):
@@ -69,7 +69,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             values.append(draw_loguniform_sample(param))
             self.assertTrue(1 <= values[-1] <= 1000)
             self.assertTrue(isinstance(values[-1], float))
-        hist = plt.hist(values, bins=11, normed=True)
+        hist = plt.hist(values, bins=11, density=True)
         for i in range(4):
             self.assertTrue(hist[0][i] > hist[0][i+1])
             self.assertTrue((hist[0][i] - hist[0][i+1]) > 0)
@@ -81,7 +81,7 @@ class RandomsearchTestSuite(unittest.TestCase):
             values.append(draw_categorical_sample(param))
             self.assertTrue(values[-1] == 1 or values[-1] == 2 or values[-1] == 3)
             self.assertTrue(isinstance(values[-1], int))
-        hist = plt.hist(values, bins=3, normed=True)
+        hist = plt.hist(values, bins=3, density=True)
         for i in range(3):
             self.assertTrue(0.45 < hist[0][i] < 0.55)
 

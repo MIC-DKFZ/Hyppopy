@@ -28,10 +28,22 @@ LOG.setLevel(DEBUGLEVEL)
 class HyperoptSolver(HyppopySolver):
 
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         HyppopySolver.__init__(self, project)
         self._searchspace = None
 
     def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
         self._add_member("max_iterations", int)
         self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
@@ -39,6 +51,13 @@ class HyperoptSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="type", dtype=type)
 
     def loss_function(self, params):
+        """
+        Loss function wrapper function.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [float] loss
+        """
         for name, p in self._searchspace.items():
             if p["domain"] != "categorical":
                 if params[name] < p["data"][0]:
@@ -68,7 +87,47 @@ class HyperoptSolver(HyppopySolver):
             self._visdom_viewer.update(cbd)
         return {'loss': loss, 'status': status}
 
+    def loss_func_cand_preprocess(self, params):
+        """
+        Loss function wrapper function.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [float] loss
+        """
+        for name, p in self._searchspace.items():
+            if p["domain"] != "categorical":
+                if params[name] < p["data"][0]:
+                    params[name] = p["data"][0]
+                if params[name] > p["data"][1]:
+                    params[name] = p["data"][1]
+
+        return params
+
+    def loss_func_postprocess(self, loss):
+        """
+        Loss function wrapper function.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [float] loss
+        """
+
+        if loss is not None:
+            status = STATUS_OK
+        else:
+            loss = 1e9
+
+        # return {'loss': loss, 'status': status}
+        return loss
+
     def execute_solver(self, searchspace):
+        """
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+
+        :param searchspace: converted hyperparameter space
+        """
         LOG.debug("execute_solver using solution space:\n\n\t{}\n".format(pformat(searchspace)))
         self.trials = Trials()
 
@@ -84,6 +143,15 @@ class HyperoptSolver(HyppopySolver):
             raise BrokenPipeError(msg)
 
     def convert_searchspace(self, hyperparameter):
+        """
+        This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
+        convert it into a solver lib specific format. The function is invoked when run is called and what it returns
+        is passed as searchspace argument to the function execute_solver.
+
+        :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+
+        :return: [object] converted hyperparameter space
+        """
         self._searchspace = hyperparameter
         solution_space = {}
         for name, content in hyperparameter.items():
@@ -99,6 +167,13 @@ class HyperoptSolver(HyppopySolver):
         return solution_space
 
     def convert(self, param_settings):
+        """
+        Convert searchspace to hyperopt specific searchspace
+
+        :param param_settings: [dict] hyperparameter description
+
+        :return: [object] hyperopt description
+        """
         name = param_settings["name"]
         domain = param_settings["domain"]
         dtype = param_settings["dtype"]
@@ -144,17 +219,17 @@ class HyperoptSolver(HyppopySolver):
             if dtype is str:
                 return hp.choice(name, data)
             elif dtype is bool:
-                data = []
+                conv = []
                 for elem in data:
-                    if elem == "true" or elem == "True" or elem == 1 or elem == "1":
-                        data.append(True)
-                    elif elem == "false" or elem == "False" or elem == 0 or elem == "0":
-                        data.append(False)
+                    if elem == "true" or elem == "True" or elem == 1 or elem == "1" or elem == True:
+                        conv.append(True)
+                    elif elem == "false" or elem == "False" or elem == 0 or elem == "0" or elem == False:
+                        conv.append(False)
                     else:
                         msg = "cannot convert the type {} in domain {}, unknown bool type value".format(dtype, domain)
                         LOG.error(msg)
                         raise LookupError(msg)
-                return hp.choice(name, data)
+                return hp.choice(name, conv)
         else:
             msg = "Precondition violation, domain named {} not available!".format(domain)
             LOG.error(msg)

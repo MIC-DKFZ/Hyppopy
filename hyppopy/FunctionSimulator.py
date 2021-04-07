@@ -54,6 +54,9 @@ class FunctionSimulator(object):
     as range config .cfg ascii files are expected containing 
     """
     def __init__(self):
+        """
+        Default constructor
+        """
         self.config = None
         self.data = None
         self.axis = []
@@ -79,20 +82,43 @@ class FunctionSimulator(object):
         return np.sum(fl*np.array(fracs) + fr*(1-np.array(fracs)))
 
     def clear(self):
+        """
+        Clears all data structures
+        """
         self.axis.clear()
         self.data = None
         self.config = None
 
     def dims(self):
+        """
+        Returns the dimensions of the data obejct
+
+        :return: [int] shape[0]
+        """
         return self.data.shape[0]
 
     def size(self):
+        """
+        Returns the size of the data obejct
+
+        :return: [int] shape[2]
+        """
         return self.data.shape[1]
 
     def range(self, dim):
+        """
+        Returns the data range
+
+        :return: [float] range
+                """
         return np.abs(self.axis[dim][1] - self.axis[dim][0])
 
     def minima(self):
+        """
+        computes the minimum for each axis
+
+        :return: [list] minima per axis
+        """
         glob_mins = []
         for dim in range(self.dims()):
             x = []
@@ -104,6 +130,13 @@ class FunctionSimulator(object):
         return glob_mins
 
     def pos_to_indices(self, positions):
+        """
+        Converts real positions to index
+
+        :param positions: [list] positions
+
+        :return: [list], [list], [list] left, right fraction
+        """
         lpos = []
         rpos = []
         pfracs = []
@@ -124,6 +157,12 @@ class FunctionSimulator(object):
         return lpos, rpos, pfracs
 
     def plot(self, dim=None, title=""):
+        """
+        Plots the dimension.
+
+        :param dim: [int] axis index
+        :param title: [str] plot title
+        """
         if dim is None:
             dim = list(range(self.dims()))
         else:
@@ -139,6 +178,12 @@ class FunctionSimulator(object):
         plt.show()
 
     def add_dimension(self, data, x_range):
+        """
+        Add dimension data
+
+        :param data: [object] axis data
+        :param x_range: [list] data absolute range
+        """
         if self.data is None:
             self.data = data
             if len(self.data.shape) == 1:
@@ -154,6 +199,11 @@ class FunctionSimulator(object):
         self.axis.append(x_range)
 
     def load_default(self, name="3D"):
+        """
+        load default images as axis
+
+        :param name: [str] subfolder name
+        """
         path = os.path.join(FUNCTIONSIMULATOR_DATAPATH, "{}".format(name))
         if os.path.exists(path):
             self.load_images(path)
@@ -161,6 +211,11 @@ class FunctionSimulator(object):
             raise FileExistsError("No FunctionSimulator of dimension {} available".format(name))
 
     def load_images(self, path):
+        """
+        Load axis images and config files from path.
+
+        :param path: [str] data path
+        """
         self.config = None
         self.data = None
         self.axis.clear()
@@ -199,6 +254,13 @@ class FunctionSimulator(object):
             self.sample_image(img, n)
 
     def sample_image(self, img, dim):
+        """
+        Samples an image to extract function value list.
+
+        :param img: [ndarray] image
+
+        :param dim: [int] axis index
+        """
         sec_name = "axis_{}".format(str(dim).zfill(2))
         assert sec_name in self.config.sections(), "config section {} not found!".format(sec_name)
         settings = self.get_axis_settings(sec_name)
@@ -216,6 +278,13 @@ class FunctionSimulator(object):
         self.data[dim, :] += y_range[0]
 
     def read_config(self, fname):
+        """
+        Read a config file.
+
+        :param fname: [str] config file name
+
+        :return: [ConfigParser] config
+        """
         try:
             config = configparser.ConfigParser()
             config.read(fname)
@@ -225,6 +294,13 @@ class FunctionSimulator(object):
             return None
 
     def get_axis_settings(self, section):
+        """
+        Extract axis settings
+
+        :param section: [str] config section
+
+        :return: [dict] axis options
+        """
         dict1 = {}
         options = self.config.options(section)
         for option in options:

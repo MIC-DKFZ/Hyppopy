@@ -2,6 +2,8 @@
 # A Hyper-Parameter Optimization Toolbox
 <br>
 
+Copyright © German Cancer Research Center (DKFZ), Division of Medical Image Computing (MIC). Please make sure that your usage of this code is in compliance with the code [license](https://github.com/MIC-DKFZ/Hyppopy/blob/master/LICENSE).
+
 ## Project Status
 [![Documentation Status](https://readthedocs.org/projects/hyppopy/badge/?version=latest)](https://hyppopy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/mic-dkfz/hyppopy/branch/master/graph/badge.svg)](https://codecov.io/gh/mic-dkfz/hyppopy)
@@ -382,3 +384,11 @@ You can also change the port and the server name in start_viewer(port=8097, serv
 ## Acknowledgements:
 _This work is supported by the [Helmholtz Association Initiative and Networking](https://www.helmholtz.de/en/about_us/the_association/initiating_and_networking/) Fund under project number ZT-I-0003._
 <br>
+
+### Project overview:
+The Helmholtz Analytics Framework (HAF) is a data science pilot project funded by the Helmholtz Initiative and Networking Fund. Six Helmholtz centers will pursue a systematic
+ development of domain-specific data analysis techniques in a co-design approach between domain scientists and information experts in order to strengthen the development of the
+  data sciences in the Helmholtz Association. In challenging applications from a variety of scientific fields, data analytics methods will be applied to demonstrate their
+   potential in leading to scientific breakthroughs and new knowledge. In addition, the exchange of methods among the scientific areas will lead to their generalization.
+
+   Additional information can be found [here.](http://www.helmholtz-analytics.de/helmholtz_analytics/EN/Project/_node.html)

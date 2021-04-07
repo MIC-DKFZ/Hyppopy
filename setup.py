@@ -7,7 +7,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-VERSION = "0.5.0.1"
+VERSION = "0.5.0.8"
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -30,13 +30,11 @@ setup(
     long_description=readme,
     # if you want, put your own name here
     # (this would likely result in people sending you emails)
-    author='Sven Wanner',
-    author_email='s.wanner@dkfz.de',
-    url='',
+    author='MIC @ DKFZ',
+    author_email='',
+    url='https://github.com/MIC-DKFZ/Hyppopy',
     license=license,
     packages=find_packages(exclude=('tests', 'doc')),
-    # the requirements to install this project.
-    # Since this one is so simple this is empty.
     install_requires=[
 		'bayesian-optimization>=1.0.1',
 		'hyperopt>=0.1.2',

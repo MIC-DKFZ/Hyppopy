@@ -15,10 +15,12 @@ import logging
 import warnings
 import numpy as np
 from pprint import pformat
+
 from scipy.stats import norm
 from itertools import product
 from hyppopy.globals import DEBUGLEVEL, DEFAULTGRIDFREQUENCY
 from hyppopy.solvers.HyppopySolver import HyppopySolver
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 LOG = logging.getLogger(os.path.basename(__file__))
 LOG.setLevel(DEBUGLEVEL)
@@ -137,32 +139,58 @@ class GridsearchSolver(HyppopySolver):
     a range, one must specifiy the number of samples in the domain, e.g. 'data': [0, 1, 100]
     """
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         HyppopySolver.__init__(self, project)
 
     def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
         self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="frequency", dtype=int)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
+    def get_candidates(self, searchspace):
+        """
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
+
+        :param searchspace: converted hyperparameter space
+        """
+        candidates_list = list()
+        candidates = [x for x in product(*searchspace[1])]
+        for c in candidates:
+            params = {}
+            for name, value in zip(searchspace[0], c):
+                params[name] = value
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
 
     def execute_solver(self, searchspace):
-        for x in product(*searchspace[1]):
-            params = {}
-            for name, value in zip(searchspace[0], x):
-                params[name] = value
-            try:
-                self.loss_function(**params)
-            except Exception as e:
-                msg = "internal error in randomsearch execute_solver occured. {}".format(e)
-                LOG.error(msg)
-                raise BrokenPipeError(msg)
+        """
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+
+        :param searchspace: converted hyperparameter space
+        """
+        candidates = self.get_candidates(searchspace)
+
+        try:
+            self.loss_function_batch(candidates)
+        except Exception as e:
+            msg = "internal error in gridsearch execute_solver occured. {}".format(e)
+            LOG.error(msg)
+            raise BrokenPipeError(msg)
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):

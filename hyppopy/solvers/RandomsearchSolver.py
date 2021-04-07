@@ -9,6 +9,7 @@
 # A PARTICULAR PURPOSE.
 #
 # See LICENSE
+from hyppopy.CandidateDescriptor import CandidateDescriptor
 
 __all__ = ['RandomsearchSolver',
            'draw_uniform_sample',
@@ -138,29 +139,54 @@ class RandomsearchSolver(HyppopySolver):
     from the parameter space each iteration.
     """
     def __init__(self, project=None):
+        """
+        The constructor accepts a HyppopyProject.
+
+        :param project: [HyppopyProject] project instance, default=None
+        """
         HyppopySolver.__init__(self, project)
 
     def define_interface(self):
+        """
+        This function is called when HyppopySolver.__init__ function finished. Child classes need to define their
+        individual parameter here by calling the _add_member function for each class member variable need to be defined.
+        Using _add_hyperparameter_signature the structure of a hyperparameter the solver expects must be defined.
+        Both, members and hyperparameter signatures are later get checked, before executing the solver, ensuring
+        settings passed fullfill solver needs.
+        """
         self._add_member("max_iterations", int)
         self._add_hyperparameter_signature(name="domain", dtype=str,
                                           options=["uniform", "normal", "loguniform", "categorical"])
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
-    def loss_function_call(self, params):
-        loss = self.blackbox(**params)
-        if loss is None:
-            return np.nan
-        return loss
+    def get_candidates(self, searchspace):
+        """
+        This function converts the searchspace to a candidate_list that can then be used to distribute via MPI.
+
+        :param searchspace: converted hyperparameter space
+        """
+        candidates_list = list()
+        N = self.max_iterations
+        for n in range(N):
+            params = {}
+            for name, p in searchspace.items():
+                params[name] = draw_sample(p)
+            candidates_list.append(CandidateDescriptor(**params))
+
+        return candidates_list
 
     def execute_solver(self, searchspace):
-        N = self.max_iterations
+        """
+        This function is called immediately after convert_searchspace and get the output of the latter as input. It's
+        purpose is to call the solver libs main optimization function.
+
+        :param searchspace: converted hyperparameter space
+        """
+
+        candidates = self.get_candidates(searchspace)
         try:
-            for n in range(N):
-                params = {}
-                for name, p in searchspace.items():
-                    params[name] = draw_sample(p)
-                self.loss_function(**params)
+            self.loss_function_batch(candidates)
         except Exception as e:
             msg = "internal error in randomsearch execute_solver occured. {}".format(e)
             LOG.error(msg)
@@ -168,5 +194,14 @@ class RandomsearchSolver(HyppopySolver):
         self.best = self._trials.argmin
 
     def convert_searchspace(self, hyperparameter):
+        """
+        This function gets the unified hyppopy-like parameterspace description as input and, if necessary, should
+        convert it into a solver lib specific format. The function is invoked when run is called and what it returns
+        is passed as searchspace argument to the function execute_solver.
+
+        :param hyperparameter: [dict] nested parameter description dict e.g. {'name': {'domain':'uniform', 'data':[0,1], 'type':'float'}, ...}
+
+        :return: [object] converted hyperparameter space
+        """
         LOG.debug("convert input parameter\n\n\t{}\n".format(pformat(hyperparameter)))
         return hyperparameter
