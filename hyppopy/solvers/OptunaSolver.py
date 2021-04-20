@@ -62,7 +62,6 @@ class OptunaSolver(HyppopySolver):
         candidates_list = list()
         N = self.max_iterations
         for n in range(N):
-            print(n)
             # Todo: Ugly hack that does not even work...
             from optuna import trial as trial_module
             # temp_study = optuna.create_study()

@@ -59,7 +59,7 @@ class MPIBlackboxFunction(BlackboxFunction):
         self._mpi_comm = None
 
         if mpi_comm is None:
-            print('MPIBlackboxFunction: No mpi_comm given: Using MPI.COMM_WORLD')
+            LOG.info('MPIBlackboxFunction: No mpi_comm given: Using MPI.COMM_WORLD')
             self._mpi_comm = MPI.COMM_WORLD
         else:
             self._mpi_comm = mpi_comm
@@ -77,7 +77,7 @@ class MPIBlackboxFunction(BlackboxFunction):
         while True:
             for i in range(size - 1):
                 if len(candidates) == len(results):
-                    print('All results received!')
+                    LOG.info('All results received!')
                     return results
                 cand_id, result_dict = self._mpi_comm.recv(source=i + 1, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
                 results[cand_id] = result_dict

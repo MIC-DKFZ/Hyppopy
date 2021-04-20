@@ -38,7 +38,7 @@ class MPISolverWrapper:
         self._solver = solver
         self._mpi_comm = None
         if mpi_comm is None:
-            print('MPISolverWrapper: No mpi_comm given: Using MPI.COMM_WORLD')
+            LOG.info('MPISolverWrapper: No mpi_comm given: Using MPI.COMM_WORLD')
             self._mpi_comm = MPI.COMM_WORLD
         else:
             self._mpi_comm = mpi_comm
@@ -88,7 +88,7 @@ class MPISolverWrapper:
         :return: the evaluated loss of the candidate
         """
         rank = self._mpi_comm.Get_rank()
-        print("Starting worker {}. Waiting for param...".format(rank))
+        LOG.info("Starting worker {}. Waiting for param...".format(rank))
 
         cand_results = dict()
 
@@ -97,23 +97,22 @@ class MPISolverWrapper:
                 candidate = self._mpi_comm.recv(source=0, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)  # Wait here till params are received
 
                 if candidate is None:
-                    print("[RECEIVE] Process {} received finish signal.".format(rank))
+                    LOG.info("[RECEIVE] Process {} received finish signal.".format(rank))
                     return
 
                 # if candidate.ID == 9999:
                 #     comm.gather(losses, root=0)
                 #     continue
 
-                # print("[WORKING] Process {} is actually doing things.".format(rank))
+                LOG.debug("[WORKING] Process {} is actually doing things.".format(rank))
                 cand_id = candidate.ID
                 params = candidate.get_values()
 
-                loss = self._solver.blackbox.blackbox(params)
+                loss = self._solver.blackbox(params)
 
             except Exception as e:
                 msg = "Error in Worker(rank={}): {}".format(rank, e)
                 LOG.error(msg)
-                print(msg)
 
                 loss = np.nan
             finally:
@@ -134,7 +133,7 @@ class MPISolverWrapper:
 
         :return:
         """
-        print('[SEND] signal_worker_finished')
+        LOG.info('[SEND] signal_worker_finished')
         size = self._mpi_comm.Get_size()
         for i in range(size - 1):
             self._mpi_comm.send(None, dest=i + 1, tag=MPI_TAGS.MPI_SEND_CANDIDATE.value)
