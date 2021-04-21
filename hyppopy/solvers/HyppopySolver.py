@@ -265,6 +265,7 @@ class HyppopySolver(object):
         :return: [dict] result e.g. {'loss': 0.5, 'book_time': ..., 'refresh_time': ...}
         """
 
+        exception_occured = False
         results = dict()
         try:
             candidates = self.loss_func_cand_preprocess(candidates)
@@ -273,16 +274,17 @@ class HyppopySolver(object):
                 results = np.nan
             results = self.loss_func_postprocess(results)
         except ZeroDivisionError as e:
-            # Fallback: If call_batch is not supported in BlackboxFunction, we iterate over the candidates in the batch.
             message = "Script not started via MPI:\n {}".format(e)
-            LOG.error(message)
+            LOG.info(message)
+            exception_occured = True
         except Exception as e:
             message = "call_batch not supported in BlackboxFunction:\n {}".format(e)
-            LOG.error(message)
-        finally:
+            LOG.info(message)
+            exception_occured = True
+        if exception_occured:
+            # Fallback: We iterate over the candidates in the batch.
             for i, candidate in enumerate(candidates):
                 cand_id = candidate.ID
-                # params = candidate.get_values()
 
                 cand_results = dict()
                 cand_results['book_time'] = datetime.datetime.now()
