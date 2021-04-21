@@ -108,24 +108,19 @@ class MPISolverWrapper:
                 cand_id = candidate.ID
                 params = candidate.get_values()
 
-                loss = self._solver.blackbox(params)
+                loss = self.blackbox(**params)
 
             except Exception as e:
                 msg = "Error in Worker(rank={}): {}".format(rank, e)
                 LOG.error(msg)
 
                 loss = np.nan
-            finally:
-                cand_results['book_time'] = datetime.datetime.now()
-                cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
-                cand_results['refresh_time'] = datetime.datetime.now()
 
-                cand_results['book_time'] = datetime.datetime.now()
+            cand_results['book_time'] = datetime.datetime.now()
+            cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
+            cand_results['refresh_time'] = datetime.datetime.now()
 
-                cand_results['loss'] = loss  # Write loss to dictionary. This dictionary will be send back to the master via gather
-                cand_results['refresh_time'] = datetime.datetime.now()
-
-                self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
+            self._mpi_comm.send((cand_id, cand_results), dest=0, tag=MPI_TAGS.MPI_SEND_RESULTS.value)
 
     def signal_worker_finished(self):
         """
