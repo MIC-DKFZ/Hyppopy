@@ -116,17 +116,6 @@ class HyppopySolver(object):
         """
         raise NotImplementedError('users must define execute_solver to use this class')
 
-    @abc.abstractmethod
-    def loss_function_batch_call(self, candidates):  # TODO: Delete me...
-        """
-        TODO
-        :param candidates:
-        :return:
-        """
-
-        # TODO This is deprecated! Mark or remove...
-        raise NotImplementedError('users must define loss_function_batch_call to use this class')
-
     def loss_func_cand_preprocess(self, candidates):  # TODO: Delete me...
         """
         TODO
