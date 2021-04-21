@@ -82,14 +82,14 @@ class BlackboxFunction(object):
         """
         try:
             try:
-                return self.blackbox_func(self.data, kwargs)
-            except:
                 return self.blackbox_func(self.data, **kwargs)
+            except:
+                return self.blackbox_func(self.data, kwargs)
         except:
             try:
-                return self.blackbox_func(kwargs)
-            except:
                 return self.blackbox_func(**kwargs)
+            except:
+                return self.blackbox_func(kwargs)
 
     def setup(self, kwargs):
         """
