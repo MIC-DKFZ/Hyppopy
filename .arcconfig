@@ -1,0 +1,8 @@
+{
+  "arc.feature.start.default": "dev",
+  "arc.land.onto": ["dev"],
+  "arc.land.strategy": "merge",
+  "base": "git:merge-base(origin/dev)",
+  "history.immutable": true,
+  "phabricator.uri": "https://phabricator.mitk.org/"
+}
