@@ -118,24 +118,41 @@ def my_loss_function_ver2(x, y, downstream_comm):   # lets assume layout [3,4]
     # finally the loss function has to return the computed loss
     return z
 
+
+
+# @cascade_clean_up is a convenience decorator that can be used to ensures that
+# the clean up code will always be executed at the end of the callback.
+# so basically:
+#    size = downstream_comm.Get_size()
+#    for i in range(size - 1):
+#        downstream_comm.send(termination_msg, dest=i + 1)
+#
+# We could also think to allow to specify a specific msg for each tier layer.
+@cascade_clean_up(termination_msg=None)
 def my_cascade_callback(tier_address, upstream_comm, downstream_comm, blackbox):
     """Example callback that is used for the worker code on subsequent tiers.
        This function is called by MPICascadedSolverWrapper for the respective
        tier.
        If this function returns, it is assumed that the node has finished.
+       As tier 0 is handled by the MPIBlackboxFunction, this callback is used
+       for the working code of all subsequent tiers.
        For tier 0 the function only is called after all evaluations have been
-       made and the optimization process has finished.
-       :param tier_address: address of the node. An address contains each level
-       and looks something like (1,0,2). As tier 0 is handled by the
-       MPIBlackboxFunction, this callback is used for all subsequent tiers.
-              (1)                  (2)          -> "tier0"
+       made and the optimization process has finished, to allow the execution
+       of clean up code (e.g. communicating downstream nodes to stop).
+       :param tier_address: address of the node. An address is the list of upstream
+       ranks (see upstream_comm below) of the node up to the master node of the
+       hierarchy; all in reverse order. So len(tier_address) is always >0 and
+       tier_address[0] is the upstream_comm rank of the current node. tier_address[-1]
+       is the rank of the tier0 node, and so on. The the addresses in a hirarchy
+       would look like:
+              [1]                  [2]          -> "tier0"
             /  |  \              /  |  \
            /   |   \            /   |   \
-       (1,1) (1,2) (1,3)    (2,1) (2,2) (2,3)   -> "tier1"
+       [1,1] [2,1] [3,1]    [1,2] [2,2] [3,2]   -> "tier1"
                   /  |  \
                  /   |   \
                 /    |    \
-          (1,3,1) (1,3,2) (1,3,3)               -> "tier3"
+          [1,3,1] [2,3,1] [3,3,1]               -> "tier3"
        :param upstream_comm: MPI communicator that can be used to communicate
        upstream, so with the tier head node responsible for this node (in the
        role of a worker).
@@ -148,15 +165,14 @@ def my_cascade_callback(tier_address, upstream_comm, downstream_comm, blackbox):
        wrapper).
     """
     # here one can manage the worker code.
-    # Depending on the tier id you can implement different communication patterns
+    # Depending on the tier address you can implement different communication patterns
     # with upstream or downstream as well as the workload code for the node.
     # In this example we only have 2 tiers so only tier 1 will be handled
-    # here and we don't need tier specific logics
-    if len(tier_address) == 1:
-        # worker on tier 0 only reach this point if all evaluations have been done
-        # end it is just about cleaning up and releasing all nodes.
-        pass
-    else:
+    # here with worker code.
+    # Worker on tier 0 (len(tier_address) == 0) only reach this point, if all evaluations
+    # have been done and it is just about cleaning up and releasing all nodes (in this
+    # example the cleaning up is ensured by the decorator cascade_clean_up.
+    if len(tier_address) == 2:
         # Here we are on tier 1 and do the additional computations for the upstream
         while True:
             params = upstream_comm.recv(source=0)
@@ -168,11 +184,6 @@ def my_cascade_callback(tier_address, upstream_comm, downstream_comm, blackbox):
             rank = upstream_comm.Get_rank()
             z = rank + params['x']**2 + params['y']**3
             upstream_comm.send(z, dest=0)
-
-    size = downstream_comm.Get_size()
-    for i in range(size - 1):
-        downstream_comm.send(None, dest=i + 1)
-
 
 # Layout:
 # -> [2*[3*[2]]]== [[2,2,2][2,2,2]]. In the previous notation this would have been [2,3,2].
