@@ -236,9 +236,28 @@ class TestSolver4(HyppopySolver):
         self._add_member("foo", int)
         self._add_member("goo", float)
         self._add_hyperparameter_signature(name="domain", dtype=str,
-                                          options=["uniform", "categorical"])
+                                           options=["uniform", "categorical"])
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
+
+
+class TestSolver5(HyppopySolver):
+    def __init__(self):
+        project = HyppopyProject()
+
+        HyppopySolver.__init__(self, project)
+        self._add_member(name="foo", dtype=int, default=3)
+        self._add_member("goo", float, default=55.5)
+        self._searchspace = None
+
+    def convert_searchspace(self, hyperparameter):
+        pass
+
+    def execute_solver(self, searchspace):
+        pass
+
+    def define_interface(self):
+        pass
 
 
 class TestRunSolver1(HyppopySolver):
@@ -329,6 +348,12 @@ class HyppopySolverTestSuite(unittest.TestCase):
         self.assertRaises(LookupError, TestSolver2)
         self.assertRaises(TypeError, TestSolver3)
         self.assertRaises(LookupError, TestSolver4)
+
+        solver = TestSolver5()
+        self.assertEqual(3, solver.foo)
+        self.assertNotEqual(5, solver.foo)
+        self.assertEqual(55.5, solver.goo)
+        self.assertNotEqual(16.3, solver.goo)
 
     def test_run(self):
         solver = TestRunSolver1()
