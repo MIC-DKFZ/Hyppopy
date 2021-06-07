@@ -172,8 +172,12 @@ class HyppopySolver(object):
         assert isinstance(name, str), "precondition violation, name needs to be of type str, got {}".format(type(name))
         if value is not None:
             assert isinstance(value, dtype), "precondition violation, value does not match dtype condition!"
+        else:
+            value = default
+
         if default is not None:
             assert isinstance(default, dtype), "precondition violation, default does not match dtype condition!"
+
         setattr(self, name, value)
         self._child_members[name] = {"type": dtype, "value": value, "default": default}
 
