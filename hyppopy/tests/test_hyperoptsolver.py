@@ -142,7 +142,7 @@ class HyperoptSolverTestSuite(unittest.TestCase):
                 "C": {
                     "domain": "uniform",
                     "data": [1, 20],
-                    "type": int
+                    "type": float
                 },
                 "gamma": {
                     "domain": "loguniform",
@@ -182,6 +182,13 @@ class HyperoptSolverTestSuite(unittest.TestCase):
         solver = HyperoptSolver(project=project)
         solver.blackbox = blackbox
         solver.run()
+        df, best = solver.get_results()
+
+        for status in df['status']:
+            self.assertTrue(status)
+        for loss in df['losses']:
+            self.assertTrue(isinstance(loss, float))
+
 
 
 if __name__ == '__main__':

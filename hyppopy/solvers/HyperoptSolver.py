@@ -50,6 +50,25 @@ class HyperoptSolver(HyppopySolver):
         self._add_hyperparameter_signature(name="data", dtype=list)
         self._add_hyperparameter_signature(name="type", dtype=type)
 
+    def clamp_parameters(self, params):
+        """
+        helper function, that ensures that all non categorical parameters
+        are within there defined bounds.
+        It seems that this is not always ensured by hyperopt.
+
+        :param params: [dict] hyperparameter set
+
+        :return: [dict] clamped hyperparameters as a copy
+        """
+        clamped_params = params.copy()
+        for name, p in self._searchspace.items():
+            if p["domain"] != "categorical":
+                if clamped_params[name] < p["data"][0]:
+                    clamped_params[name] = p["data"][0]
+                if clamped_params[name] > p["data"][1]:
+                    clamped_params[name] = p["data"][1]
+        return clamped_params
+
     def loss_function(self, params):
         """
         Loss function wrapper function.
@@ -58,12 +77,7 @@ class HyperoptSolver(HyppopySolver):
 
         :return: [float] loss
         """
-        for name, p in self._searchspace.items():
-            if p["domain"] != "categorical":
-                if params[name] < p["data"][0]:
-                    params[name] = p["data"][0]
-                if params[name] > p["data"][1]:
-                    params[name] = p["data"][1]
+        params = self.clamp_parameters(params)
         status = STATUS_FAIL
         try:
             loss = self.blackbox(**params)
@@ -95,14 +109,7 @@ class HyperoptSolver(HyppopySolver):
 
         :return: [float] loss
         """
-        for name, p in self._searchspace.items():
-            if p["domain"] != "categorical":
-                if params[name] < p["data"][0]:
-                    params[name] = p["data"][0]
-                if params[name] > p["data"][1]:
-                    params[name] = p["data"][1]
-
-        return params
+        return self.clamp_parameters(params)
 
     def loss_func_postprocess(self, loss):
         """
@@ -132,11 +139,12 @@ class HyperoptSolver(HyppopySolver):
         self.trials = Trials()
 
         try:
-            self.best = fmin(fn=self.loss_function,
+            hyperopt_best = fmin(fn=self.loss_function,
                              space=searchspace,
                              algo=tpe.suggest,
                              max_evals=self.max_iterations,
                              trials=self.trials)
+            self.best = self.convert_params_from_hyperopt(hyperopt_best)
         except Exception as e:
             msg = "internal error in hyperopt.fmin occured. {}".format(e)
             LOG.error(msg)
@@ -234,3 +242,20 @@ class HyperoptSolver(HyppopySolver):
             msg = "Precondition violation, domain named {} not available!".format(domain)
             LOG.error(msg)
             raise IOError(msg)
+
+    def convert_params_from_hyperopt(self, hyperopt_params):
+        """
+        Convert params of hyperopt search space into gneral hyppopy specification
+
+        :param hyperopt_params: [dict] hyperopt parameter
+
+        :return: [object] hyppopy parameters
+        """
+        result = self.clamp_parameters(hyperopt_params)
+
+        for name, p in self._searchspace.items():
+            if p["domain"] == "categorical":
+                #convert from index (used hyperopt intern) to categorical value
+                result[name] = p['data'][result[name]]
+
+        return result
